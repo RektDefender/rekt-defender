@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKT Token — Tokenomics Whitepaper</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#05050c;--paper:#08081a;--gold:#FFD700;--green:#00E87A;--red:#FF2D55;--blue:#00C4F4;--purple:#9945FF;--white:#F2EDE4;--dim:rgba(242,237,228,0.38);--border:rgba(255,215,0,0.12);}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.75;overflow-x:hidden;}
+
+header{position:relative;padding:80px 0 60px;text-align:center;border-bottom:1px solid var(--border);overflow:hidden;}
+header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(153,69,255,0.18) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 10% 100%,rgba(255,45,85,0.08) 0%,transparent 60%);pointer-events:none;}
+.header-tag{font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.3em;color:var(--green);text-transform:uppercase;margin-bottom:20px;display:block;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,8vw,7rem);letter-spacing:0.06em;line-height:0.95;color:var(--gold);text-shadow:0 0 80px rgba(255,215,0,0.25);}
+h1 span{color:var(--white);font-size:0.5em;display:block;letter-spacing:0.2em;margin-top:8px;}
+.header-meta{display:flex;justify-content:center;gap:40px;margin-top:32px;flex-wrap:wrap;}
+.meta-item{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase;}
+.meta-item b{color:var(--gold);display:block;font-size:0.9rem;margin-bottom:2px;}
+
+/* TRUST BADGES */
+.trust-strip{display:flex;justify-content:center;gap:0;margin-top:32px;flex-wrap:wrap;border:1px solid rgba(0,232,122,0.2);max-width:700px;margin-left:auto;margin-right:auto;}
+.trust-badge{padding:14px 24px;text-align:center;border-right:1px solid rgba(0,232,122,0.15);flex:1;min-width:140px;background:rgba(0,232,122,0.04);}
+.trust-badge:last-child{border-right:none;}
+.tb-icon{font-size:1.4rem;display:block;margin-bottom:6px;}
+.tb-label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;color:var(--green);text-transform:uppercase;}
+
+.toc{position:sticky;top:0;z-index:50;background:rgba(5,5,12,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 0;}
+.toc-inner{max-width:860px;margin:0 auto;padding:0 32px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;}
+.toc-inner::-webkit-scrollbar{display:none;}
+.toc-link{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);text-decoration:none;padding:4px 14px;white-space:nowrap;transition:color 0.15s;border-right:1px solid var(--border);}
+.toc-link:hover{color:var(--gold);}
+.toc-link:last-child{border-right:none;}
+
+.container{max-width:860px;margin:0 auto;padding:0 32px;}
+.section{padding:70px 0 50px;border-bottom:1px solid var(--border);}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.25em;color:var(--green);text-transform:uppercase;margin-bottom:8px;}
+h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3rem);letter-spacing:0.06em;color:var(--white);line-height:1;margin-bottom:28px;}
+h2 em{color:var(--gold);font-style:normal;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.1em;color:var(--gold);margin:32px 0 12px;}
+p{margin-bottom:16px;color:rgba(242,237,228,0.82);}
+p b{color:var(--white);}
+p em{color:var(--gold);font-style:normal;}
+
+.callout{background:rgba(153,69,255,0.06);border-left:3px solid var(--purple);padding:20px 24px;margin:24px 0;font-size:0.95rem;}
+.callout.gold{border-left-color:var(--gold);background:rgba(255,215,0,0.04);}
+.callout.green{border-left-color:var(--green);background:rgba(0,232,122,0.04);}
+.callout.red{border-left-color:var(--red);background:rgba(255,45,85,0.04);}
+.callout-label{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;}
+.callout.gold .callout-label{color:var(--gold);}
+.callout.green .callout-label{color:var(--green);}
+.callout.red .callout-label{color:var(--red);}
+.callout .callout-label{color:var(--purple);}
+
+/* FAIR LAUNCH EXPLAINER */
+.launch-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:2px;margin:32px 0;background:rgba(255,215,0,0.06);}
+.ls-card{background:var(--paper);padding:24px 20px;text-align:center;}
+.ls-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:rgba(255,215,0,0.12);line-height:1;margin-bottom:8px;}
+.ls-icon{font-size:1.8rem;display:block;margin-bottom:10px;}
+.ls-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:6px;}
+.ls-desc{font-size:0.72rem;color:var(--dim);line-height:1.6;}
+.ls-desc b{color:var(--white);}
+
+/* FEE FLOW */
+.fee-flow{margin:32px 0;background:var(--paper);border:1px solid var(--border);padding:28px;}
+.fee-title{font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-bottom:20px;text-align:center;}
+.fee-nodes{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;}
+.fee-node{text-align:center;padding:16px 20px;min-width:110px;}
+.fee-node-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;line-height:1;}
+.fee-node-label{font-family:'JetBrains Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;color:var(--dim);text-transform:uppercase;margin-top:4px;}
+.fee-arrow{font-size:1.2rem;color:var(--dim);padding:0 4px;flex-shrink:0;}
+
+/* DATA TABLE */
+.data-table{width:100%;border-collapse:collapse;margin:24px 0;font-size:0.85rem;}
+.data-table th{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+.data-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(242,237,228,0.75);font-family:'JetBrains Mono',monospace;font-size:0.72rem;}
+.data-table tr:hover td{background:rgba(255,215,0,0.02);}
+.data-table td:first-child{color:var(--white);}
+.data-table td.green{color:var(--green);}
+.data-table td.red{color:var(--red);}
+.data-table td.gold{color:var(--gold);}
+.data-table td.blue{color:var(--blue);}
+
+/* PRIZE PODIUM */
+.prize-big{display:flex;flex-direction:column;gap:2px;margin:32px 0;}
+.pb-row{display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--paper);border-left:3px solid transparent;}
+.pb-row.gold{border-left-color:var(--gold);}
+.pb-row.silver{border-left-color:#C0C0C0;}
+.pb-row.bronze{border-left-color:#CD7F32;}
+.pb-medal{font-size:1.8rem;}
+.pb-info{flex:1;}
+.pb-place{font-size:0.55rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;}
+.pb-pct{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;}
+
+/* TIMELINE */
+.timeline{position:relative;margin:32px 0;padding-left:28px;}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--gold),rgba(255,215,0,0.1));}
+.tl-item{position:relative;margin-bottom:32px;}
+.tl-item::before{content:'';position:absolute;left:-32px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px rgba(255,215,0,0.4);}
+.tl-phase{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:var(--green);text-transform:uppercase;margin-bottom:4px;}
+.tl-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.08em;color:var(--gold);margin-bottom:8px;}
+.tl-body{font-size:0.9rem;color:var(--dim);line-height:1.7;}
+.tl-body b{color:var(--white);}
+
+/* RISK GRID */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:24px 0;background:rgba(255,45,85,0.05);}
+.risk-card{background:var(--paper);padding:20px;}
+.risk-title{font-family:'JetBrains Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;color:var(--red);text-transform:uppercase;margin-bottom:8px;}
+.risk-body{font-size:0.82rem;color:var(--dim);line-height:1.6;}
+.risk-mitigation{font-size:0.78rem;color:var(--green);margin-top:8px;}
+@media(max-width:600px){.risk-grid{grid-template-columns:1fr;}.launch-steps{grid-template-columns:1fr;}}
+
+/* SUMMARY BOX */
+.summary-box{background:var(--paper);border:1px solid var(--border);padding:36px;margin-top:40px;position:relative;}
+.summary-box::before{content:'TLDR';position:absolute;top:-12px;left:24px;background:var(--gold);color:var(--bg);font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:700;letter-spacing:0.15em;padding:2px 12px;}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px;}
+.sg-item{border-left:2px solid var(--border);padding-left:14px;}
+.sg-label{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;color:var(--dim);text-transform:uppercase;margin-bottom:4px;}
+.sg-value{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.06em;}
+
+/* BIG STAT ROW */
+.big-stats{display:flex;gap:2px;margin:32px 0;background:rgba(255,215,0,0.06);}
+.bs-item{flex:1;background:var(--paper);padding:24px;text-align:center;}
+.bs-val{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;line-height:1;margin-bottom:4px;}
+.bs-label{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;color:var(--dim);text-transform:uppercase;}
+@media(max-width:600px){.big-stats{flex-direction:column;}.summary-grid{grid-template-columns:1fr;}}
+
+footer{padding:48px 32px;text-align:center;border-top:1px solid var(--border);}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px;}
+.footer-disc{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--dim);letter-spacing:0.06em;line-height:1.9;max-width:600px;margin:0 auto;}
+.back-link{font-family:'JetBrains Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;color:var(--gold);text-decoration:none;display:inline-block;margin-bottom:32px;text-transform:uppercase;}
+.back-link:hover{color:var(--green);}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="header-tag">Rekt Defender · REKT Token · Tokenomics Whitepaper v2.0</span>
+  <h1>REKT TOKEN<span>Economic Design & Sustainability Model</span></h1>
+
+  <div class="header-meta">
+    <div class="meta-item"><b>REKT</b>Ticker</div>
+    <div class="meta-item"><b>1,000,000,000</b>Fixed Supply</div>
+    <div class="meta-item"><b>Solana</b>Network</div>
+    <div class="meta-item"><b>Hey.LOL</b>Launch Platform</div>
+    <div class="meta-item"><b>0.10 USDC</b>Cost Per Game</div>
+    <div class="meta-item"><b>Weekly</b>Prize Payouts</div>
+  </div>
+
+  <!-- TRUST BADGES -->
+  <div class="trust-strip" style="margin-top:32px;">
+    <div class="trust-badge">
+      <span class="tb-icon">🔒</span>
+      <div class="tb-label">LP Locked Permanently</div>
+    </div>
+    <div class="trust-badge">
+      <span class="tb-icon">🚫</span>
+      <div class="tb-label">Zero Team Tokens</div>
+    </div>
+    <div class="trust-badge">
+      <span class="tb-icon">🔥</span>
+      <div class="tb-label">Mint Authority Revoked</div>
+    </div>
+    <div class="trust-badge">
+      <span class="tb-icon">⚖️</span>
+      <div class="tb-label">Fair Launch Only</div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a class="toc-link" href="#overview">Overview</a>
+    <a class="toc-link" href="#fairlaunch">Fair Launch</a>
+    <a class="toc-link" href="#fee-model">Fee Model</a>
+    <a class="toc-link" href="#prizes">Prizes</a>
+    <a class="toc-link" href="#burn">Burns</a>
+    <a class="toc-link" href="#phases">Phases</a>
+    <a class="toc-link" href="#risks">Risks</a>
+    <a class="toc-link" href="#summary">Summary</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<section class="section" id="overview">
+  <div class="section-num">Section 01</div>
+  <h2>THE PROBLEM WE'RE <em>SOLVING</em></h2>
+
+  <p>Every play-to-earn game faces the same fundamental tension: players earn tokens and sell them immediately, creating constant downward price pressure. <b>If more tokens leave the economy than enter it, the price falls. Prizes become worthless. Players stop playing.</b> This death spiral killed Axie Infinity, Pegaxy, and hundreds of others between 2022 and 2025.</p>
+
+  <p>The research is clear on what sustainable 2025-2026 models look like. <b>Gameplay comes first. Tokens are tools within the experience, not the reason to play.</b> And critically — every token that flows out needs real buy pressure flowing in.</p>
+
+  <div class="callout red">
+    <div class="callout-label">⚠ What we are avoiding</div>
+    Minting REKT as prizes from thin air. No treasury allocation. No team tokens. No printing. Every REKT that enters circulation as a prize was first purchased from the open market using real USDC from game fees.
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">✓ What we are building</div>
+    A circular economy where <b>every game played creates real buy pressure</b> on REKT (50% of fees → market buyback), <b>supply permanently shrinks</b> over time (20% burn every game), and operations are funded by game revenue alone — not by selling tokens. <b>The dev team holds zero REKT and cannot hurt the token price.</b>
+  </div>
+
+  <h3>The Core Decision: Charge USDC, Reward REKT</h3>
+
+  <p>Players pay <em>0.10 USDC</em> per game — a stablecoin everyone already holds. This removes the barrier of needing REKT before trying the game. But <b>every USDC fee automatically creates buy pressure on REKT</b>: 50% is used to buy REKT off the open market for prizes, and 20% buys REKT and burns it permanently.</p>
+
+  <p>The more people play → the more REKT gets bought → the higher the price → the more valuable the prizes → the more people want to play. <b>This is the virtuous cycle.</b></p>
+
+  <div class="big-stats">
+    <div class="bs-item">
+      <div class="bs-val" style="color:var(--green);">50%</div>
+      <div class="bs-label">Prize buyback every game</div>
+    </div>
+    <div class="bs-item">
+      <div class="bs-val" style="color:var(--red);">20%</div>
+      <div class="bs-label">Burned forever every game</div>
+    </div>
+    <div class="bs-item">
+      <div class="bs-val" style="color:var(--blue);">30%</div>
+      <div class="bs-label">Dev & ops from fees only</div>
+    </div>
+    <div class="bs-item">
+      <div class="bs-val" style="color:var(--gold);">0</div>
+      <div class="bs-label">Team token allocation</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAIR LAUNCH -->
+<section class="section" id="fairlaunch">
+  <div class="section-num">Section 02</div>
+  <h2>THE <em>FAIR LAUNCH</em> MODEL</h2>
+
+  <p>REKT launches on <em>Hey.LOL</em> using a fair launch bonding curve — the same proven model popularised by Pump.fun on Solana. There is <b>no presale, no team allocation, no VC bags, no whitelist, no early access for anyone.</b> Every single person who buys REKT — including the dev team — buys it from the open market at the same price as everyone else.</p>
+
+  <div class="launch-steps">
+    <div class="ls-card">
+      <div class="ls-num">01</div>
+      <span class="ls-icon">🚀</span>
+      <div class="ls-title">TOKEN LAUNCHES</div>
+      <div class="ls-desc">REKT goes live on Hey.LOL with a <b>bonding curve</b>. Price starts low and rises automatically as people buy. Equal access for everyone from the first second.</div>
+    </div>
+    <div class="ls-card">
+      <div class="ls-num">02</div>
+      <span class="ls-icon">📈</span>
+      <div class="ls-title">BONDING CURVE</div>
+      <div class="ls-desc">As buyers come in, the price increases along the curve. <b>Early buyers get lower prices</b> — a natural reward for early community members, not insider allocation.</div>
+    </div>
+    <div class="ls-card">
+      <div class="ls-num">03</div>
+      <span class="ls-icon">💧</span>
+      <div class="ls-title">LP MIGRATES</div>
+      <div class="ls-desc">When the bonding curve completes, liquidity <b>automatically migrates to Jupiter DEX</b>. The LP is then <b>locked permanently</b> — it cannot be removed. Ever.</div>
+    </div>
+    <div class="ls-card">
+      <div class="ls-num">04</div>
+      <span class="ls-icon">🔥</span>
+      <div class="ls-title">MINT REVOKED</div>
+      <div class="ls-desc">Mint authority is <b>permanently revoked on launch</b>. No additional REKT can ever be created beyond the initial 1 billion supply. Verified on-chain by anyone.</div>
+    </div>
+  </div>
+
+  <h3>Why the Dev Team Holds Zero Tokens</h3>
+
+  <p>This is deliberate and important. <b>The dev team does not receive any REKT allocation.</b> If we want REKT, we buy it from the market like everyone else. This means we have no ability to dump tokens on the community — because we have no tokens to dump.</p>
+
+  <p>Developer revenue comes entirely from the <em>30% treasury cut of game fees</em>. The only way we make money is if people play the game. <b>Our incentives are perfectly aligned with yours: we need the game to be good and the token to hold value, because that's what keeps people playing and paying fees.</b></p>
+
+  <div class="callout green">
+    <div class="callout-label">✓ What this means for you</div>
+    <b>No team dump risk.</b> No vesting schedule that unlocks and crashes the price. No insider bags being sold on your buys. The dev team's only financial upside is game volume — which only grows if you love playing. This is as aligned as it gets.
+  </div>
+
+  <h3>Permanently Locked Liquidity</h3>
+
+  <p>Once liquidity migrates from the bonding curve to Jupiter, it is <b>locked permanently</b> — not for 12 months, not for 24 months. Permanently. The lock contract address will be published and verifiable by anyone on Solana Explorer. There is no mechanism to remove this liquidity. <b>REKT will always be tradeable.</b></p>
+
+  <div class="callout gold">
+    <div class="callout-label">🔒 Verification</div>
+    LP lock address, mint revocation transaction, and all on-chain actions will be published in the Rekt Defender Telegram and on this page the moment they occur. Trust nothing — verify everything on-chain yourself.
+  </div>
+</section>
+
+<!-- FEE MODEL -->
+<section class="section" id="fee-model">
+  <div class="section-num">Section 03</div>
+  <h2>THE <em>FEE FLOW</em> MODEL</h2>
+
+  <p>Every 0.10 USDC game fee is split three ways automatically. No manual intervention per game. The split is hardcoded into the payment flow from day one.</p>
+
+  <div class="fee-flow">
+    <div class="fee-title">Where your 0.10 USDC goes — every single game</div>
+    <div class="fee-nodes">
+      <div class="fee-node">
+        <div class="fee-node-val" style="color:var(--gold);">$0.10</div>
+        <div class="fee-node-label">Game Fee (USDC)</div>
+      </div>
+      <div class="fee-arrow">→</div>
+      <div class="fee-node" style="background:rgba(0,232,122,0.06);border:1px solid rgba(0,232,122,0.2);">
+        <div class="fee-node-val" style="color:var(--green);">$0.05</div>
+        <div class="fee-node-label">50% · Prize Buyback</div>
+      </div>
+      <div class="fee-arrow">+</div>
+      <div class="fee-node" style="background:rgba(255,45,85,0.06);border:1px solid rgba(255,45,85,0.2);">
+        <div class="fee-node-val" style="color:var(--red);">$0.02</div>
+        <div class="fee-node-label">20% · Burn Forever 🔥</div>
+      </div>
+      <div class="fee-arrow">+</div>
+      <div class="fee-node" style="background:rgba(0,196,244,0.06);border:1px solid rgba(0,196,244,0.2);">
+        <div class="fee-node-val" style="color:var(--blue);">$0.03</div>
+        <div class="fee-node-label">30% · Dev & Ops</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Breaking Down Each Split</h3>
+
+  <p><b>50% — Weekly Prize Buyback.</b> This USDC goes to Jupiter DEX and buys REKT off the open market at current price. That REKT is held in the weekly prize pool and distributed to the top 3 players on Monday. <b>Every game = a real market buy order on REKT.</b> 500 games a week = 500 buy orders. This is the primary buy pressure mechanism.</p>
+
+  <p><b>20% — Permanent Burn.</b> This USDC also buys REKT on the open market, then sends it immediately to a verifiable dead wallet. Gone forever. With a fixed 1 billion supply and ongoing burns, circulating supply decreases with every game played. Burns are publicly announced and verifiable on-chain.</p>
+
+  <p><b>30% — Development & Operations.</b> This is how the dev team is paid — entirely from game revenue, not from selling tokens. Covers server hosting, development work, marketing, legal, and keeping the game running and improving. Transparent and necessary. Without this the game dies and so does the token.</p>
+
+  <div class="callout green">
+    <div class="callout-label">📊 Buy pressure at volume</div>
+    At <b>500 games/week</b>: $25/wk prize buyback + $10/wk burned = $35/wk in REKT buy pressure<br>
+    At <b>2,000 games/week</b>: $100/wk prize buyback + $40/wk burned = $140/wk in REKT buy pressure<br>
+    At <b>10,000 games/week</b>: $500/wk prizes + $200/wk burned = <b>$36,400/year in REKT permanently removed from supply</b>
+  </div>
+</section>
+
+<!-- PRIZES -->
+<section class="section" id="prizes">
+  <div class="section-num">Section 04</div>
+  <h2>WEEKLY <em>PRIZE</em> STRUCTURE</h2>
+
+  <p>Prizes reset every week. <b>Best single game score</b> counts — not cumulative. This rewards genuine skill in a single session rather than whoever plays the most hours. Leaderboard resets every Monday at 00:00 UTC. Winners paid within 24 hours.</p>
+
+  <div class="prize-big">
+    <div class="pb-row gold">
+      <div class="pb-medal">🥇</div>
+      <div class="pb-info">
+        <div class="pb-place">1st place — Best single game score this week</div>
+        <div class="pb-pct" style="color:var(--gold);">60% OF WEEKLY POOL</div>
+      </div>
+    </div>
+    <div class="pb-row silver">
+      <div class="pb-medal">🥈</div>
+      <div class="pb-info">
+        <div class="pb-place">2nd place — Best single game score this week</div>
+        <div class="pb-pct" style="color:#C0C0C0;">30% OF WEEKLY POOL</div>
+      </div>
+    </div>
+    <div class="pb-row bronze">
+      <div class="pb-medal">🥉</div>
+      <div class="pb-info">
+        <div class="pb-place">3rd place — Best single game score this week</div>
+        <div class="pb-pct" style="color:#CD7F32;">10% OF WEEKLY POOL</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>Place</th><th>Split</th><th>@ 500 games/wk</th><th>@ 2,000 games/wk</th><th>@ 10,000 games/wk</th></tr></thead>
+    <tbody>
+      <tr><td>🥇 1st</td><td class="gold">60%</td><td>~$15 in REKT</td><td>~$60 in REKT</td><td>~$300 in REKT</td></tr>
+      <tr><td>🥈 2nd</td><td style="color:#C0C0C0;">30%</td><td>~$7.50 in REKT</td><td>~$30 in REKT</td><td>~$150 in REKT</td></tr>
+      <tr><td>🥉 3rd</td><td style="color:#CD7F32;">10%</td><td>~$2.50 in REKT</td><td>~$10 in REKT</td><td>~$50 in REKT</td></tr>
+    </tbody>
+  </table>
+
+  <p>Prize values in USD depend on REKT token price at time of payout. A rising price = rising prize values = more players = more buy pressure = rising price. The cycle compounds over time.</p>
+
+  <h3>Hall of Fame — Permanent Winner Record</h3>
+  <p>Every weekly winner is recorded permanently on the Rekt Defender website and in this document: wallet address, score achieved, week, and REKT amount paid. <b>This is a public, immutable record.</b> Anyone can verify prizes were paid. No winner is ever forgotten or unpaid without the community seeing it immediately. This is how we build trust — not promises, but receipts.</p>
+</section>
+
+<!-- BURN -->
+<section class="section" id="burn">
+  <div class="section-num">Section 05</div>
+  <h2>THE <em>BURN</em> MECHANISM</h2>
+
+  <p>20% of every game fee is used to buy REKT on the open market and send it to a publicly verified dead wallet — permanently removing it from circulating supply. This is automatic, not manual. It happens with every single game played.</p>
+
+  <p>With a fixed supply of 1 billion REKT and no ability to mint more (authority permanently revoked), ongoing burns mean the total circulating supply decreases over time. If demand stays constant and supply falls, each remaining REKT represents a larger share of the total ecosystem.</p>
+
+  <h3>Milestone Burns</h3>
+  <p>In addition to per-game burns, milestone burn events will be announced publicly and executed on-chain at key volume milestones. These are marketing events as much as economic ones — each burn gets announced on Twitter/X and Telegram, creating community moments that drive visibility.</p>
+
+  <table class="data-table">
+    <thead><tr><th>Milestone</th><th>Burn Amount</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Token Launch Day</td><td class="red">Burn event announced</td><td>Sets the deflationary tone from day one</td></tr>
+      <tr><td>1,000 Games Played</td><td class="red">Community milestone burn</td><td>First major proof of traction</td></tr>
+      <tr><td>10,000 Games Played</td><td class="red">Significant burn event</td><td>Demonstrates real sustained volume</td></tr>
+      <tr><td>50,000 Games Played</td><td class="red">Major burn event</td><td>Full ecosystem momentum</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout red">
+    <div class="callout-label">🔥 Burn transparency</div>
+    Every burn — per-game and milestone — is executed on-chain and verifiable by anyone. The dead wallet address will be published on launch day. Burn transaction links will be posted publicly in Telegram and Twitter/X as they occur. No trust required — verify every burn yourself on Solana Explorer.
+  </div>
+</section>
+
+<!-- PHASES -->
+<section class="section" id="phases">
+  <div class="section-num">Section 06</div>
+  <h2>LAUNCH <em>PHASES</em></h2>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-phase">Phase 1 · Now — Pre Launch</div>
+      <div class="tl-title">BUILD IN PUBLIC</div>
+      <div class="tl-body">Game live at <b>RektDefender.LOL in demo mode — free to play.</b> No token yet. Building community on Twitter/X and Telegram. Getting players familiar with the game before money is involved. Collecting wallet waitlist. Generating organic buzz so launch day has a real audience, not an empty room.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-phase">Phase 2 · Token Launch</div>
+      <div class="tl-title">REKT GOES LIVE ON HEY.LOL</div>
+      <div class="tl-body">Fair launch on Hey.LOL bonding curve. <b>No presale. No team allocation. Equal access for everyone.</b> LP locked permanently the moment it migrates to Jupiter. Mint authority revoked. All actions published on-chain. x402 payment gate activated — 0.10 USDC per game. First weekly leaderboard starts. Prizes begin flowing. Launch day burn event announced.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-phase">Phase 3 · Growth</div>
+      <div class="tl-title">COMMUNITY & VOLUME</div>
+      <div class="tl-body">Milestone burns at volume targets. Additional DEX listings if trading volume supports it. Influencer and community outreach in crypto gaming circles. <b>Referral system:</b> refer a player → earn a share of their game fees in REKT — pure viral growth at zero extra cost. Weekly winner announcements drive ongoing social engagement and FOMO.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-phase">Phase 4 · Scale</div>
+      <div class="tl-title">AUTOMATE & EXPAND</div>
+      <div class="tl-body">At sufficient volume, <b>automate prize payouts via smart contract</b> — removes the manual Monday payout step entirely. Explore additional game modes and seasonal tournament events. Consider CEX listings based on community size and 30-day trading volume. Governance: let REKT holders vote on game decisions.</div>
+    </div>
+  </div>
+</section>
+
+<!-- RISKS -->
+<section class="section" id="risks">
+  <div class="section-num">Section 07</div>
+  <h2>RISKS &amp; <em>MITIGATIONS</em></h2>
+
+  <div class="risk-grid">
+    <div class="risk-card">
+      <div class="risk-title">⚠ Low player volume</div>
+      <div class="risk-body">If not enough people play, prize pool stays small, prizes are unattractive, flywheel never spins up.</div>
+      <div class="risk-mitigation">→ Demo mode builds audience before launch. Low cost ($0.10) minimises friction. Hey.LOL provides built-in crypto-native audience.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-title">⚠ Winner sell pressure</div>
+      <div class="risk-body">Winners receiving REKT may immediately sell, creating downward price pressure each week.</div>
+      <div class="risk-mitigation">→ Burn mechanism creates constant counterweight. Buyback creates buy pressure before any selling. Rising price over time makes holding more attractive than immediate selling.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-title">⚠ Bonding curve sniping</div>
+      <div class="risk-body">Bots buying large amounts at launch to dump immediately on retail buyers.</div>
+      <div class="risk-mitigation">→ This is a known risk with fair launches. Community-first approach and building a genuine audience before launch reduces sniper impact. Small initial curve size limits early damage.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-title">⚠ Score cheating</div>
+      <div class="risk-body">Players manipulating scores could drain the prize pool and destroy trust in the competition.</div>
+      <div class="risk-mitigation">→ Server-side session validation from day one. Every score requires a verified paid session ID. Manual review of anomalous top scores before paying out.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-title">⚠ Regulatory risk</div>
+      <div class="risk-body">Pay-to-play with prizes may be classified as gambling in some jurisdictions.</div>
+      <div class="risk-mitigation">→ Framed as a skill competition — score depends entirely on ability, not chance. Geo-restrict high-risk jurisdictions initially. Legal review before major marketing spend.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-title">⚠ Game stops being fun</div>
+      <div class="risk-body">If the game itself isn't enjoyable, no tokenomics model in the world will keep people playing.</div>
+      <div class="risk-mitigation">→ This is the most important risk. Ongoing game development funded by treasury. Community feedback drives improvements. Gameplay always comes first.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="section" id="summary">
+  <div class="section-num">Section 08</div>
+  <h2>THE FULL <em>PICTURE</em></h2>
+
+  <p>Someone finds Rekt Defender. Plays demo mode. Enjoys it. Buys some REKT on Hey.LOL. Connects wallet. Pays 0.10 USDC to play for real. That 0.10 USDC instantly triggers a REKT buy order for prizes (50%), a REKT buy and permanent burn (20%), and treasury funding (30%). They score high. Monday comes. They win REKT. They tell a friend. The friend plays. More USDC flows in. More REKT gets bought and burned. Price rises. Prizes are worth more in USD terms. More people want to compete.</p>
+
+  <p><b>The dev team makes money only if people play. People only play if the game is fun and prizes feel worth winning. Prizes only feel worth winning if the token holds value. The token only holds value if people keep playing.</b> Every incentive points in the same direction.</p>
+
+  <div class="summary-box">
+    <div class="summary-grid">
+      <div class="sg-item"><div class="sg-label">Token</div><div class="sg-value" style="color:var(--gold);">REKT — 1,000,000,000 Fixed</div></div>
+      <div class="sg-item"><div class="sg-label">Network</div><div class="sg-value" style="color:var(--blue);">Solana</div></div>
+      <div class="sg-item"><div class="sg-label">Launch</div><div class="sg-value" style="color:var(--purple);">Fair Launch via Hey.LOL</div></div>
+      <div class="sg-item"><div class="sg-label">Team Allocation</div><div class="sg-value" style="color:var(--red);">ZERO — None</div></div>
+      <div class="sg-item"><div class="sg-label">LP Lock</div><div class="sg-value" style="color:var(--green);">Permanent — Forever</div></div>
+      <div class="sg-item"><div class="sg-label">Mint Authority</div><div class="sg-value" style="color:var(--red);">Revoked on Launch</div></div>
+      <div class="sg-item"><div class="sg-label">Entry Cost</div><div class="sg-value" style="color:var(--gold);">0.10 USDC per game</div></div>
+      <div class="sg-item"><div class="sg-label">Payment Method</div><div class="sg-value" style="color:var(--purple);">x402 / OpenFacilitator</div></div>
+      <div class="sg-item"><div class="sg-label">Prize Buyback</div><div class="sg-value" style="color:var(--green);">50% of every fee</div></div>
+      <div class="sg-item"><div class="sg-label">Burn Rate</div><div class="sg-value" style="color:var(--red);">20% of every fee 🔥</div></div>
+      <div class="sg-item"><div class="sg-label">Dev Revenue</div><div class="sg-value" style="color:var(--blue);">30% of game fees only</div></div>
+      <div class="sg-item"><div class="sg-label">Winners</div><div class="sg-value" style="color:var(--gold);">Weekly Top 3 (60/30/10%)</div></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <a href="index.html" class="back-link">← Back to RektDefender.LOL</a>
+  <div class="footer-logo">REKT DEFENDER</div>
+  <div class="footer-disc">
+    This document is a design framework for REKT token economics — not a financial prospectus or investment advice.<br>
+    REKT has no guaranteed value. Crypto assets carry significant risk. Do your own research. Verify everything on-chain.<br>
+    We are not your financial advisor. Not your lawyer. Not your mum. gm. 🌅
+  </div>
+</footer>
+
+<script>
+const sections=document.querySelectorAll('.section');
+const links=document.querySelectorAll('.toc-link');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-120)current=s.id;});
+  links.forEach(l=>{l.style.color=l.getAttribute('href')==='#'+current?'var(--gold)':'';});
+});
+</script>
+</body>
+</html>
