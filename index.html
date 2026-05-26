@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKT DEFENDER — Defend Your Bags. Win REKT.</title>
+<meta name="description" content="The crypto skill game where your reflexes pay your bills. Shoot FUD, dodge rugs, win REKT tokens every week.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#07070f;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;
+  --blue:#00D4FF;--purple:#9945FF;--orange:#FF6B00;--white:#F0EBE3;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'JetBrains Mono',monospace;overflow-x:hidden;}
+
+/* TICKER */
+.ticker{background:var(--gold);color:var(--bg);font-size:0.7rem;font-weight:700;letter-spacing:0.1em;padding:6px 0;overflow:hidden;white-space:nowrap;position:sticky;top:0;z-index:100;}
+.ticker-inner{display:inline-block;animation:ticker 28s linear infinite;}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* NAV */
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 48px;border-bottom:1px solid rgba(255,215,0,0.1);position:sticky;top:29px;z-index:90;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.1em;color:var(--gold);text-decoration:none;text-shadow:0 0 20px rgba(255,215,0,0.4);}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;gap:32px;align-items:center;}
+.nav-links a{color:rgba(240,235,227,0.6);text-decoration:none;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;transition:color 0.15s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-cta{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.15em;padding:8px 24px;background:var(--gold);color:var(--bg);text-decoration:none;transition:all 0.15s;display:inline-block;}
+.nav-cta:hover{background:var(--green);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,255,136,0.3);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(153,69,255,0.12) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 20% 80%,rgba(255,45,85,0.08) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 80% 60%,rgba(0,212,255,0.06) 0%,transparent 60%);pointer-events:none;}
+.floater{position:absolute;font-size:2rem;animation:float linear infinite;pointer-events:none;opacity:0.15;user-select:none;}
+@keyframes float{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-100px) rotate(360deg);}}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.3em;color:var(--green);text-transform:uppercase;margin-bottom:16px;animation:fadeUp 0.6s ease both;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,12vw,9rem);line-height:0.9;letter-spacing:0.02em;animation:fadeUp 0.6s 0.1s ease both;position:relative;}
+.hero-title .line1{color:var(--gold);text-shadow:0 0 60px rgba(255,215,0,0.3);display:block;}
+.hero-title .line2{color:var(--red);display:block;font-size:0.55em;letter-spacing:0.15em;}
+.hero-badge{display:inline-block;background:var(--red);color:#fff;font-family:'Permanent Marker',cursive;font-size:1rem;padding:6px 16px;transform:rotate(-2deg);margin:16px 0;box-shadow:3px 3px 0 rgba(0,0,0,0.4);animation:fadeUp 0.6s 0.2s ease both;}
+.hero-sub{font-size:clamp(0.8rem,2vw,1rem);color:rgba(240,235,227,0.6);max-width:560px;line-height:1.8;margin-bottom:36px;animation:fadeUp 0.6s 0.3s ease both;}
+.hero-sub b{color:var(--gold);}
+.hero-buttons{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s 0.4s ease both;}
+.btn-primary{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.2em;padding:14px 48px;background:var(--gold);color:var(--bg);text-decoration:none;display:inline-block;position:relative;transition:all 0.15s;box-shadow:4px 4px 0 rgba(255,215,0,0.2);}
+.btn-primary:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(255,215,0,0.3);}
+.btn-primary::after{content:'🚀';margin-left:8px;}
+.btn-secondary{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.2em;padding:14px 48px;background:transparent;color:var(--white);text-decoration:none;display:inline-block;border:1px solid rgba(240,235,227,0.3);transition:all 0.15s;}
+.btn-secondary:hover{border-color:var(--white);transform:translateY(-2px);}
+.stats-strip{display:flex;gap:0;border:1px solid rgba(255,215,0,0.15);margin-top:60px;animation:fadeUp 0.6s 0.5s ease both;flex-wrap:wrap;justify-content:center;}
+.strip-stat{padding:16px 32px;text-align:center;border-right:1px solid rgba(255,215,0,0.1);min-width:160px;}
+.strip-stat:last-child{border-right:none;}
+.ss-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);display:block;text-shadow:0 0 20px rgba(255,215,0,0.3);}
+.ss-label{font-size:0.55rem;letter-spacing:0.2em;color:rgba(240,235,227,0.4);text-transform:uppercase;margin-top:2px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* DEMO BANNER */
+.demo-banner{background:rgba(153,69,255,0.15);border:1px solid rgba(153,69,255,0.4);padding:14px 24px;text-align:center;font-size:0.72rem;letter-spacing:0.1em;color:var(--purple);margin:0;}
+.demo-banner b{color:var(--white);}
+.demo-banner a{color:var(--gold);text-decoration:none;}
+
+/* SECTIONS */
+section{padding:100px 48px;max-width:1100px;margin:0 auto;}
+.section-label{font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--green);margin-bottom:12px;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,4.5rem);line-height:1;letter-spacing:0.05em;}
+
+/* HOW IT WORKS */
+.how-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;margin-top:48px;background:rgba(255,215,0,0.06);}
+.how-card{background:var(--bg);padding:32px 28px;position:relative;transition:background 0.2s;}
+.how-card:hover{background:#0d0d1a;}
+.how-num{font-family:'Bebas Neue',sans-serif;font-size:4rem;color:rgba(255,215,0,0.08);line-height:1;position:absolute;top:16px;right:20px;}
+.how-emoji{font-size:2.5rem;margin-bottom:16px;display:block;}
+.how-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:8px;}
+.how-desc{font-size:0.75rem;line-height:1.8;color:rgba(240,235,227,0.55);}
+.how-desc b{color:var(--white);}
+
+/* ENEMIES */
+.enemies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:2px;margin-top:48px;background:rgba(255,45,85,0.06);}
+.enemy-card{background:var(--bg);padding:24px 20px;text-align:center;transition:all 0.15s;}
+.enemy-card:hover{background:#110a0a;transform:translateY(-2px);}
+.enemy-emoji{font-size:2.8rem;display:block;margin-bottom:12px;}
+.enemy-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.1em;margin-bottom:4px;}
+.enemy-pts{font-size:0.6rem;letter-spacing:0.15em;color:var(--green);margin-bottom:8px;}
+.enemy-desc{font-size:0.62rem;color:rgba(240,235,227,0.4);line-height:1.6;font-style:italic;}
+
+/* PRIZES */
+.prizes-wrap{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;}
+.prize-podium{display:flex;flex-direction:column;gap:2px;}
+.podium-row{display:flex;align-items:center;gap:16px;padding:20px 24px;background:#0d0d1a;border-left:3px solid transparent;transition:all 0.15s;}
+.podium-row:hover{transform:translateX(4px);}
+.podium-row.gold-row{border-left-color:var(--gold);}
+.podium-row.silver-row{border-left-color:#C0C0C0;}
+.podium-row.bronze-row{border-left-color:#CD7F32;}
+.podium-medal{font-size:1.8rem;}
+.podium-info{flex:1;}
+.podium-place{font-size:0.55rem;letter-spacing:0.2em;color:rgba(240,235,227,0.4);text-transform:uppercase;}
+.podium-pct{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;}
+.podium-desc{font-size:0.65rem;color:rgba(240,235,227,0.4);}
+.prize-rules{background:#0d0d1a;padding:28px;border:1px solid rgba(255,215,0,0.08);}
+.prize-rules h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:20px;}
+.rule-item{display:flex;gap:12px;margin-bottom:16px;font-size:0.7rem;line-height:1.7;color:rgba(240,235,227,0.6);}
+.rule-icon{flex-shrink:0;font-size:1rem;}
+.rule-item b{color:var(--white);}
+
+/* TOKENOMICS */
+.token-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:48px;background:rgba(255,215,0,0.06);}
+.token-card{background:var(--bg);padding:28px;text-align:center;}
+.token-pct{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;line-height:1;margin-bottom:8px;}
+.token-label{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.1em;margin-bottom:8px;}
+.token-desc{font-size:0.68rem;color:rgba(240,235,227,0.45);line-height:1.7;}
+.token-desc b{color:var(--white);}
+
+/* LEADERBOARD */
+.lb-tabs{display:flex;gap:0;margin-top:48px;border-bottom:1px solid rgba(255,215,0,0.12);}
+.lb-tab{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.15em;padding:10px 24px;cursor:pointer;color:rgba(240,235,227,0.4);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;}
+.lb-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.lb-panel{display:none;background:#0d0d1a;border:1px solid rgba(255,215,0,0.08);border-top:none;}
+.lb-panel.active{display:block;}
+.lb-header-row{display:flex;padding:10px 24px;border-bottom:1px solid rgba(255,215,0,0.06);font-size:0.55rem;letter-spacing:0.2em;color:rgba(240,235,227,0.3);text-transform:uppercase;gap:16px;}
+.lb-row-item{display:flex;align-items:center;padding:14px 24px;border-bottom:1px solid rgba(255,215,0,0.04);gap:16px;transition:background 0.1s;font-size:0.72rem;}
+.lb-row-item:hover{background:rgba(255,215,0,0.02);}
+.lb-row-item:last-child{border-bottom:none;}
+.lb-pos{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;width:32px;text-align:center;}
+.lb-addr-text{flex:1;color:rgba(240,235,227,0.6);}
+.lb-score-val{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green);width:100px;text-align:right;}
+.lb-prize-tag{font-size:0.55rem;letter-spacing:0.1em;padding:2px 8px;background:rgba(255,215,0,0.1);color:var(--gold);width:90px;text-align:center;}
+.lb-week{font-size:0.58rem;color:rgba(240,235,227,0.3);width:100px;text-align:right;}
+.lb-live{font-size:0.55rem;letter-spacing:0.15em;color:var(--green);}
+.lb-live::before{content:'● ';animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.lb-section-head{padding:10px 24px;background:rgba(255,215,0,0.04);border-bottom:1px solid rgba(255,215,0,0.06);font-size:0.58rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+
+/* MEME CALLOUT */
+.meme-callout{background:#0d0d1a;border:1px solid rgba(255,215,0,0.1);padding:32px;text-align:center;margin:60px 0 0;position:relative;}
+.meme-callout::before{content:'NOT FINANCIAL ADVICE';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-family:'Permanent Marker',cursive;font-size:0.7rem;padding:2px 12px;letter-spacing:0.1em;white-space:nowrap;}
+.meme-callout p{font-size:0.8rem;color:rgba(240,235,227,0.5);line-height:2;}
+.meme-callout b{color:var(--gold);}
+
+/* FAQ */
+.faq-list{margin-top:48px;display:flex;flex-direction:column;gap:2px;}
+.faq-item{background:#0d0d1a;border-left:2px solid transparent;transition:all 0.15s;cursor:pointer;}
+.faq-item:hover{border-left-color:var(--gold);}
+.faq-item.open{border-left-color:var(--gold);background:#111118;}
+.faq-q{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;letter-spacing:0.05em;}
+.faq-q b{color:var(--gold);font-size:1rem;}
+.faq-a{padding:0 24px 20px;font-size:0.72rem;color:rgba(240,235,227,0.55);line-height:1.9;display:none;}
+.faq-item.open .faq-a{display:block;}
+.faq-a b{color:var(--white);}
+.faq-a a{color:var(--blue);text-decoration:none;}
+
+/* CTA BAND */
+.cta-band{background:var(--gold);padding:60px 48px;text-align:center;}
+.cta-band h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,4rem);color:var(--bg);letter-spacing:0.05em;margin-bottom:8px;}
+.cta-band p{font-size:0.8rem;color:rgba(7,7,15,0.6);margin-bottom:28px;}
+.cta-band .btn-dark{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.2em;padding:14px 48px;background:var(--bg);color:var(--gold);text-decoration:none;display:inline-block;transition:all 0.15s;}
+.cta-band .btn-dark:hover{background:#111;transform:translateY(-2px);}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,215,0,0.08);padding:40px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:0.1em;}
+.footer-logo span{color:var(--red);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{font-size:0.6rem;letter-spacing:0.15em;color:rgba(240,235,227,0.3);text-decoration:none;transition:color 0.15s;}
+.footer-links a:hover{color:var(--gold);}
+.footer-disclaimer{width:100%;font-size:0.55rem;color:rgba(240,235,227,0.2);line-height:1.8;text-align:center;padding-top:20px;border-top:1px solid rgba(255,255,255,0.04);}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:768px){
+  nav{padding:12px 20px;}
+  .nav-links{display:none;}
+  section{padding:60px 20px;}
+  .prizes-wrap{grid-template-columns:1fr;}
+  .token-grid{grid-template-columns:1fr;}
+  footer{flex-direction:column;text-align:center;}
+  .stats-strip{flex-direction:column;}
+  .strip-stat{border-right:none;border-bottom:1px solid rgba(255,215,0,0.1);}
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    🚀 REKT DEFENDER IS LIVE IN DEMO MODE &nbsp;|&nbsp; 📉 FUD LEVELS: EXTREME &nbsp;|&nbsp; 💎 DIAMOND HANDS ONLY &nbsp;|&nbsp; 🐻 BEARS INCOMING WAVE 4 &nbsp;|&nbsp; 🏆 WEEKLY WINNERS GET REKT TOKENS &nbsp;|&nbsp; 🪤 RUG PULL DETECTED ON-CHAIN &nbsp;|&nbsp; 👀 SEC HAS ENTERED THE CHAT &nbsp;|&nbsp; 🌕 WEN TOKEN? SOON ANON &nbsp;|&nbsp; 💀 NGMI LEADERBOARD LOADING... &nbsp;|&nbsp; 🔥 20% OF EVERY FEE BURNED FOREVER &nbsp;|&nbsp; 🚀 REKT DEFENDER IS LIVE IN DEMO MODE &nbsp;|&nbsp; 📉 FUD LEVELS: EXTREME &nbsp;|&nbsp; 💎 DIAMOND HANDS ONLY &nbsp;|&nbsp; 🐻 BEARS INCOMING WAVE 4 &nbsp;|&nbsp; 🏆 WEEKLY WINNERS GET REKT TOKENS &nbsp;|&nbsp;
+  </div>
+</div>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner">
+  🎮 <b>DEMO MODE ACTIVE</b> — Play for free right now. REKT token launching soon on <b>Hey.LOL</b> — real prizes coming. <a href="#leaderboard">See the leaderboard →</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">REKT<span>DEFENDER</span></a>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#enemies">Enemies</a>
+    <a href="#prizes">Prizes</a>
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="#leaderboard">Leaderboard</a>
+    <a href="tokenomics.html">Whitepaper</a>
+  </div>
+  <a href="game.html" class="nav-cta">▶ PLAY FREE</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="floater" style="left:5%;animation-duration:12s;animation-delay:0s;font-size:1.5rem;">📉</div>
+  <div class="floater" style="left:15%;animation-duration:18s;animation-delay:3s;">🐻</div>
+  <div class="floater" style="left:25%;animation-duration:14s;animation-delay:6s;font-size:1.2rem;">🪤</div>
+  <div class="floater" style="left:70%;animation-duration:16s;animation-delay:1s;">💎</div>
+  <div class="floater" style="left:80%;animation-duration:11s;animation-delay:4s;font-size:1.5rem;">🚀</div>
+  <div class="floater" style="left:90%;animation-duration:19s;animation-delay:2s;font-size:1.2rem;">🏛️</div>
+
+  <div class="hero-eyebrow">⚡ Built on Solana — 0.10 USDC per game — REKT token launching soon</div>
+  <h1 class="hero-title">
+    <span class="line1">REKT DEFENDER</span>
+    <span class="line2">PROTECT THE PORTFOLIO</span>
+  </h1>
+  <div class="hero-badge">gm anon 👋 your bags need defending</div>
+  <p class="hero-sub">
+    The bears are selling. The SEC is suing. The devs just rugged.<br>
+    <b>Only your reflexes stand between your portfolio and zero.</b><br>
+    Shoot FUD, dodge rug pulls, HODL your shield — win real REKT tokens every week.
+  </p>
+  <div class="hero-buttons">
+    <a href="game.html" class="btn-primary">PLAY FREE NOW</a>
+    <a href="#how" class="btn-secondary">HOW IT WORKS</a>
+  </div>
+  <div class="stats-strip">
+    <div class="strip-stat"><span class="ss-val">0.10</span><div class="ss-label">USDC per game</div></div>
+    <div class="strip-stat"><span class="ss-val">WEEKLY</span><div class="ss-label">Prize payouts</div></div>
+    <div class="strip-stat"><span class="ss-val">TOP 3</span><div class="ss-label">Winners every week</div></div>
+    <div class="strip-stat"><span class="ss-val">60/30/10</span><div class="ss-label">Prize split %</div></div>
+    <div class="strip-stat"><span class="ss-val">20%</span><div class="ss-label">Burned every game</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="reveal">
+    <div class="section-label">The Alpha</div>
+    <h2 class="section-title">HOW THIS WORKS,<br>ANON</h2>
+  </div>
+  <div class="how-wrap reveal">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <span class="how-emoji">👻</span>
+      <div class="how-title">CONNECT WALLET</div>
+      <p class="how-desc">Plug in your <b>Phantom</b> or <b>Solflare</b> wallet. No sign-up, no email, no KYC. We don't need your identity — just your diamond hands.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <span class="how-emoji">💸</span>
+      <div class="how-title">PAY 0.10 USDC</div>
+      <p class="how-desc">Approve a <b>0.10 USDC</b> payment from your wallet via x402. Processed on Solana — faster than your last rug pull, cheaper than gas on ETH mainnet.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <span class="how-emoji">🎮</span>
+      <div class="how-title">DEFEND THE BAGS</div>
+      <p class="how-desc">Shoot down <b>FUD, Bears, Rug Pulls, SEC agents, Whales</b> and more. Your score is your portfolio value. Don't let it go to zero.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">04</div>
+      <span class="how-emoji">🏆</span>
+      <div class="how-title">WIN REKT TOKENS</div>
+      <p class="how-desc"><b>Every week</b> the top 3 scores win REKT tokens, sent directly to your wallet. Leaderboard resets Monday. Winners recorded in the Hall of Fame forever.</p>
+    </div>
+  </div>
+  <div class="meme-callout reveal">
+    <p>
+      <b>50%</b> of every game fee buys REKT tokens for prizes 🏆 &nbsp;|&nbsp;
+      <b>20%</b> burns REKT forever 🔥 &nbsp;|&nbsp;
+      <b>30%</b> keeps the lights on 🔌 &nbsp;|&nbsp;
+      Winners paid <b>every Monday</b> 📅 &nbsp;|&nbsp;
+      Scores verified so you can't fake it 🔍 &nbsp;|&nbsp;
+      <b>Skill game. Not gambling. Definitely not financial advice.</b> 🚫
+    </p>
+  </div>
+</section>
+
+<!-- ENEMIES -->
+<section id="enemies" style="background:#0a0a12;max-width:100%;padding:100px 0;">
+  <div style="max-width:1100px;margin:0 auto;padding:0 48px;">
+    <div class="reveal">
+      <div class="section-label">Know Your Enemy</div>
+      <h2 class="section-title">WHO'S TRYING TO<br><span style="color:var(--red);">REKT YOU</span></h2>
+    </div>
+    <div class="enemies-grid reveal">
+      <div class="enemy-card"><span class="enemy-emoji">📉</span><div class="enemy-name" style="color:#FF3366;">FUD</div><div class="enemy-pts">+50 PTS</div><div class="enemy-desc">"It's going to zero anon." Fast-moving, low HP. Spawns in clusters. Classic degen enemy.</div></div>
+      <div class="enemy-card"><span class="enemy-emoji">🪤</span><div class="enemy-name" style="color:#FF6B00;">RUG PULL</div><div class="enemy-pts">+100 PTS</div><div class="enemy-desc">Dev wallet just moved. Takes 2 hits. Comes out of nowhere just like the real thing.</div></div>
+      <div class="enemy-card"><span class="enemy-emoji">🐻</span><div class="enemy-name" style="color:#CD853F;">BEAR</div><div class="enemy-pts">+75 PTS</div><div class="enemy-desc">Shoots back. Fast. "Fundamentally overvalued." Will not stop until your portfolio bleeds.</div></div>
+      <div class="enemy-card"><span class="enemy-emoji">🏛️</span><div class="enemy-name" style="color:#4169E1;">SEC AGENT</div><div class="enemy-pts">+150 PTS</div><div class="enemy-desc">Tanky. Shoots aimed projectiles. "We'll see you in court." Takes 3 WAGMI blasts to down.</div></div>
+      <div class="enemy-card"><span class="enemy-emoji">🐋</span><div class="enemy-name" style="color:#00BFFF;">WHALE</div><div class="enemy-pts">+200 PTS</div><div class="enemy-desc">MASSIVE. 4 HP. Dumps on retail. Manipulates the market. Biggest risk, biggest reward.</div></div>
+      <div class="enemy-card"><span class="enemy-emoji">🤲</span><div class="enemy-name" style="color:#DEB887;">PAPER HANDS</div><div class="enemy-pts">+40 PTS</div><div class="enemy-desc">Weak. Sells at -5%. They were never going to make it anyway. Easy kills, low value.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIZES -->
+<section id="prizes">
+  <div class="reveal">
+    <div class="section-label">The Gains</div>
+    <h2 class="section-title">WEEKLY PRIZE<br><span style="color:var(--gold);">STRUCTURE</span></h2>
+  </div>
+  <div class="prizes-wrap reveal">
+    <div class="prize-podium">
+      <div class="podium-row gold-row">
+        <div class="podium-medal">🥇</div>
+        <div class="podium-info">
+          <div class="podium-place">1st place — Best single game this week</div>
+          <div class="podium-pct" style="color:var(--gold);">60% OF POOL</div>
+        </div>
+      </div>
+      <div class="podium-row silver-row">
+        <div class="podium-medal">🥈</div>
+        <div class="podium-info">
+          <div class="podium-place">2nd place — Best single game this week</div>
+          <div class="podium-pct" style="color:#C0C0C0;">30% OF POOL</div>
+        </div>
+      </div>
+      <div class="podium-row bronze-row">
+        <div class="podium-medal">🥉</div>
+        <div class="podium-info">
+          <div class="podium-place">3rd place — Best single game this week</div>
+          <div class="podium-pct" style="color:#CD7F32;">10% OF POOL</div>
+        </div>
+      </div>
+      <div style="background:#0d0d1a;padding:16px 24px;font-size:0.68rem;color:rgba(240,235,227,0.45);line-height:1.8;margin-top:2px;">
+        🏆 Winners recorded permanently in the <b style="color:var(--gold);">Hall of Fame</b> below.<br>
+        📅 Leaderboard resets every <b style="color:var(--white);">Monday at 00:00 UTC</b>.<br>
+        💸 REKT tokens sent to winning wallets within <b style="color:var(--white);">24 hours</b>.
+      </div>
+    </div>
+    <div class="prize-rules">
+      <h3>📋 THE RULES, ANON</h3>
+      <div class="rule-item"><span class="rule-icon">💳</span><div>Each game costs <b>0.10 USDC</b>. Pay once, play once. Your <b>best single game</b> that week counts for the board.</div></div>
+      <div class="rule-item"><span class="rule-icon">🔍</span><div>Scores verified against your paid session ID. <b>No cheating. No bots.</b> No valid payment = no score saved.</div></div>
+      <div class="rule-item"><span class="rule-icon">📅</span><div>Week resets <b>Monday 00:00 UTC</b>. REKT tokens sent to top 3 wallet addresses within 24 hours. <b>No claiming needed.</b></div></div>
+      <div class="rule-item"><span class="rule-icon">🔥</span><div><b>20% of all fees</b> burn REKT permanently. Every game you play reduces total supply forever.</div></div>
+      <div class="rule-item"><span class="rule-icon">📖</span><div>Every winner is <b>permanently recorded</b> in the Hall of Fame — wallet address, score, week, and prize amount. Fully transparent.</div></div>
+      <div class="rule-item"><span class="rule-icon">🌍</span><div>Open to everyone with a Solana wallet. <b>Check your local laws</b> re: skill games with prizes. Not your lawyer, anon.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section id="tokenomics" style="background:#0a0a12;max-width:100%;padding:100px 0;">
+  <div style="max-width:1100px;margin:0 auto;padding:0 48px;">
+    <div class="reveal">
+      <div class="section-label">The Economics</div>
+      <h2 class="section-title">REKT TOKEN<br><span style="color:var(--gold);">TOKENOMICS</span></h2>
+      <p style="margin-top:16px;font-size:0.78rem;color:rgba(240,235,227,0.5);max-width:600px;line-height:1.9;">
+        Every 0.10 USDC game fee is split automatically. No discretion, no manual handling. The split creates constant buy pressure on REKT while permanently reducing supply through burns.
+        <a href="tokenomics.html" style="color:var(--gold);text-decoration:none;display:inline-block;margin-top:8px;">Read the full whitepaper →</a>
+      </p>
+    </div>
+    <div class="token-grid reveal">
+      <div class="token-card">
+        <div class="token-pct" style="color:var(--green);">50%</div>
+        <div class="token-label" style="color:var(--green);">WEEKLY PRIZES</div>
+        <div class="token-desc">This USDC goes to Jupiter DEX and <b>buys REKT off the open market</b>. That REKT goes to the weekly prize pool. Every game = a buy order. This is the core buy pressure mechanism.</div>
+      </div>
+      <div class="token-card">
+        <div class="token-pct" style="color:var(--red);">20%</div>
+        <div class="token-label" style="color:var(--red);">BURNED FOREVER 🔥</div>
+        <div class="token-desc">This USDC also buys REKT, then <b>sends it to a dead wallet permanently</b>. Supply shrinks with every game played. At 1,000 games/day — real deflationary pressure.</div>
+      </div>
+      <div class="token-card" style="grid-column:1/-1;">
+        <div class="token-pct" style="color:var(--blue);">30%</div>
+        <div class="token-label" style="color:var(--blue);">DEVELOPMENT & OPERATIONS</div>
+        <div class="token-desc">Hosting, development, marketing, and keeping the game running. <b>Transparent and necessary.</b> Without this the game can't grow. We keep this lean so more goes to prizes and burns.</div>
+      </div>
+    </div>
+    <div style="margin-top:24px;padding:20px 24px;background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.1);font-size:0.7rem;color:rgba(240,235,227,0.5);line-height:1.9;" class="reveal">
+      <b style="color:var(--gold);">REKT Token Facts:</b> &nbsp;
+      Ticker: <b style="color:var(--white);">REKT</b> &nbsp;|&nbsp;
+      Network: <b style="color:var(--white);">Solana</b> &nbsp;|&nbsp;
+      Total Supply: <b style="color:var(--white);">1,000,000,000 (fixed, no minting)</b> &nbsp;|&nbsp;
+      Launch: <b style="color:var(--white);">Hey.LOL</b> &nbsp;|&nbsp;
+      Contract: <b style="color:var(--purple);">TBA — launching soon</b>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section id="leaderboard">
+  <div class="reveal">
+    <div class="section-label">The Competition</div>
+    <h2 class="section-title">LEADERBOARD &<br><span style="color:var(--gold);">HALL OF FAME</span></h2>
+  </div>
+
+  <div class="lb-tabs reveal">
+    <div class="lb-tab active" onclick="switchTab('current',this)">🏆 THIS WEEK</div>
+    <div class="lb-tab" onclick="switchTab('halloffame',this)">👑 HALL OF FAME</div>
+  </div>
+
+  <!-- CURRENT WEEK -->
+  <div class="lb-panel active" id="tab-current">
+    <div class="lb-section-head">
+      <span>WEEK OF MAY 19 — MAY 25, 2026</span>
+      <span class="lb-live">DEMO SCORES</span>
+    </div>
+    <div class="lb-header-row">
+      <span style="width:32px;">POS</span>
+      <span style="flex:1;">WALLET</span>
+      <span style="width:100px;text-align:right;">SCORE</span>
+      <span style="width:90px;text-align:center;">PRIZE</span>
+    </div>
+    <div class="lb-row-item">
+      <div class="lb-pos" style="color:var(--gold);">🥇</div>
+      <div class="lb-addr-text">GmRaXX...9f — <span style="color:rgba(240,235,227,0.3);font-size:0.6rem;">DEMO</span></div>
+      <div class="lb-score-val">$48,200</div>
+      <div class="lb-prize-tag">60% REKT</div>
+    </div>
+    <div class="lb-row-item">
+      <div class="lb-pos" style="color:#C0C0C0;">🥈</div>
+      <div class="lb-addr-text">HODL.sol — <span style="color:rgba(240,235,227,0.3);font-size:0.6rem;">DEMO</span></div>
+      <div class="lb-score-val">$31,500</div>
+      <div class="lb-prize-tag">30% REKT</div>
+    </div>
+    <div class="lb-row-item">
+      <div class="lb-pos" style="color:#CD7F32;">🥉</div>
+      <div class="lb-addr-text">WagmiKing.sol — <span style="color:rgba(240,235,227,0.3);font-size:0.6rem;">DEMO</span></div>
+      <div class="lb-score-val">$22,000</div>
+      <div class="lb-prize-tag">10% REKT</div>
+    </div>
+    <div class="lb-row-item"><div class="lb-pos" style="color:rgba(240,235,227,0.3);">4</div><div class="lb-addr-text">DiamondHands...99</div><div class="lb-score-val" style="color:rgba(240,235,227,0.4);">$18,750</div><div class="lb-prize-tag" style="opacity:0.3;">—</div></div>
+    <div class="lb-row-item"><div class="lb-pos" style="color:rgba(240,235,227,0.3);">5</div><div class="lb-addr-text">NotYet.sol</div><div class="lb-score-val" style="color:rgba(240,235,227,0.4);">$12,100</div><div class="lb-prize-tag" style="opacity:0.3;">—</div></div>
+    <div style="padding:14px 24px;text-align:center;border-top:1px solid rgba(255,215,0,0.05);">
+      <a href="game.html" style="font-size:0.7rem;color:var(--gold);text-decoration:none;letter-spacing:0.15em;">▶ PLAY NOW TO GET ON THE BOARD</a>
+    </div>
+  </div>
+
+  <!-- HALL OF FAME -->
+  <div class="lb-panel" id="tab-halloffame">
+    <div class="lb-section-head">
+      <span>👑 ALL-TIME WEEKLY WINNERS — PERMANENT RECORD</span>
+      <span style="font-size:0.55rem;color:rgba(240,235,227,0.3);">PRIZES VERIFIED ON-CHAIN</span>
+    </div>
+    <div class="lb-header-row">
+      <span style="width:32px;">POS</span>
+      <span style="flex:1;">WALLET</span>
+      <span style="width:100px;text-align:right;">SCORE</span>
+      <span style="width:110px;text-align:center;">PRIZE PAID</span>
+      <span style="width:100px;text-align:right;">WEEK</span>
+    </div>
+
+    <!-- Week entries — this gets populated as winners are paid -->
+    <div class="lb-section-head" style="font-size:0.55rem;color:rgba(240,235,227,0.3);background:transparent;border-top:1px solid rgba(255,215,0,0.04);">
+      WEEK 1 — MAY 12–18, 2026 &nbsp;·&nbsp; TOTAL POOL: DEMO
+    </div>
+    <div class="lb-row-item">
+      <div class="lb-pos" style="color:var(--gold);">🥇</div>
+      <div class="lb-addr-text">GmRaXX...9f</div>
+      <div class="lb-score-val">$48,200</div>
+      <div class="lb-prize-tag" style="width:110px;">DEMO PRIZE</div>
+      <div class="lb-week">May 18</div>
+    </div>
+    <div class="lb-row-item">
+      <div class="lb-pos" style="color:#C0C0C0;">🥈</div>
+      <div class="lb-addr-text">HODL.sol</div>
+      <div class="lb-score-val">$31,500</div>
+      <div class="lb-prize-tag" style="width:110px;">DEMO PRIZE</div>
+      <div class="lb-week">May 18</div>
+    </div>
+    <div class="lb-row-item">
+      <div class="lb-pos" style="color:#CD7F32;">🥉</div>
+      <div class="lb-addr-text">WagmiKing.sol</div>
+      <div class="lb-score-val">$22,000</div>
+      <div class="lb-prize-tag" style="width:110px;">DEMO PRIZE</div>
+      <div class="lb-week">May 18</div>
+    </div>
+
+    <div style="padding:20px 24px;text-align:center;font-size:0.65rem;color:rgba(240,235,227,0.3);border-top:1px solid rgba(255,215,0,0.05);">
+      Real prizes begin when REKT token launches on Hey.LOL · Every winner recorded here permanently · Prize amounts verified on-chain
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="reveal">
+    <div class="section-label">The Questions</div>
+    <h2 class="section-title">YOU PROBABLY<br>WANT TO KNOW</h2>
+  </div>
+  <div class="faq-list reveal">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">What is REKT token and where do I get it? <b>+</b></div>
+      <div class="faq-a">REKT is the game token launching on Solana via <a href="#">Hey.LOL</a>. Contract address will be posted here the moment it goes live. Always verify the contract address before buying — don't get rugged by fakes.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Why do I pay in USDC not REKT? <b>+</b></div>
+      <div class="faq-a">Paying in USDC removes the barrier of needing to buy REKT before you've even tried the game. But your fees are used to <b>buy REKT off the market for prizes and burns</b> — so every game creates real buy pressure on the token regardless.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">How do I know scores aren't faked? <b>+</b></div>
+      <div class="faq-a">Every game session generates a unique ID tied to your payment transaction. Scores are only saved if the session ID is valid and matches your wallet. <b>No valid payment = no score saved.</b></div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">When does the leaderboard reset? <b>+</b></div>
+      <div class="faq-a">Every <b>Monday at 00:00 UTC</b>. Winners from the previous week receive REKT tokens within 24 hours, sent directly to their connected wallet. Their scores are then moved to the Hall of Fame permanently.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Is this gambling? <b>+</b></div>
+      <div class="faq-a">Rekt Defender is a <b>skill game</b> — your score depends entirely on gameplay ability, not chance. Laws around skill games with prizes vary by country. <b>Check your local regulations.</b> We do not accept players from jurisdictions where this is prohibited.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">What wallets are supported? <b>+</b></div>
+      <div class="faq-a"><b>Phantom</b> and <b>Solflare</b> are fully supported. Any Solana wallet that supports USDC transfers should work.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-band">
+  <h2>STOP READING. START PLAYING.</h2>
+  <p>Your bags aren't going to defend themselves, anon. Demo is free.</p>
+  <a href="game.html" class="btn-dark">▶ PLAY FREE NOW</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">REKT<span>DEFENDER</span></div>
+  <div class="footer-links">
+    <a href="#">Twitter/X</a>
+    <a href="#">Telegram</a>
+    <a href="#">Hey.LOL</a>
+    <a href="tokenomics.html">Whitepaper</a>
+  </div>
+  <div class="footer-disclaimer">
+    Rekt Defender is a skill-based game. Not financial advice. Not an investment. REKT token has no guaranteed value.<br>
+    Play responsibly. Do your own research. We are not your financial advisor. Not your lawyer. Not your mum. gm. 🌅
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el){
+  const wasOpen=el.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(f=>{f.classList.remove('open');f.querySelector('b').textContent='+';});
+  if(!wasOpen){el.classList.add('open');el.querySelector('b').textContent='−';}
+}
+
+function switchTab(id,el){
+  document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.lb-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
