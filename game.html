@@ -11,10 +11,11 @@
 :root{--bg:#07070f;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;--blue:#00D4FF;--purple:#9945FF;--panel:#0d0d1a;--border:rgba(255,215,0,0.12);--dim:rgba(255,215,0,0.35);}
 html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:'JetBrains Mono',monospace;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 
-/* SCALER — fills 92% of viewport width, max sensible size */
+/* SCALER — fits to viewport, never overflows */
 #scaler{
   display:flex;flex-direction:column;align-items:stretch;
   width:min(92vw, 1200px);
+  max-height:98vh;
 }
 
 /* DEMO BANNER */
@@ -41,9 +42,9 @@ html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:
 .hud-val.red{color:var(--red);}
 .hud-val.blue{color:var(--blue);}
 
-/* GAME WRAP — canvas scales to full width, aspect ratio preserved */
-#gameWrap{position:relative;width:100%;border:1px solid var(--border);box-shadow:0 0 60px rgba(255,215,0,0.04),inset 0 0 60px rgba(0,0,0,0.5);}
-canvas{display:block;width:100%;height:auto;background:transparent;}
+/* GAME WRAP — fills remaining height, canvas scales inside it */
+#gameWrap{position:relative;width:100%;flex:1;min-height:0;border:1px solid var(--border);box-shadow:0 0 60px rgba(255,215,0,0.04),inset 0 0 60px rgba(0,0,0,0.5);overflow:hidden;}
+canvas{display:block;width:100%;height:100%;object-fit:contain;background:transparent;}
 
 /* OVERLAYS */
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:rgba(7,7,15,0.94);z-index:20;}
