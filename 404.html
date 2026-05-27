@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKT DEFENDER — 404 Page Not Found</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#07070f;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;--blue:#00D4FF;--purple:#9945FF;--white:#F0EBE3;--border:rgba(255,215,0,0.12);}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--white);font-family:'JetBrains Mono',monospace;overflow:hidden;}
+
+/* STAR FIELD */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* MAIN */
+.page{
+  position:relative;z-index:10;
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:24px;
+  gap:0;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 48px;border-bottom:1px solid var(--border);
+  background:rgba(7,7,15,0.9);backdrop-filter:blur(12px);
+  z-index:50;
+}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.1em;color:var(--gold);text-decoration:none;}
+.nav-logo span{color:var(--red);}
+.nav-cta{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.15em;padding:7px 20px;background:var(--gold);color:var(--bg);text-decoration:none;transition:all 0.15s;}
+.nav-cta:hover{background:var(--green);}
+
+/* 404 NUMBER */
+.error-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(8rem,20vw,16rem);
+  line-height:0.85;
+  letter-spacing:0.05em;
+  color:var(--gold);
+  text-shadow:
+    0 0 80px rgba(255,215,0,0.2),
+    0 0 160px rgba(255,215,0,0.1);
+  position:relative;
+  animation:glitch 4s infinite;
+}
+
+@keyframes glitch{
+  0%,90%,100%{transform:translate(0);}
+  91%{transform:translate(-3px,1px);color:var(--red);}
+  92%{transform:translate(3px,-1px);color:var(--blue);}
+  93%{transform:translate(0);color:var(--gold);}
+  94%{transform:translate(-2px,2px);color:var(--red);}
+  95%{transform:translate(0);color:var(--gold);}
+}
+
+/* EMOJI */
+.error-emoji{
+  font-size:clamp(2rem,5vw,3.5rem);
+  margin:16px 0;
+  display:block;
+  animation:float 3s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-12px);}
+}
+
+/* TITLE */
+.error-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.5rem,4vw,2.8rem);
+  letter-spacing:0.08em;
+  color:var(--white);
+  margin-bottom:8px;
+}
+
+.error-title em{color:var(--red);font-style:normal;}
+
+/* SUBTITLE */
+.error-sub{
+  font-size:clamp(0.65rem,1.5vw,0.82rem);
+  color:rgba(240,235,227,0.45);
+  letter-spacing:0.08em;
+  line-height:1.9;
+  max-width:460px;
+  margin-bottom:40px;
+}
+
+.error-sub b{color:var(--white);}
+
+/* ROTATING MESSAGES */
+.rotate-msg{
+  font-size:0.72rem;
+  color:var(--green);
+  letter-spacing:0.1em;
+  margin-bottom:40px;
+  height:20px;
+  font-style:italic;
+  opacity:0;
+  transition:opacity 0.4s;
+}
+
+.rotate-msg.show{opacity:1;}
+
+/* BUTTONS */
+.btn-wrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:48px;}
+
+.btn-primary{
+  font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.2em;
+  padding:11px 36px;background:var(--gold);color:var(--bg);
+  text-decoration:none;transition:all 0.15s;display:inline-block;
+}
+.btn-primary:hover{background:var(--green);transform:translateY(-2px);}
+.btn-primary::after{content:'🚀';margin-left:8px;}
+
+.btn-secondary{
+  font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.2em;
+  padding:11px 36px;background:transparent;color:var(--white);
+  text-decoration:none;transition:all 0.15s;display:inline-block;
+  border:1px solid rgba(240,235,227,0.2);
+}
+.btn-secondary:hover{border-color:var(--white);transform:translateY(-2px);}
+
+/* QUICK LINKS */
+.quick-links{
+  display:flex;gap:24px;flex-wrap:wrap;justify-content:center;
+}
+.quick-link{
+  font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(240,235,227,0.3);text-decoration:none;transition:color 0.15s;
+}
+.quick-link:hover{color:var(--gold);}
+
+/* CANDLE CHART decoration */
+.candles{
+  position:fixed;bottom:0;right:0;
+  display:flex;align-items:flex-end;gap:3px;
+  padding:0 20px 20px;
+  opacity:0.06;
+  pointer-events:none;
+  z-index:1;
+}
+
+.candle{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.candle-wick{width:1px;background:#fff;}
+.candle-body{width:8px;}
+
+/* Floaters */
+.floater{
+  position:fixed;font-size:1.5rem;
+  animation:rise linear infinite;
+  pointer-events:none;opacity:0.1;z-index:1;
+}
+
+@keyframes rise{
+  0%{transform:translateY(100vh) rotate(0deg);opacity:0;}
+  10%{opacity:0.12;}
+  90%{opacity:0.12;}
+  100%{transform:translateY(-100px) rotate(360deg);opacity:0;}
+}
+
+@media(max-width:600px){
+  nav{padding:12px 20px;}
+  .error-num{font-size:8rem;}
+  .btn-wrap{flex-direction:column;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">REKT<span>DEFENDER</span></a>
+  <a href="game.html" class="nav-cta">▶ PLAY FREE</a>
+</nav>
+
+<!-- STAR FIELD -->
+<canvas class="stars" id="stars"></canvas>
+
+<!-- FLOATING EMOJIS -->
+<div class="floater" style="left:5%;animation-duration:14s;animation-delay:0s;">📉</div>
+<div class="floater" style="left:20%;animation-duration:19s;animation-delay:4s;">🪤</div>
+<div class="floater" style="left:40%;animation-duration:16s;animation-delay:8s;">🐻</div>
+<div class="floater" style="left:60%;animation-duration:21s;animation-delay:2s;">💎</div>
+<div class="floater" style="left:75%;animation-duration:13s;animation-delay:6s;">🚀</div>
+<div class="floater" style="left:88%;animation-duration:18s;animation-delay:10s;">🏛️</div>
+
+<!-- CANDLE CHART -->
+<div class="candles" id="candles"></div>
+
+<!-- MAIN CONTENT -->
+<div class="page">
+  <div class="error-num">404</div>
+
+  <span class="error-emoji">💀</span>
+
+  <div class="error-title">THIS PAGE GOT <em>REKT</em></div>
+
+  <p class="error-sub">
+    Looks like this page rugged harder than a day-one dev wallet.<br>
+    <b>It doesn't exist, it never did, or it moved on without telling anyone.</b><br>
+    Classic crypto behaviour tbh.
+  </p>
+
+  <div class="rotate-msg" id="rotateMsg"></div>
+
+  <div class="btn-wrap">
+    <a href="index.html" class="btn-primary">BACK TO SAFETY</a>
+    <a href="game.html" class="btn-secondary">PLAY THE GAME</a>
+  </div>
+
+  <div class="quick-links">
+    <a href="index.html" class="quick-link">Home</a>
+    <a href="leaderboard.html" class="quick-link">Leaderboard</a>
+    <a href="tokenomics.html" class="quick-link">Whitepaper</a>
+    <a href="terms.html" class="quick-link">Terms</a>
+    <a href="privacy.html" class="quick-link">Privacy</a>
+  </div>
+</div>
+
+<script>
+// ── ROTATING MESSAGES ──
+const msgs = [
+  '"This page is going to zero" — some anon, probably',
+  'The devs didn\'t rug. The URL just doesn\'t exist.',
+  'Have you tried turning off the bear market and on again?',
+  'NGMI if you can\'t find the right URL anon.',
+  'Not your keys, not your page.',
+  'This is fine. 🔥',
+  'Wen page? Soon™',
+  'The chart only goes up. The URL clearly did not.',
+  'FUD. This page never existed. Bullish.',
+  'We\'re still early. The page just hasn\'t launched yet.',
+];
+
+let msgIndex = 0;
+const msgEl = document.getElementById('rotateMsg');
+
+function showNextMsg(){
+  msgEl.classList.remove('show');
+  setTimeout(()=>{
+    msgEl.textContent = msgs[msgIndex % msgs.length];
+    msgEl.classList.add('show');
+    msgIndex++;
+  }, 400);
+}
+
+showNextMsg();
+setInterval(showNextMsg, 3500);
+
+// ── STAR FIELD ──
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drawStars();
+}
+
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const count = Math.floor((canvas.width * canvas.height) / 8000);
+  for(let i=0;i<count;i++){
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const r = Math.random() * 1.2;
+    const alpha = Math.random() * 0.6 + 0.1;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
+  }
+  // A few purple and gold stars
+  for(let i=0;i<20;i++){
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    ctx.beginPath();
+    ctx.arc(x,y,1,0,Math.PI*2);
+    ctx.fillStyle = Math.random()>0.5 ? 'rgba(153,69,255,0.4)' : 'rgba(255,215,0,0.3)';
+    ctx.fill();
+  }
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ── CANDLE CHART ──
+const candleWrap = document.getElementById('candles');
+const candleData = [
+  {h:80,open:60,close:40,bull:false},
+  {h:50,open:35,close:45,bull:true},
+  {h:70,open:45,close:30,bull:false},
+  {h:40,open:28,close:35,bull:true},
+  {h:90,open:35,close:20,bull:false},
+  {h:30,open:18,close:25,bull:true},
+  {h:60,open:25,close:15,bull:false},
+  {h:45,open:14,close:20,bull:true},
+  {h:100,open:20,close:5,bull:false},
+  {h:20,open:4,close:8,bull:true},
+  {h:50,open:8,close:3,bull:false},
+  {h:15,open:2,close:4,bull:true},
+];
+
+candleData.forEach(c=>{
+  const candle = document.createElement('div');
+  candle.className = 'candle';
+  candle.style.height = c.h + 'px';
+
+  const wick = document.createElement('div');
+  wick.className = 'candle-wick';
+  wick.style.height = (c.h * 0.2) + 'px';
+  wick.style.background = c.bull ? '#00FF88' : '#FF2D55';
+
+  const body = document.createElement('div');
+  body.className = 'candle-body';
+  body.style.height = Math.abs(c.open - c.close) + 'px';
+  body.style.minHeight = '4px';
+  body.style.background = c.bull ? '#00FF88' : '#FF2D55';
+
+  const wick2 = document.createElement('div');
+  wick2.className = 'candle-wick';
+  wick2.style.height = (c.h * 0.15) + 'px';
+  wick2.style.background = c.bull ? '#00FF88' : '#FF2D55';
+
+  candle.appendChild(wick);
+  candle.appendChild(body);
+  candle.appendChild(wick2);
+  candleWrap.appendChild(candle);
+});
+</script>
+
+</body>
+</html>
