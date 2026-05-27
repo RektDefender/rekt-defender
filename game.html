@@ -11,14 +11,20 @@
 :root{--bg:#07070f;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;--blue:#00D4FF;--purple:#9945FF;--panel:#0d0d1a;--border:rgba(255,215,0,0.12);--dim:rgba(255,215,0,0.35);}
 html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:'JetBrains Mono',monospace;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 
+/* SCALING WRAPPER — fits to 90vw or 90vh whichever is smaller */
+#scaler{
+  display:flex;flex-direction:column;align-items:center;
+  width:min(90vw, 160vh);
+}
+
 /* DEMO BANNER */
-#demoBanner{width:720px;background:rgba(153,69,255,0.15);border:1px solid rgba(153,69,255,0.3);border-bottom:none;padding:6px 16px;font-size:0.58rem;letter-spacing:0.08em;color:var(--purple);text-align:center;}
+#demoBanner{width:100%;background:rgba(153,69,255,0.15);border:1px solid rgba(153,69,255,0.3);border-bottom:none;padding:6px 16px;font-size:0.58rem;letter-spacing:0.08em;color:var(--purple);text-align:center;}
 #demoBanner b{color:#F0EBE3;}
 #demoBanner a{color:var(--gold);text-decoration:none;}
 #demoBanner a:hover{color:var(--green);}
 
 /* TOPBAR */
-#topbar{width:720px;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--panel);border:1px solid var(--border);border-bottom:none;}
+#topbar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--panel);border:1px solid var(--border);border-bottom:none;}
 .logo-small{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.1em;color:var(--gold);text-decoration:none;}
 .logo-small span{color:var(--red);}
 .token-coming{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;color:var(--dim);display:flex;align-items:center;gap:8px;}
@@ -27,7 +33,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
 /* HUD */
-#hud{width:720px;display:flex;justify-content:space-between;align-items:center;padding:6px 16px;background:var(--panel);border-left:1px solid var(--border);border-right:1px solid var(--border);}
+#hud{width:100%;display:flex;justify-content:space-between;align-items:center;padding:6px 16px;background:var(--panel);border-left:1px solid var(--border);border-right:1px solid var(--border);}
 .hud-stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
 .hud-label{font-size:0.5rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;}
 .hud-val{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);}
@@ -36,8 +42,8 @@ html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:
 .hud-val.blue{color:var(--blue);}
 
 /* GAME WRAP */
-#gameWrap{position:relative;width:720px;border:1px solid var(--border);box-shadow:0 0 60px rgba(255,215,0,0.04),inset 0 0 60px rgba(0,0,0,0.5);}
-canvas{display:block;background:transparent;}
+#gameWrap{position:relative;width:100%;border:1px solid var(--border);box-shadow:0 0 60px rgba(255,215,0,0.04),inset 0 0 60px rgba(0,0,0,0.5);}
+canvas{display:block;width:100%;height:auto;background:transparent;}
 
 /* OVERLAYS */
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(7,7,15,0.94);z-index:20;}
@@ -95,16 +101,19 @@ canvas{display:block;background:transparent;}
 #comboPop.show{opacity:1;}
 
 /* HODL bar */
-#hodlBar{width:720px;height:4px;background:rgba(255,215,0,0.08);border:1px solid var(--border);border-top:none;border-bottom:none;}
+#hodlBar{width:100%;height:4px;background:rgba(255,215,0,0.08);border:1px solid var(--border);border-top:none;border-bottom:none;}
 #hodlFill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));transition:width 0.1s;box-shadow:0 0 6px var(--gold);}
 
 /* Bottom bar */
-#bottombar{width:720px;display:flex;justify-content:space-between;align-items:center;padding:5px 16px;background:var(--panel);border:1px solid var(--border);border-top:none;font-size:0.52rem;color:var(--dim);letter-spacing:0.08em;}
+#bottombar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:5px 16px;background:var(--panel);border:1px solid var(--border);border-top:none;font-size:0.52rem;color:var(--dim);letter-spacing:0.08em;}
 #bottombar a{color:var(--dim);text-decoration:none;transition:color 0.15s;}
 #bottombar a:hover{color:var(--gold);}
 </style>
 </head>
 <body>
+
+<!-- SCALER -->
+<div id="scaler">
 
 <!-- DEMO BANNER -->
 <div id="demoBanner">
@@ -221,6 +230,8 @@ canvas{display:block;background:transparent;}
   <div>← → ↑ ↓ MOVE &nbsp;|&nbsp; SPACE SHOOT &nbsp;|&nbsp; SHIFT HODL SHIELD</div>
   <div>🎮 DEMO MODE — <a href="index.html">Learn about real prizes →</a></div>
 </div>
+
+</div><!-- end scaler -->
 
 <script>
 // ═══════════════════════════════════════
