@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKT DEFENDER — Terms of Service</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#07070f;--panel:#0d0d1a;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;--blue:#00D4FF;--white:#F0EBE3;--dim:rgba(240,235,227,0.38);--border:rgba(255,215,0,0.12);}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.8;overflow-x:hidden;}
+
+/* NAV */
+nav{display:flex;justify-content:space-between;align-items:center;padding:14px 48px;border-bottom:1px solid var(--border);background:rgba(7,7,15,0.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:90;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.1em;color:var(--gold);text-decoration:none;}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{color:rgba(240,235,227,0.5);text-decoration:none;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;transition:color 0.15s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-cta{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.15em;padding:7px 20px;background:var(--gold);color:var(--bg);text-decoration:none;transition:all 0.15s;}
+.nav-cta:hover{background:var(--green);}
+
+/* LAYOUT */
+.container{max-width:780px;margin:0 auto;padding:60px 32px 100px;}
+
+/* HEADER */
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border);}
+.doc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.3em;color:var(--green);text-transform:uppercase;margin-bottom:12px;display:block;}
+.doc-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,4rem);letter-spacing:0.05em;color:var(--gold);line-height:1;margin-bottom:16px;}
+.doc-meta{display:flex;gap:32px;flex-wrap:wrap;}
+.doc-meta-item{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--dim);letter-spacing:0.1em;}
+.doc-meta-item b{color:rgba(240,235,227,0.6);}
+
+/* TOC */
+.toc-box{background:var(--panel);border:1px solid var(--border);padding:24px 28px;margin-bottom:48px;}
+.toc-box-title{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-bottom:16px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.toc-list a{font-size:0.78rem;color:rgba(240,235,227,0.55);text-decoration:none;transition:color 0.15s;display:flex;gap:12px;}
+.toc-list a:hover{color:var(--gold);}
+.toc-list a span{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:0.65rem;width:24px;flex-shrink:0;}
+
+/* SECTIONS */
+.doc-section{margin-bottom:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,215,0,0.06);}
+.doc-section:last-child{border-bottom:none;}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.25em;color:var(--green);text-transform:uppercase;margin-bottom:8px;}
+h2{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.08em;color:var(--white);margin-bottom:20px;line-height:1;}
+h2 em{color:var(--gold);font-style:normal;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.1em;color:var(--gold);margin:24px 0 10px;}
+p{color:rgba(240,235,227,0.72);margin-bottom:14px;font-size:0.95rem;}
+p b{color:var(--white);}
+p a{color:var(--blue);text-decoration:none;}
+p a:hover{color:var(--gold);}
+
+ul{margin:12px 0 16px 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+ul li{font-size:0.88rem;color:rgba(240,235,227,0.65);padding-left:20px;position:relative;line-height:1.7;}
+ul li::before{content:'—';position:absolute;left:0;color:var(--dim);}
+ul li b{color:var(--white);}
+
+/* CALLOUTS */
+.callout{padding:18px 22px;margin:20px 0;font-size:0.85rem;border-left:3px solid var(--border);}
+.callout.red{border-left-color:var(--red);background:rgba(255,45,85,0.04);}
+.callout.gold{border-left-color:var(--gold);background:rgba(255,215,0,0.04);}
+.callout.green{border-left-color:var(--green);background:rgba(0,255,136,0.04);}
+.callout-label{font-family:'JetBrains Mono',monospace;font-size:0.52rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;}
+.callout.red .callout-label{color:var(--red);}
+.callout.gold .callout-label{color:var(--gold);}
+.callout.green .callout-label{color:var(--green);}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);letter-spacing:0.1em;}
+.footer-logo span{color:var(--red);}
+.footer-links{display:flex;gap:20px;}
+.footer-links a{font-size:0.58rem;letter-spacing:0.12em;color:rgba(240,235,227,0.3);text-decoration:none;transition:color 0.15s;text-transform:uppercase;}
+.footer-links a:hover{color:var(--gold);}
+.footer-disc{width:100%;font-size:0.55rem;color:rgba(240,235,227,0.15);text-align:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.04);line-height:1.8;}
+
+@media(max-width:768px){
+  nav{padding:12px 20px;}.nav-links{display:none;}
+  .container{padding:40px 20px 80px;}
+  footer{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">REKT<span>DEFENDER</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="tokenomics.html">Whitepaper</a>
+    <a href="privacy.html">Privacy</a>
+  </div>
+  <a href="game.html" class="nav-cta">▶ PLAY FREE</a>
+</nav>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <span class="doc-eyebrow">Legal</span>
+    <div class="doc-title">TERMS OF SERVICE</div>
+    <div class="doc-meta">
+      <div class="doc-meta-item"><b>Last updated:</b> May 2026</div>
+      <div class="doc-meta-item"><b>Applies to:</b> RektDefender.LOL</div>
+      <div class="doc-meta-item"><b>Contact:</b> Via Twitter/X</div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc-box">
+    <div class="toc-box-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#acceptance"><span>01</span>Acceptance of Terms</a></li>
+      <li><a href="#description"><span>02</span>What Rekt Defender Is</a></li>
+      <li><a href="#eligibility"><span>03</span>Eligibility & Restricted Regions</a></li>
+      <li><a href="#payments"><span>04</span>Payments & Game Fees</a></li>
+      <li><a href="#prizes"><span>05</span>Prizes & Leaderboard</a></li>
+      <li><a href="#token"><span>06</span>REKT Token & Crypto Assets</a></li>
+      <li><a href="#conduct"><span>07</span>Prohibited Conduct</a></li>
+      <li><a href="#ip"><span>08</span>Intellectual Property</a></li>
+      <li><a href="#liability"><span>09</span>Limitation of Liability</a></li>
+      <li><a href="#changes"><span>10</span>Changes to These Terms</a></li>
+      <li><a href="#contact"><span>11</span>Contact</a></li>
+    </ul>
+  </div>
+
+  <div class="callout gold">
+    <div class="callout-label">📋 Plain English Summary</div>
+    Rekt Defender is a skill-based game. You pay a small fee to play competitively, and top scorers win crypto tokens each week. By playing you accept these terms. You must be 18 or older. You are responsible for checking whether skill games with prizes are legal in your country. We are not liable for the value of REKT tokens. Don't cheat. Don't be a bad actor. Full details below.
+  </div>
+
+  <!-- 1. ACCEPTANCE -->
+  <div class="doc-section" id="acceptance">
+    <div class="section-num">Section 01</div>
+    <h2>ACCEPTANCE OF <em>TERMS</em></h2>
+    <p>By accessing or using RektDefender.LOL (the "Site") or playing Rekt Defender (the "Game"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Site or Game.</p>
+    <p>These Terms apply to all visitors, players, and anyone who interacts with the Site. Your continued use of the Site after any changes to these Terms constitutes acceptance of the updated Terms.</p>
+  </div>
+
+  <!-- 2. DESCRIPTION -->
+  <div class="doc-section" id="description">
+    <div class="section-num">Section 02</div>
+    <h2>WHAT REKT DEFENDER <em>IS</em></h2>
+    <p>Rekt Defender is a <b>skill-based browser game</b> where players compete for the highest score. Players have the option to pay a game fee in USDC to participate in the competitive weekly leaderboard. The top 3 players by score each week receive REKT tokens as prizes.</p>
+    <p>A free demo mode is also available with no payment required. Demo mode scores do not appear on the live leaderboard and are not eligible for prizes.</p>
+    <p><b>Rekt Defender is a game of skill.</b> Scores are determined entirely by player ability and gameplay performance. There is no element of chance or randomness that determines competitive outcomes. Prize eligibility is based solely on skill-based score rankings.</p>
+  </div>
+
+  <!-- 3. ELIGIBILITY -->
+  <div class="doc-section" id="eligibility">
+    <div class="section-num">Section 03</div>
+    <h2>ELIGIBILITY &amp; <em>RESTRICTED REGIONS</em></h2>
+    <p>To participate in paid games and prize competitions you must:</p>
+    <ul>
+      <li>Be at least <b>18 years of age</b></li>
+      <li>Have the legal capacity to enter into a binding agreement</li>
+      <li>Hold a valid Solana-compatible cryptocurrency wallet</li>
+      <li>Not be located in a jurisdiction where participation is prohibited</li>
+    </ul>
+
+    <h3>Restricted Regions</h3>
+    <p>Due to varying regulations around skill games with prize elements, residents of the following regions are <b>not permitted</b> to participate in paid games or prize competitions:</p>
+    <ul>
+      <li>United States of America and its territories</li>
+      <li>Any jurisdiction where such participation would violate applicable law</li>
+    </ul>
+
+    <div class="callout red">
+      <div class="callout-label">⚠ Your Responsibility</div>
+      It is <b>your sole responsibility</b> to determine whether participating in Rekt Defender's paid game mode is legal in your jurisdiction. We make no representation that the Site or Game is appropriate or available for use in any particular location. If accessing the Site or Game is illegal in your location, you must not do so.
+    </div>
+
+    <p>We reserve the right to restrict access from additional regions at any time without notice if we determine that legal or regulatory risk requires it.</p>
+  </div>
+
+  <!-- 4. PAYMENTS -->
+  <div class="doc-section" id="payments">
+    <div class="section-num">Section 04</div>
+    <h2>PAYMENTS &amp; <em>GAME FEES</em></h2>
+    <p>Each paid game requires a fee of <b>0.10 USDC</b> payable via your connected Solana wallet. Payments are processed via x402 / OpenFacilitator on the Solana blockchain.</p>
+
+    <h3>Fee Allocation</h3>
+    <p>Each 0.10 USDC game fee is automatically split as follows:</p>
+    <ul>
+      <li><b>50%</b> — Used to purchase REKT tokens on the open market for the weekly prize pool</li>
+      <li><b>20%</b> — Used to purchase and permanently burn REKT tokens</li>
+      <li><b>30%</b> — Retained by the operator for development, hosting, and operational costs</li>
+    </ul>
+
+    <h3>No Refunds</h3>
+    <p><b>All game fees are non-refundable.</b> Once a payment is confirmed on the Solana blockchain, it cannot be reversed. By approving a payment in your wallet, you acknowledge that you are paying for the right to participate in a single game session and that this fee is non-refundable regardless of game outcome.</p>
+
+    <h3>Failed Sessions</h3>
+    <p>If a technical error prevents your game session from starting after payment is confirmed, please contact us via Twitter/X DM with your wallet address and transaction ID. We will review and issue a credit for a future game session at our discretion. We do not guarantee refunds in any circumstances.</p>
+
+    <div class="callout gold">
+      <div class="callout-label">💡 Note on Blockchain Transactions</div>
+      Payments are processed on the Solana blockchain. While Solana fees are minimal, you are responsible for any network fees associated with your transactions. We have no control over blockchain network performance or transaction processing times.
+    </div>
+  </div>
+
+  <!-- 5. PRIZES -->
+  <div class="doc-section" id="prizes">
+    <div class="section-num">Section 05</div>
+    <h2>PRIZES &amp; <em>LEADERBOARD</em></h2>
+    <p>The top 3 players by score each week are eligible to receive REKT token prizes. The prize pool consists of REKT tokens purchased from the open market using 50% of that week's total game fees.</p>
+
+    <h3>Prize Split</h3>
+    <ul>
+      <li><b>1st place</b> — 60% of the weekly prize pool</li>
+      <li><b>2nd place</b> — 30% of the weekly prize pool</li>
+      <li><b>3rd place</b> — 10% of the weekly prize pool</li>
+    </ul>
+
+    <h3>Prize Distribution</h3>
+    <p>Prizes are distributed to the winning wallet addresses within <b>24 hours of each Monday 00:00 UTC reset.</b> Prizes are sent directly to the wallet address connected during gameplay. We are not responsible for prizes sent to incorrect wallets due to player error.</p>
+
+    <h3>Score Verification</h3>
+    <p>All scores are verified against a unique paid session ID before being recorded on the leaderboard. Scores submitted without a valid, unused session ID matching the submitting wallet address will be rejected. We reserve the right to disqualify any score we determine to be fraudulent, manipulated, or submitted in bad faith.</p>
+
+    <h3>Prize Value</h3>
+    <p>Prizes are denominated in REKT tokens. <b>The USD value of prizes fluctuates with the market price of REKT and is not guaranteed.</b> We make no representation about the present or future value of REKT tokens. Prize amounts shown on the Site are estimates based on current token price and actual amounts received may differ.</p>
+
+    <h3>Leaderboard Disputes</h3>
+    <p>Our determination of leaderboard rankings and prize winners is final. In the event of a dispute, contact hello@rektdefender.lol within 48 hours of the weekly reset. We will review disputes at our sole discretion.</p>
+
+    <div class="callout green">
+      <div class="callout-label">✓ Hall of Fame</div>
+      All weekly winners are recorded permanently in the public Hall of Fame at <a href="leaderboard.html">rektdefender.lol/leaderboard</a>. This record includes wallet addresses, scores, and on-chain transaction proof of prize payment.
+    </div>
+  </div>
+
+  <!-- 6. TOKEN -->
+  <div class="doc-section" id="token">
+    <div class="section-num">Section 06</div>
+    <h2>REKT TOKEN &amp; <em>CRYPTO ASSETS</em></h2>
+
+    <div class="callout red">
+      <div class="callout-label">⚠ Important — Read This</div>
+      REKT is a cryptocurrency token on the Solana blockchain. <b>Cryptocurrency assets are highly volatile and speculative. You may lose all value.</b> Nothing on this Site constitutes financial advice, investment advice, or a recommendation to buy, hold, or sell any asset.
+    </div>
+
+    <p>By using this Site you acknowledge and agree that:</p>
+    <ul>
+      <li>REKT tokens have <b>no guaranteed monetary value</b> and may have zero value at any time</li>
+      <li>The price of REKT may be highly volatile and subject to rapid change</li>
+      <li>Receiving REKT tokens as prizes does not constitute investment advice or a recommendation to purchase REKT</li>
+      <li>You are solely responsible for understanding the tax implications of receiving cryptocurrency in your jurisdiction</li>
+      <li>We are not a financial institution, broker, or investment advisor</li>
+      <li>Past prize pool sizes are not indicative of future prize pool sizes</li>
+      <li>The REKT token may become illiquid or cease trading at any time</li>
+    </ul>
+
+    <h3>Token Contract</h3>
+    <p>The official REKT token contract address will be published on this Site upon launch. <b>Always verify the contract address before purchasing any token.</b> We are not responsible for losses arising from interaction with fraudulent tokens claiming to be REKT. Only trust contract addresses published directly on this Site.</p>
+  </div>
+
+  <!-- 7. CONDUCT -->
+  <div class="doc-section" id="conduct">
+    <div class="section-num">Section 07</div>
+    <h2>PROHIBITED <em>CONDUCT</em></h2>
+    <p>You agree not to engage in any of the following:</p>
+    <ul>
+      <li><b>Score manipulation</b> — Using bots, scripts, memory editors, browser developer tools, or any other method to artificially inflate your score</li>
+      <li><b>Session fraud</b> — Attempting to submit scores without a valid paid session ID or reusing session IDs</li>
+      <li><b>Multiple accounts</b> — Creating multiple wallet addresses to circumvent restrictions or game limits</li>
+      <li><b>Exploiting bugs</b> — Deliberately exploiting game bugs or technical vulnerabilities to gain unfair advantage. Report bugs via Twitter/X DM instead.</li>
+      <li><b>Automated play</b> — Using bots or automated scripts to play the game</li>
+      <li><b>Interfering with the Site</b> — Attempting to disrupt, hack, or interfere with the Site or its underlying infrastructure</li>
+      <li><b>Impersonation</b> — Impersonating other players, the development team, or any third party</li>
+    </ul>
+    <p>Violation of these rules may result in immediate disqualification from current and future prize eligibility, withholding of prizes, and permanent ban from the Site.</p>
+  </div>
+
+  <!-- 8. IP -->
+  <div class="doc-section" id="ip">
+    <div class="section-num">Section 08</div>
+    <h2>INTELLECTUAL <em>PROPERTY</em></h2>
+    <p>All content on this Site including but not limited to the game, graphics, design, text, logos, and branding is owned by or licensed to Rekt Defender and is protected by applicable intellectual property laws.</p>
+    <p>You may not reproduce, copy, modify, distribute, or create derivative works from any content on this Site without our express written permission.</p>
+    <p>Rekt Defender is an original game. While inspired by classic arcade games, the mechanics, design, characters, and crypto-themed content are original works. Any resemblance to other games is coincidental.</p>
+  </div>
+
+  <!-- 9. LIABILITY -->
+  <div class="doc-section" id="liability">
+    <div class="section-num">Section 09</div>
+    <h2>LIMITATION OF <em>LIABILITY</em></h2>
+    <p>To the maximum extent permitted by applicable law, Rekt Defender and its operators shall not be liable for:</p>
+    <ul>
+      <li>Loss of REKT tokens or cryptocurrency due to market volatility</li>
+      <li>Technical failures, downtime, or errors on the Site or blockchain network</li>
+      <li>Lost game sessions due to connectivity issues</li>
+      <li>Unauthorised access to your wallet by third parties</li>
+      <li>Any indirect, incidental, special, consequential, or punitive damages</li>
+      <li>Actions or inactions of third party services including wallet providers and the Solana network</li>
+    </ul>
+    <p>The Site and Game are provided <b>"as is"</b> without warranty of any kind. We do not warrant that the Site will be uninterrupted, error-free, or free of harmful components.</p>
+    <p>Our total liability to you for any claim arising from your use of the Site shall not exceed the total game fees paid by you in the 30 days preceding the claim.</p>
+  </div>
+
+  <!-- 10. CHANGES -->
+  <div class="doc-section" id="changes">
+    <div class="section-num">Section 10</div>
+    <h2>CHANGES TO THESE <em>TERMS</em></h2>
+    <p>We reserve the right to update these Terms at any time. Changes will be posted on this page with an updated date at the top. <b>Your continued use of the Site after changes are posted constitutes your acceptance of the updated Terms.</b></p>
+    <p>We will make reasonable efforts to notify the community of significant changes via our Twitter/X and Hey.LOL channels. However, it is your responsibility to review these Terms periodically.</p>
+  </div>
+
+  <!-- 11. CONTACT -->
+  <div class="doc-section" id="contact">
+    <div class="section-num">Section 11</div>
+    <h2><em>CONTACT</em></h2>
+    <p>If you have questions about these Terms, want to report a bug, or need to raise a prize dispute, reach out via:</p>
+    <p><b>Twitter/X:</b> <a href="#" id="xLink">@RektDefender</a> — DMs open for support queries</p>
+    <p><b>Hey.LOL:</b> <a href="#" id="heyLink">hey.lol/rektdefender</a> — Community updates and announcements</p>
+    <p style="color:rgba(240,235,227,0.4);font-size:0.82rem;margin-top:16px;">Social accounts will be active closer to the REKT token launch on Hey.LOL. Watch this space. gm. 🌅</p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">REKT<span>DEFENDER</span></div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="game.html">Play</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="tokenomics.html">Whitepaper</a>
+    <a href="privacy.html">Privacy</a>
+  </div>
+  <div class="footer-disc">
+    These terms were last updated May 2026. Not legal advice. Not financial advice. Not your mum. gm. 🌅
+  </div>
+</footer>
+
+</body>
+</html>
