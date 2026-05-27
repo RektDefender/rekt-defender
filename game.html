@@ -273,8 +273,14 @@ canvas{display:block;width:100%;height:100%;object-fit:contain;background:transp
 </div><!-- end scaler -->
 
 <script>
-// ═══════════════════════════════════════
-//  GAME DATA
+// ── MOBILE DETECTION ──
+(function(){
+  const isMobile = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile){
+    document.getElementById('mobileBlock').style.display = 'flex';
+    document.getElementById('scaler').style.display = 'none';
+  }
+})();
 // ═══════════════════════════════════════
 const ENEMY_TYPES = [
   { name:'FUD',   emoji:'📉', color:'#FF3366', pts:50,  hp:1, size:22, speed:1.2 },
