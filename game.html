@@ -109,9 +109,47 @@ canvas{display:block;width:100%;height:100%;object-fit:contain;background:transp
 #bottombar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:6px 16px;background:var(--panel);border:1px solid var(--border);border-top:none;font-size:clamp(0.5rem,0.8vw,0.6rem);color:var(--dim);letter-spacing:0.08em;}
 #bottombar a{color:var(--dim);text-decoration:none;transition:color 0.15s;}
 #bottombar a:hover{color:var(--gold);}
+
+/* MOBILE BLOCKER */
+#mobileBlock{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px 32px;
+  gap:20px;
+  height:100vh;
+}
+
+#mobileBlock .mb-logo{height:60px;width:auto;margin-bottom:8px;}
+#mobileBlock .mb-icon{font-size:3rem;}
+#mobileBlock .mb-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.08em;color:var(--gold);line-height:1;}
+#mobileBlock .mb-sub{font-size:0.78rem;color:rgba(240,235,227,0.5);line-height:1.9;max-width:300px;}
+#mobileBlock .mb-sub b{color:var(--white);}
+#mobileBlock .mb-badge{background:rgba(153,69,255,0.15);border:1px solid rgba(153,69,255,0.3);padding:10px 24px;font-size:0.65rem;letter-spacing:0.15em;color:var(--purple);}
+#mobileBlock .mb-link{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.15em;padding:10px 32px;background:var(--gold);color:var(--bg);text-decoration:none;display:inline-block;margin-top:4px;}
+
+@media(max-width:768px){
+  #mobileBlock{display:flex;}
+  #scaler{display:none;}
+}
 </style>
 </head>
 <body>
+
+<!-- MOBILE BLOCKER -->
+<div id="mobileBlock">
+  <img src="https://raw.githubusercontent.com/RektDefender/rekt-defender/main/REKT_Defender_Logo.png" class="mb-logo" alt="REKT Defender">
+  <div class="mb-icon">🖥️</div>
+  <div class="mb-title">DESKTOP ONLY<br><span style="color:var(--red);font-size:0.7em;">FOR NOW, ANON</span></div>
+  <p class="mb-sub">
+    Rekt Defender requires a keyboard to play.<br>
+    <b>Mobile controls are coming soon</b> — jump on a desktop or laptop to defend your bags properly.
+  </p>
+  <div class="mb-badge">📱 Mobile support coming in a future update</div>
+  <a href="index.html" class="mb-link">← BACK TO SITE</a>
+</div>
 
 <!-- SCALER -->
 <div id="scaler">
