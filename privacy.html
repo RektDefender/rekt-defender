@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKT DEFENDER — Privacy Policy</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#07070f;--panel:#0d0d1a;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;--blue:#00D4FF;--white:#F0EBE3;--dim:rgba(240,235,227,0.38);--border:rgba(255,215,0,0.12);}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.8;overflow-x:hidden;}
+
+nav{display:flex;justify-content:space-between;align-items:center;padding:14px 48px;border-bottom:1px solid var(--border);background:rgba(7,7,15,0.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:90;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.1em;color:var(--gold);text-decoration:none;}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{color:rgba(240,235,227,0.5);text-decoration:none;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;transition:color 0.15s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-cta{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.15em;padding:7px 20px;background:var(--gold);color:var(--bg);text-decoration:none;transition:all 0.15s;}
+.nav-cta:hover{background:var(--green);}
+
+.container{max-width:780px;margin:0 auto;padding:60px 32px 100px;}
+
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border);}
+.doc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.3em;color:var(--green);text-transform:uppercase;margin-bottom:12px;display:block;}
+.doc-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,4rem);letter-spacing:0.05em;color:var(--gold);line-height:1;margin-bottom:16px;}
+.doc-meta{display:flex;gap:32px;flex-wrap:wrap;}
+.doc-meta-item{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--dim);letter-spacing:0.1em;}
+.doc-meta-item b{color:rgba(240,235,227,0.6);}
+
+.toc-box{background:var(--panel);border:1px solid var(--border);padding:24px 28px;margin-bottom:48px;}
+.toc-box-title{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-bottom:16px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.toc-list a{font-size:0.78rem;color:rgba(240,235,227,0.55);text-decoration:none;transition:color 0.15s;display:flex;gap:12px;}
+.toc-list a:hover{color:var(--gold);}
+.toc-list a span{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:0.65rem;width:24px;flex-shrink:0;}
+
+.doc-section{margin-bottom:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,215,0,0.06);}
+.doc-section:last-child{border-bottom:none;}
+.section-num{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.25em;color:var(--green);text-transform:uppercase;margin-bottom:8px;}
+h2{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.08em;color:var(--white);margin-bottom:20px;line-height:1;}
+h2 em{color:var(--gold);font-style:normal;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.1em;color:var(--gold);margin:24px 0 10px;}
+p{color:rgba(240,235,227,0.72);margin-bottom:14px;font-size:0.95rem;}
+p b{color:var(--white);}
+p a{color:var(--blue);text-decoration:none;}
+p a:hover{color:var(--gold);}
+
+ul{margin:12px 0 16px 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+ul li{font-size:0.88rem;color:rgba(240,235,227,0.65);padding-left:20px;position:relative;line-height:1.7;}
+ul li::before{content:'—';position:absolute;left:0;color:var(--dim);}
+ul li b{color:var(--white);}
+
+.callout{padding:18px 22px;margin:20px 0;font-size:0.85rem;border-left:3px solid var(--border);}
+.callout.green{border-left-color:var(--green);background:rgba(0,255,136,0.04);}
+.callout.gold{border-left-color:var(--gold);background:rgba(255,215,0,0.04);}
+.callout.blue{border-left-color:var(--blue);background:rgba(0,212,255,0.04);}
+.callout-label{font-family:'JetBrains Mono',monospace;font-size:0.52rem;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;}
+.callout.green .callout-label{color:var(--green);}
+.callout.gold .callout-label{color:var(--gold);}
+.callout.blue .callout-label{color:var(--blue);}
+
+footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);letter-spacing:0.1em;}
+.footer-logo span{color:var(--red);}
+.footer-links{display:flex;gap:20px;}
+.footer-links a{font-size:0.58rem;letter-spacing:0.12em;color:rgba(240,235,227,0.3);text-decoration:none;transition:color 0.15s;text-transform:uppercase;}
+.footer-links a:hover{color:var(--gold);}
+.footer-disc{width:100%;font-size:0.55rem;color:rgba(240,235,227,0.15);text-align:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.04);line-height:1.8;}
+
+@media(max-width:768px){
+  nav{padding:12px 20px;}.nav-links{display:none;}
+  .container{padding:40px 20px 80px;}
+  footer{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">REKT<span>DEFENDER</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="tokenomics.html">Whitepaper</a>
+    <a href="terms.html">Terms</a>
+  </div>
+  <a href="game.html" class="nav-cta">▶ PLAY FREE</a>
+</nav>
+
+<div class="container">
+
+  <div class="doc-header">
+    <span class="doc-eyebrow">Legal</span>
+    <div class="doc-title">PRIVACY POLICY</div>
+    <div class="doc-meta">
+      <div class="doc-meta-item"><b>Last updated:</b> May 2026</div>
+      <div class="doc-meta-item"><b>Applies to:</b> RektDefender.LOL</div>
+      <div class="doc-meta-item"><b>Contact:</b> Via Twitter/X</div>
+    </div>
+  </div>
+
+  <div class="toc-box">
+    <div class="toc-box-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span>01</span>Overview — What We Collect & Why</a></li>
+      <li><a href="#wallet"><span>02</span>Wallet Addresses</a></li>
+      <li><a href="#gameplay"><span>03</span>Gameplay Data</a></li>
+      <li><a href="#technical"><span>04</span>Technical Data</a></li>
+      <li><a href="#blockchain"><span>05</span>Blockchain & Public Data</a></li>
+      <li><a href="#sharing"><span>06</span>Data Sharing</a></li>
+      <li><a href="#retention"><span>07</span>Data Retention</a></li>
+      <li><a href="#rights"><span>08</span>Your Rights</a></li>
+      <li><a href="#cookies"><span>09</span>Cookies</a></li>
+      <li><a href="#changes"><span>10</span>Changes to This Policy</a></li>
+      <li><a href="#contact"><span>11</span>Contact</a></li>
+    </ul>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">📋 Plain English Summary</div>
+    We collect as little data as possible. We don't collect your name, email, or any personal identifying information. We store your wallet address, game scores, and session IDs to run the leaderboard. Wallet addresses and scores are public by design — they appear on the leaderboard and Hall of Fame. We use Supabase to store game data and Vercel to host the site. We don't sell your data. Ever.
+  </div>
+
+  <!-- 1. OVERVIEW -->
+  <div class="doc-section" id="overview">
+    <div class="section-num">Section 01</div>
+    <h2>OVERVIEW — WHAT WE <em>COLLECT & WHY</em></h2>
+    <p>Rekt Defender is designed with privacy in mind. We do not require you to create an account, provide your name, or share an email address. Your identity on our platform is your <b>wallet address</b> — a pseudonymous identifier on the Solana blockchain.</p>
+    <p>We collect only what is necessary to operate the game and leaderboard fairly. Here is a summary of everything we collect:</p>
+    <ul>
+      <li><b>Wallet address</b> — to identify you on the leaderboard and send prizes</li>
+      <li><b>Game scores</b> — to power the leaderboard and Hall of Fame</li>
+      <li><b>Session IDs</b> — to verify paid games and prevent fraud</li>
+      <li><b>Wave reached</b> — recorded alongside scores for context</li>
+      <li><b>Timestamps</b> — to determine weekly leaderboard rankings</li>
+      <li><b>Basic technical data</b> — browser type, device type, and IP address for security and analytics</li>
+    </ul>
+    <p>We do <b>not</b> collect your name, email address, phone number, physical address, government ID, or any other personally identifying information.</p>
+  </div>
+
+  <!-- 2. WALLET -->
+  <div class="doc-section" id="wallet">
+    <div class="section-num">Section 02</div>
+    <h2>WALLET <em>ADDRESSES</em></h2>
+    <p>When you connect your Solana wallet to Rekt Defender, we receive your public wallet address. This is a string of characters that identifies your wallet on the Solana blockchain — for example, <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--blue);">GmRaXXXX...xK9f</span>.</p>
+
+    <div class="callout blue">
+      <div class="callout-label">ℹ️ Important to understand</div>
+      Wallet addresses are <b>public by design</b> on any blockchain. Your wallet address and its transaction history are visible to anyone on Solana Explorer. We do not make your wallet address any more or less public than it already is on the blockchain. However, we do display it on our public leaderboard and Hall of Fame.
+    </div>
+
+    <p>We use your wallet address to:</p>
+    <ul>
+      <li>Display your position on the leaderboard</li>
+      <li>Record your score against your identity</li>
+      <li>Send prize payments when you win</li>
+      <li>Prevent the same wallet submitting fraudulent duplicate sessions</li>
+      <li>Maintain the permanent Hall of Fame record</li>
+    </ul>
+
+    <h3>Wallet Address Display</h3>
+    <p>On the leaderboard and Hall of Fame, wallet addresses are displayed in shortened form — for example <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--blue);">GmRa...xK9f</span>. The full address is stored in our database and used for prize payments but is not displayed publicly in full on the Site.</p>
+
+    <p>We never ask for, store, or have access to your <b>private key or seed phrase.</b> Never share these with anyone. We will never ask for them.</p>
+  </div>
+
+  <!-- 3. GAMEPLAY -->
+  <div class="doc-section" id="gameplay">
+    <div class="section-num">Section 03</div>
+    <h2>GAMEPLAY <em>DATA</em></h2>
+    <p>When you play a paid game, the following data is recorded in our database (Supabase):</p>
+    <ul>
+      <li><b>Wallet address</b> — your identifier</li>
+      <li><b>Score</b> — your final score for that game session</li>
+      <li><b>Wave reached</b> — how far you progressed</li>
+      <li><b>Session ID</b> — unique identifier tied to your payment transaction, used for fraud prevention</li>
+      <li><b>Timestamp</b> — the date and time the score was submitted</li>
+      <li><b>Week number</b> — used to determine which weekly leaderboard your score belongs to</li>
+    </ul>
+    <p>Demo mode scores are <b>not stored</b> in our database. They exist only in your browser for the duration of your session.</p>
+    <p>Your best score each week is displayed publicly on the leaderboard. When a week ends, your winning score (if you finish top 3) is permanently recorded in the Hall of Fame. All other weekly scores are retained in our database for fraud prevention and audit purposes but are not displayed publicly.</p>
+  </div>
+
+  <!-- 4. TECHNICAL -->
+  <div class="doc-section" id="technical">
+    <div class="section-num">Section 04</div>
+    <h2>TECHNICAL <em>DATA</em></h2>
+    <p>Like most websites, our hosting provider (Vercel) automatically collects certain technical data when you visit the Site:</p>
+    <ul>
+      <li><b>IP address</b> — used for security monitoring and abuse prevention</li>
+      <li><b>Browser type and version</b> — used to ensure compatibility</li>
+      <li><b>Device type</b> — desktop or mobile</li>
+      <li><b>Pages visited and time spent</b> — used for basic analytics</li>
+      <li><b>Referring URL</b> — how you arrived at the Site</li>
+    </ul>
+    <p>This data is collected by Vercel as part of their standard hosting infrastructure. We use it only to monitor Site performance and security. We do not use it for advertising or profiling. Vercel's privacy policy applies to data collected at the hosting level and can be found at <a href="https://vercel.com/legal/privacy-policy" target="_blank">vercel.com/legal/privacy-policy</a>.</p>
+  </div>
+
+  <!-- 5. BLOCKCHAIN -->
+  <div class="doc-section" id="blockchain">
+    <div class="section-num">Section 05</div>
+    <h2>BLOCKCHAIN &amp; <em>PUBLIC DATA</em></h2>
+    <p>All payment transactions are processed on the Solana blockchain. Blockchain transactions are <b>public, permanent, and immutable</b> by design. This means:</p>
+    <ul>
+      <li>Your payment transactions are publicly visible on Solana Explorer</li>
+      <li>Prize payment transactions sent to your wallet are publicly visible</li>
+      <li>We cannot delete or modify any on-chain data</li>
+      <li>The Hall of Fame records are backed by on-chain transaction proof</li>
+    </ul>
+    <p>This is a fundamental property of public blockchains and not something within our control. If you are concerned about on-chain privacy, consider researching privacy tools available within the Solana ecosystem.</p>
+
+    <div class="callout gold">
+      <div class="callout-label">💡 Pseudonymity vs Anonymity</div>
+      Your wallet address is pseudonymous — it does not directly reveal your real identity unless you have publicly linked your wallet to your identity elsewhere. We store and display wallet addresses, not real names. However, wallet addresses are not anonymous — on-chain activity is visible to anyone.
+    </div>
+  </div>
+
+  <!-- 6. SHARING -->
+  <div class="doc-section" id="sharing">
+    <div class="section-num">Section 06</div>
+    <h2>DATA <em>SHARING</em></h2>
+    <p><b>We do not sell your data.</b> We do not share your data with advertisers, data brokers, or any third party for commercial purposes.</p>
+    <p>We use the following third party services to operate the Site, and your data may pass through their infrastructure:</p>
+    <ul>
+      <li><b>Vercel</b> — website hosting. Collects standard server logs. <a href="https://vercel.com/legal/privacy-policy" target="_blank">Privacy policy →</a></li>
+      <li><b>Supabase</b> — database hosting for scores and leaderboard data. Data stored in Supabase servers. <a href="https://supabase.com/privacy" target="_blank">Privacy policy →</a></li>
+      <li><b>OpenFacilitator / x402</b> — payment processing on Solana. Handles payment verification. No personal data beyond wallet address is shared.</li>
+      <li><b>Solana blockchain</b> — public ledger. All on-chain transactions are permanently public.</li>
+    </ul>
+    <p>We may disclose data if required to do so by law, court order, or regulatory authority. We will notify you of any such requirement to the extent permitted by law.</p>
+  </div>
+
+  <!-- 7. RETENTION -->
+  <div class="doc-section" id="retention">
+    <div class="section-num">Section 07</div>
+    <h2>DATA <em>RETENTION</em></h2>
+    <p>We retain data for as long as necessary to operate the game and leaderboard fairly:</p>
+    <ul>
+      <li><b>Hall of Fame records</b> — retained permanently. These are the public record of all weekly winners and cannot be deleted without undermining the integrity of the competition.</li>
+      <li><b>Weekly leaderboard scores</b> — retained indefinitely for fraud prevention and audit purposes. Not displayed publicly after the relevant week ends.</li>
+      <li><b>Session IDs</b> — retained indefinitely to prevent reuse and fraud.</li>
+      <li><b>Technical logs</b> — retained by Vercel per their standard data retention policy (typically 30 days).</li>
+    </ul>
+    <p>Because Hall of Fame records are tied to on-chain prize payments, they cannot be fully deleted — the blockchain record will always exist even if we remove the display from our Site.</p>
+  </div>
+
+  <!-- 8. RIGHTS -->
+  <div class="doc-section" id="rights">
+    <div class="section-num">Section 08</div>
+    <h2>YOUR <em>RIGHTS</em></h2>
+    <p>Depending on your jurisdiction, you may have rights regarding your personal data. As we hold minimal personal data, these rights are limited in practice:</p>
+    <ul>
+      <li><b>Access</b> — you can request a copy of data we hold associated with your wallet address</li>
+      <li><b>Correction</b> — if data we hold is inaccurate, you can request correction</li>
+      <li><b>Deletion</b> — you can request deletion of your data from our database. Note: Hall of Fame records tied to on-chain prize payments cannot be fully deleted. Weekly scores not on the Hall of Fame can be deleted on request.</li>
+      <li><b>Objection</b> — you can object to our processing of your data in certain circumstances</li>
+    </ul>
+    <p>To exercise any of these rights, contact us via Twitter/X DM with your wallet address and the specific request. We will respond within 30 days.</p>
+
+    <div class="callout gold">
+      <div class="callout-label">💡 The simplest privacy option</div>
+      If you want to minimise the data we hold about you — simply use demo mode. Demo mode requires no wallet connection and stores no data. To play competitively, a wallet address is required by design.
+    </div>
+  </div>
+
+  <!-- 9. COOKIES -->
+  <div class="doc-section" id="cookies">
+    <div class="section-num">Section 09</div>
+    <h2><em>COOKIES</em></h2>
+    <p>We use minimal cookies and local storage:</p>
+    <ul>
+      <li><b>Local storage</b> — your all-time high score (ATH) is stored locally in your browser. This never leaves your device and is not sent to our servers.</li>
+      <li><b>Session cookies</b> — used by Vercel for standard hosting functionality. These are technical cookies necessary to serve the website and do not track you for advertising purposes.</li>
+    </ul>
+    <p>We do <b>not</b> use advertising cookies, tracking pixels, or any third party analytics cookies. We do not use Google Analytics or similar services.</p>
+    <p>You can clear local storage and cookies at any time through your browser settings. Clearing local storage will reset your locally stored ATH score.</p>
+  </div>
+
+  <!-- 10. CHANGES -->
+  <div class="doc-section" id="changes">
+    <div class="section-num">Section 10</div>
+    <h2>CHANGES TO THIS <em>POLICY</em></h2>
+    <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated date. We will notify the community of significant changes via our Twitter/X and Hey.LOL channels.</p>
+    <p>Your continued use of the Site after changes are posted constitutes your acceptance of the updated Policy.</p>
+  </div>
+
+  <!-- 11. CONTACT -->
+  <div class="doc-section" id="contact">
+    <div class="section-num">Section 11</div>
+    <h2><em>CONTACT</em></h2>
+    <p>For privacy-related requests or questions, reach out via:</p>
+    <p><b>Twitter/X:</b> <a href="#">@RektDefender</a> — DMs open for privacy requests</p>
+    <p><b>Hey.LOL:</b> <a href="#">hey.lol/rektdefender</a></p>
+    <p style="color:rgba(240,235,227,0.4);font-size:0.82rem;margin-top:16px;">Social accounts will be active closer to the REKT token launch. gm. 🌅</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">REKT<span>DEFENDER</span></div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="game.html">Play</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="tokenomics.html">Whitepaper</a>
+    <a href="terms.html">Terms</a>
+  </div>
+  <div class="footer-disc">
+    We collect as little as possible. We don't sell anything. We're a game, not a data company. gm. 🌅
+  </div>
+</footer>
+
+</body>
+</html>
