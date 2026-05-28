@@ -7,6 +7,125 @@
 <title>REKT DEFENDER — Defend Your Bags. Win REKT.</title>
 <meta name="description" content="The crypto skill game where your reflexes pay your bills. Shoot FUD, dodge rugs, win REKT tokens every week.">
 
+<!-- WebApplication + VideoGame Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["WebApplication", "VideoGame"],
+  "name": "Rekt Defender",
+  "url": "https://www.rektdefender.lol",
+  "description": "A crypto-themed skill game built on Solana. Defend your portfolio against FUD, Rug Pulls, Bears, SEC Agents and Whales. Pay 0.10 USDC per game and compete for weekly REKT token prizes.",
+  "applicationCategory": "GameApplication",
+  "genre": ["Arcade", "Action", "Skill Game"],
+  "gamePlatform": "Web Browser",
+  "playMode": "SinglePlayer",
+  "operatingSystem": "Any",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0.10",
+    "priceCurrency": "USDC",
+    "description": "0.10 USDC per competitive game session"
+  },
+  "image": "https://raw.githubusercontent.com/RektDefender/rekt-defender/main/REKT_Defender_Banner.png",
+  "screenshot": "https://raw.githubusercontent.com/RektDefender/rekt-defender/main/REKT_Defender_Banner.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Rekt Defender",
+    "url": "https://www.rektdefender.lol",
+    "logo": "https://raw.githubusercontent.com/RektDefender/rekt-defender/main/REKT_Defender_Logo.png"
+  }
+}
+</script>
+
+<!-- Organization Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Rekt Defender",
+  "url": "https://www.rektdefender.lol",
+  "logo": "https://raw.githubusercontent.com/RektDefender/rekt-defender/main/REKT_Defender_Logo.png",
+  "description": "Creators of Rekt Defender — the crypto skill game on Solana where players compete for weekly REKT token prizes.",
+  "sameAs": []
+}
+</script>
+
+<!-- FAQPage Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is REKT token and where do I get it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "REKT is the game token launching on Solana via Hey.LOL. Contract address will be posted on the site the moment it goes live. Always verify the contract address before buying."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do I pay in USDC not REKT?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Paying in USDC removes the barrier of needing to buy REKT before trying the game. Your fees are used to buy REKT off the open market for prizes and burns — so every game creates real buy pressure on the token regardless."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I know scores are not faked?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Every game session generates a unique ID tied to your payment transaction. Scores are only saved if the session ID is valid and matches your wallet. No valid payment means no score saved."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When does the leaderboard reset?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Every Monday at 00:00 UTC. Winners from the previous week receive REKT tokens within 24 hours, sent directly to their connected wallet. Their scores are then moved to the Hall of Fame permanently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this gambling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rekt Defender is a skill game — your score depends entirely on gameplay ability, not chance. Laws around skill games with prizes vary by country. It is your responsibility to check your local regulations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What wallets are supported?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Phantom and Solflare are fully supported. Any Solana wallet that supports USDC transfers should work."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- BreadcrumbList Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.rektdefender.lol"
+    }
+  ]
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
