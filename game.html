@@ -49,6 +49,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:
   display:flex;flex-direction:column;align-items:stretch;
   width:min(92vw, 1200px);
   max-height:98vh;
+  overflow:hidden;
 }
 
 /* DEMO BANNER */
@@ -76,11 +77,24 @@ html,body{width:100%;height:100%;background:var(--bg);color:#F0EBE3;font-family:
 .hud-val.blue{color:var(--blue);}
 
 /* GAME WRAP — fills remaining height, canvas scales inside it */
-#gameWrap{position:relative;width:100%;flex:1;min-height:0;border:1px solid var(--border);box-shadow:0 0 60px rgba(255,215,0,0.04),inset 0 0 60px rgba(0,0,0,0.5);overflow:hidden;}
-canvas{display:block;width:100%;height:100%;object-fit:contain;background:transparent;}
+#gameWrap{
+  position:relative;width:100%;
+  flex:1;min-height:0;
+  border:1px solid var(--border);
+  box-shadow:0 0 60px rgba(255,215,0,0.04),inset 0 0 60px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  max-height:calc(98vh - 120px); /* subtract banner + topbar + hud + hodlbar + bottombar */
+  object-fit:contain;
+  background:transparent;
+}
 
 /* OVERLAYS */
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:rgba(7,7,15,0.94);z-index:20;}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.5vh,20px);background:rgba(7,7,15,0.94);z-index:20;padding:12px;}
 .overlay.hidden{display:none;}
 .ov-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,4rem);letter-spacing:0.06em;text-align:center;line-height:1;}
 .ov-title .t1{color:var(--gold);display:block;}
