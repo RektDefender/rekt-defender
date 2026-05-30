@@ -181,6 +181,30 @@ canvas{
   #mobileBlock{display:flex;}
   #scaler{display:none;}
 }
+
+/* SHORT SCREEN FIXES — progressively hide non-essential elements */
+@media(max-height:820px){
+  .ov-title{font-size:clamp(1.4rem,3vw,2.2rem) !important;}
+  .ov-title .t2{font-size:clamp(0.6rem,1.2vw,0.8rem) !important;}
+  .demo-badge{padding:5px 16px;font-size:0.55rem;}
+  .ps-item{padding:7px 10px;}
+  .overlay{gap:clamp(6px,1vh,14px);}
+  #topbar img{height:38px !important;}
+  #hud{padding:4px 16px;}
+  .hud-val{font-size:0.95rem;}
+  .hud-label{font-size:0.42rem;}
+}
+
+@media(max-height:720px){
+  #scoreDisclaimer{display:none;}
+  .controls-hint{display:none;}
+  .ov-sub{font-size:0.58rem;}
+}
+
+@media(max-height:620px){
+  #demoBanner{display:none;}
+  .ov-sub{display:none;}
+}
 </style>
 
 <!-- Google Tag Manager -->
@@ -265,7 +289,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="demo-badge">🎮 DEMO MODE — FREE TO PLAY</div>
 
-    <div style="font-size:0.6rem;color:rgba(240,235,227,0.4);letter-spacing:0.08em;text-align:center;max-width:400px;line-height:1.8;padding:8px 16px;border:1px solid rgba(255,45,85,0.2);background:rgba(255,45,85,0.04);">
+    <div id="scoreDisclaimer" style="font-size:0.6rem;color:rgba(240,235,227,0.4);letter-spacing:0.08em;text-align:center;max-width:400px;line-height:1.8;padding:8px 16px;border:1px solid rgba(255,45,85,0.2);background:rgba(255,45,85,0.04);">
       ⚠️ Your in-game score shows a <b style="color:#F0EBE3;">$ portfolio value</b> — this is a game mechanic only.<br>
       It has <b style="color:#F0EBE3;">no relation to prize amounts</b>. Prizes are paid in REKT tokens.
     </div>
