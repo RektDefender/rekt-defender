@@ -417,19 +417,18 @@ function startGame(){
 
 function spawnWave(wave){
   enemies = [];
-  // More enemies on screen at once, scaling with wave
-  const count = Math.min(6 + wave * 3, 28);
-  const typePool = ENEMY_TYPES.slice(0, Math.min(2 + Math.floor(wave / 1.5), ENEMY_TYPES.length));
+  // Reduced enemy count — easier early waves
+  const count = Math.min(4 + wave * 2, 18);
+  const typePool = ENEMY_TYPES.slice(0, Math.min(2 + Math.floor(wave / 2), ENEMY_TYPES.length));
   for(let i = 0; i < count; i++)
     enemies.push(makeEnemy(typePool[Math.floor(Math.random() * typePool.length)], wave));
 
-  // Kill quota scales with wave — must kill this many before wave can end
-  gs.killQuota = 10 + wave * 8;
+  // Kill quota — slightly reduced
+  gs.killQuota = 8 + wave * 5;
   gs.killCount = 0;
   gs.waveComplete = false;
-  // Wave timer in frames (60fps) — minimum time before wave can end even if quota met
-  // Wave 1 = 30s, each wave adds 5s, caps at 75s
-  gs.waveTimer = Math.min(30 + wave * 5, 75) * 60;
+  // Wave timer — wave 1 = 25s, each wave adds 5s, caps at 60s
+  gs.waveTimer = Math.min(25 + wave * 5, 60) * 60;
 }
 
 function makeEnemy(type, wave){
@@ -438,13 +437,13 @@ function makeEnemy(type, wave){
     x: Math.random() * (W-80) + 40,
     y: -type.size - Math.random() * 200,
     vx: (Math.random() - 0.5) * 2,
-    vy: type.speed + wave * 0.12,
-    type, hp: type.hp + Math.floor(wave/3),
-    maxHp: type.hp + Math.floor(wave/3),
+    vy: type.speed * 0.7 + wave * 0.08,
+    type, hp: type.hp + Math.floor(wave/4),
+    maxHp: type.hp + Math.floor(wave/4),
     pattern: patterns[Math.floor(Math.random() * 4)],
     phase: Math.random() * Math.PI * 2,
-    phaseSpd: 0.025 + Math.random() * 0.025,
-    t: 0, shootCd: 60 + Math.random() * 80,
+    phaseSpd: 0.02 + Math.random() * 0.02,
+    t: 0, shootCd: 100 + Math.random() * 100,
     alive: true, animT: 0, size: type.size, flashT: 0,
   };
 }
@@ -475,7 +474,7 @@ function update(dt){
   document.getElementById('hodlFill').style.width = gs.hodl + '%';
   document.getElementById('hHodl').textContent = gs.hodl > 70 ? 'CHARGED' : gs.hodl > 30 ? 'LOADING' : 'REKT';
 
-  if((keys[' '] || keys['z'] || keys['Z']) && shootCd <= 0){ fireBullet(); shootCd = 11; }
+  if((keys[' '] || keys['z'] || keys['Z']) && shootCd <= 0){ fireBullet(); shootCd = 8; }
   if(gs.combo > 0){ gs.comboTimer -= dt; if(gs.comboTimer <= 0) gs.combo = 0; }
   if(player.iframes > 0) player.iframes -= dt;
 
@@ -506,10 +505,10 @@ function update(dt){
     if(['BEAR','SEC','WHALE'].includes(e.type.name)){
       e.shootCd -= dt;
       if(e.shootCd <= 0){
-        e.shootCd = 70 + Math.random() * 60;
+        e.shootCd = 120 + Math.random() * 80;
         const dx = player.x - e.x, dy = player.y - e.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        bullets.push({ x:e.x, y:e.y, vx:(dx/dist)*4, vy:(dy/dist)*4, enemy:true, color:e.type.color, r:4 });
+        bullets.push({ x:e.x, y:e.y, vx:(dx/dist)*3, vy:(dy/dist)*3, enemy:true, color:e.type.color, r:4 });
       }
     }
 
@@ -553,7 +552,7 @@ function update(dt){
   // Respawn enemies to keep pressure on — always maintain active enemies on screen
   const alive = enemies.filter(e => e.alive).length;
   const typePool = ENEMY_TYPES.slice(0, Math.min(2 + Math.floor(gs.wave / 1.5), ENEMY_TYPES.length));
-  const targetOnScreen = Math.min(4 + gs.wave * 2, 16);
+  const targetOnScreen = Math.min(3 + gs.wave, 10);
   if(alive < targetOnScreen && !gs.waveComplete){
     const type = typePool[Math.floor(Math.random() * typePool.length)];
     enemies.push(makeEnemy(type, gs.wave));
