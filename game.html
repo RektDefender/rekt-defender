@@ -742,21 +742,55 @@ function getPrompt(score, wave, kills, rank, gapToTop3, isATH, isPB){
 function shareToX(){
   const score = gs.score;
   const rank = parseInt(document.getElementById('goRank').textContent.replace('#','')) || null;
-  const isDemo = true; // flip when live
 
-  let tweet;
-  if(score === 0){
-    tweet = `💀 I just got absolutely rekt on Rekt Defender before even scoring. The bears won today.\n\nCan you do better? Play free at rektdefender.lol\n\n#RektDefender #Solana #REKT`;
-  } else if(rank && rank <= 3){
-    tweet = `🔥 I'm #${rank} on the Rekt Defender weekly leaderboard with a $${score.toLocaleString()} portfolio!\n\nThink you can beat me? rektdefender.lol\n\n#RektDefender #Solana #REKT`;
-  } else if(rank){
-    tweet = `🎮 Just scored $${score.toLocaleString()} on Rekt Defender — currently ranked #${rank} this week.\n\nGunning for that top 3 prize. Play free at rektdefender.lol\n\n#RektDefender #Solana #REKT`;
-  } else {
-    tweet = `💀 Just got REKT defending my portfolio on Rekt Defender. $${score.toLocaleString()} before the bears got me.\n\nPlay free: rektdefender.lol\n\n#RektDefender #Solana #REKT`;
-  }
+  // Multiple variants per situation — randomly selected
+  const zeroTweets = [
+    `💀 I just got absolutely rekt on Rekt Defender before even scoring. The bears won today.\n\nCan you do better? Play free at rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🪤 Opened Rekt Defender. Immediately got rugged by the first wave. $0 portfolio. This is fine. 🔥\n\nrektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `📉 My Rekt Defender portfolio went from $0 to $0. Flawless execution.\n\nSomeone else defend my bags: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🐻 The bears didn't even break a sweat. I lasted approximately zero seconds on Rekt Defender.\n\nNGMI. rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `😭 Rekt Defender handed me a $0 portfolio. I am the paper hands I was warned about.\n\nrektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🤲 Just proved I have paper hands in video game form. $0 on Rekt Defender.\n\nAt least it was free: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+  ];
 
-  const url = 'https://x.com/intent/tweet?text=' + encodeURIComponent(tweet);
-  window.open(url, '_blank');
+  const lowTweets = [
+    `💀 Just got REKT defending my portfolio on Rekt Defender. $${score.toLocaleString()} before the bears got me.\n\nPlay free: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `📉 $${score.toLocaleString()} portfolio. The FUD won. The rug pulled. The SEC arrived.\n\nTrying again: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🐻 Rekt Defender: $${score.toLocaleString()} and then the bears ate me alive.\n\nWave ${gs.wave} was not kind. rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🪤 Built a $${score.toLocaleString()} portfolio on Rekt Defender then got absolutely rugged.\n\nStill bullish though: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `😤 $${score.toLocaleString()} on Rekt Defender. Not my best run. The whales manipulated me.\n\nAping back in: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+  ];
+
+  const midTweets = [
+    `🎮 Just scored $${score.toLocaleString()} on Rekt Defender — currently ranked #${rank} this week.\n\nGunning for that top 3 prize. Play free at rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `📊 $${score.toLocaleString()} portfolio on Rekt Defender. Rank #${rank} this week.\n\nTop 3 is within reach. rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `💎 Defended my bags to $${score.toLocaleString()} on Rekt Defender. Currently #${rank} on the weekly board.\n\nCome for the prizes, stay for the chaos: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🚀 Wave ${gs.wave} reached. $${score.toLocaleString()} portfolio. Rank #${rank} this week on Rekt Defender.\n\nTop 3 wins REKT tokens — I'm coming for them: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+  ];
+
+  const top3Tweets = [
+    `🔥 I'm #${rank} on the Rekt Defender weekly leaderboard with a $${score.toLocaleString()} portfolio!\n\nThink you can beat me? rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🏆 Currently #${rank} on Rekt Defender this week. $${score.toLocaleString()} portfolio. Top 3 wins REKT tokens.\n\nCome and take it: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `💎 DIAMOND HANDS. $${score.toLocaleString()} on Rekt Defender. Sitting #${rank} on the weekly leaderboard.\n\nThe bears didn't stand a chance: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🌕 $${score.toLocaleString()} portfolio and ranked #${rank} this week on Rekt Defender.\n\nWen moon? After Monday's payout 😏 rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+  ];
+
+  const wagmiTweets = [
+    `🚀 WAGMI. $${score.toLocaleString()} on Rekt Defender. Absolutely rinsed the bears.\n\nI am the market: rektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `💎 $${score.toLocaleString()} portfolio on Rekt Defender. The FUD couldn't touch me. The SEC tried. The whales dumped. I didn't care.\n\nrektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+    `🏆 $${score.toLocaleString()} on Rekt Defender. Not financial advice but this is what diamond hands look like.\n\nrektdefender.lol\n\n#RektDefender #Solana #REKT @RektDefenderLOL`,
+  ];
+
+  // Pick the right pool then random variant
+  let pool;
+  if(score === 0)        pool = zeroTweets;
+  else if(rank <= 1 && score > 35000) pool = wagmiTweets;
+  else if(rank <= 3)     pool = top3Tweets;
+  else if(score < 8000)  pool = lowTweets;
+  else                   pool = midTweets;
+
+  const tweet = pool[Math.floor(Math.random() * pool.length)];
+  window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(tweet), '_blank');
 }
 
 function gameOver(){
