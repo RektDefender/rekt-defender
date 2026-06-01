@@ -128,9 +128,35 @@ canvas{
 .btn.ghost::after{background:rgba(240,235,227,0.1);}
 .btn.ghost:hover{color:var(--white);}
 
-/* Game over */
+/* Game over score */
 .go-score{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4rem);color:var(--green);text-shadow:0 0 30px rgba(0,255,136,0.3);line-height:1;}
-.go-label{font-size:clamp(0.55rem,0.9vw,0.65rem);letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-top:-4px;}
+.go-label{font-size:clamp(0.5rem,0.85vw,0.62rem);letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-top:-4px;}
+
+/* Game over stats grid */
+.go-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;
+  width:100%;max-width:420px;background:rgba(255,215,0,0.06);
+}
+.go-stat{background:var(--panel);padding:10px 16px;text-align:center;}
+.go-stat-label{font-size:0.5rem;letter-spacing:0.18em;color:var(--dim);text-transform:uppercase;margin-bottom:4px;}
+.go-stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;line-height:1;}
+.go-stat-val.blue{color:var(--blue);}
+.go-stat-val.green{color:var(--green);}
+.go-stat-val.gold{color:var(--gold);}
+.go-stat-val.red{color:var(--red);}
+
+/* Motivational prompt */
+.go-prompt{
+  font-size:clamp(0.65rem,1.2vw,0.8rem);
+  color:var(--gold);
+  letter-spacing:0.1em;
+  text-align:center;
+  padding:8px 20px;
+  border-left:2px solid var(--gold);
+  border-right:2px solid var(--gold);
+  font-style:italic;
+  max-width:400px;
+}
 
 /* ATH banner */
 .ath-banner{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);padding:8px 20px;font-size:clamp(0.6rem,1vw,0.75rem);letter-spacing:0.15em;color:var(--gold);display:none;}
@@ -331,23 +357,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <!-- GAME OVER SCREEN -->
   <div class="overlay hidden" id="goScreen">
+
     <div class="ov-title">
       <span class="t1" id="goTitle">NGMI</span>
       <span class="t2" id="goSub">PORTFOLIO REKT</span>
     </div>
 
     <div class="go-score" id="goScore">$0</div>
-    <div class="go-label">IN-GAME PORTFOLIO SCORE — NOT YOUR PRIZE AMOUNT</div>
-
+    <div class="go-label">IN-GAME SCORE — NOT YOUR PRIZE AMOUNT</div>
     <div class="ath-banner" id="athBanner">🏆 NEW ALL-TIME HIGH — YOU'RE NGMI NO MORE</div>
 
-    <div class="ov-sub" id="goNote">
-      Demo mode — scores not saved. Real prizes coming when REKT launches on <b>Hey.LOL</b>.
+    <div class="go-stats" id="goStats">
+      <div class="go-stat">
+        <div class="go-stat-label">WAVE REACHED</div>
+        <div class="go-stat-val blue" id="goWave">—</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-label">KILLS THIS RUN</div>
+        <div class="go-stat-val green" id="goKills">—</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-label">YOUR RANK</div>
+        <div class="go-stat-val gold" id="goRank">—</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-label">SCORE TO TOP 3</div>
+        <div class="go-stat-val red" id="goGap">—</div>
+      </div>
     </div>
 
+    <div class="go-prompt" id="goPrompt">One more run. Your bags nearly made it.</div>
+
     <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-      <button class="btn green" onclick="startGame()" style="padding:10px 32px;">▶ APE BACK IN</button>
-      <button class="btn ghost" onclick="goHome()" style="padding:10px 32px;">HOME</button>
+      <button class="btn green" onclick="startGame()" style="padding:10px 28px;">▶ APE BACK IN</button>
+      <button class="btn" id="shareBtn" onclick="shareToX()" style="padding:10px 28px;">𝕏 SHARE SCORE</button>
+      <button class="btn ghost" onclick="goHome()" style="padding:10px 24px;">HOME</button>
+    </div>
+
+    <div class="ov-sub" id="goNote">
+      Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.
     </div>
   </div>
 
@@ -420,6 +468,7 @@ let gs = {
   active: false,
   score: 0,
   ath: parseInt(localStorage.getItem('rdATH') || '0'),
+  weeklyBest: 0,
   lives: 3,
   wave: 1,
   hodl: 0,
@@ -662,20 +711,94 @@ function nextWave(){
   }, 2000);
 }
 
+// Demo leaderboard for rank comparison
+const DEMO_BOARD = [
+  { addr:'GmRaXX...9f4k', score:48200 },
+  { addr:'HODL.sol',       score:31500 },
+  { addr:'WagmiKing.sol',  score:22000 },
+  { addr:'DiamondH...99',  score:18750 },
+  { addr:'NotYet.sol',     score:12100 },
+  { addr:'PaperH...11',    score:8400  },
+  { addr:'Ser...gm42',     score:6250  },
+  { addr:'NgmiActual.sol', score:4100  },
+];
+
+// Motivational prompts based on situation
+function getPrompt(score, wave, kills, rank, gapToTop3, isATH, isPB){
+  if(isATH) return '🏆 New all-time high! You\'re built different, anon.';
+  if(score === 0) return 'Anon... you didn\'t even score. The bears are embarrassed for you.';
+  if(rank <= 3) return '🥇 You\'re in the prize zone! Hold that spot until Monday.';
+  if(rank <= 5) return `Only ${rank - 3} player${rank-3>1?'s':''} ahead of you. One good run and you\'re in prize territory.`;
+  if(gapToTop3 < 5000) return `$${gapToTop3.toLocaleString()} away from the prize zone. That\'s one good wave.`;
+  if(gapToTop3 < 15000) return `Close to the leaderboard. Ape back in and make the top 3 sweat.`;
+  if(kills < 10) return 'Shoot first. Ask questions later. More WAGMI blasts, anon.';
+  if(wave === 1) return 'Wave 1? The FUD barely warmed up. Try again.';
+  if(wave === 2) return `Wave ${wave} cleared. Wave ${wave+1} is where the real gains are.`;
+  if(kills < gs.killQuota) return `${gs.killQuota - kills} more kills would have cleared the wave. So close.`;
+  if(!isPB) return 'Not your best run. Your previous best still stands. Beat it.';
+  return 'One more run. Your bags nearly made it.';
+}
+
+function shareToX(){
+  const score = gs.score;
+  const rank = parseInt(document.getElementById('goRank').textContent.replace('#','')) || null;
+  const isDemo = true; // flip when live
+
+  let tweet;
+  if(score === 0){
+    tweet = `💀 I just got absolutely rekt on Rekt Defender before even scoring. The bears won today.\n\nCan you do better? Play free at rektdefender.lol\n\n#RektDefender #Solana #REKT`;
+  } else if(rank && rank <= 3){
+    tweet = `🔥 I'm #${rank} on the Rekt Defender weekly leaderboard with a $${score.toLocaleString()} portfolio!\n\nThink you can beat me? rektdefender.lol\n\n#RektDefender #Solana #REKT`;
+  } else if(rank){
+    tweet = `🎮 Just scored $${score.toLocaleString()} on Rekt Defender — currently ranked #${rank} this week.\n\nGunning for that top 3 prize. Play free at rektdefender.lol\n\n#RektDefender #Solana #REKT`;
+  } else {
+    tweet = `💀 Just got REKT defending my portfolio on Rekt Defender. $${score.toLocaleString()} before the bears got me.\n\nPlay free: rektdefender.lol\n\n#RektDefender #Solana #REKT`;
+  }
+
+  const url = 'https://x.com/intent/tweet?text=' + encodeURIComponent(tweet);
+  window.open(url, '_blank');
+}
+
 function gameOver(){
   gs.active = false;
   const isATH = gs.score > gs.ath;
+  const isPB  = gs.score > (gs.weeklyBest || 0);
   if(isATH){ gs.ath = gs.score; localStorage.setItem('rdATH', gs.ath); }
+  if(isPB)  { gs.weeklyBest = gs.score; }
 
+  // Title
   const title = gs.score > 35000 ? 'WAGMI' : gs.score > 18000 ? 'PROBABLY FINE' : 'NGMI';
   const sub   = gs.score > 35000 ? 'DIAMOND HANDS PREVAIL' : gs.score > 18000 ? 'HELD THE LINE' : 'PORTFOLIO REKT';
-
   document.getElementById('goTitle').textContent = title;
-  document.getElementById('goSub').textContent = sub;
-  document.getElementById('goScore').textContent = '$' + gs.score.toLocaleString();
+  document.getElementById('goSub').textContent   = sub;
+  document.getElementById('goScore').textContent  = '$' + gs.score.toLocaleString();
 
-  const athBanner = document.getElementById('athBanner');
-  athBanner.className = isATH ? 'ath-banner show' : 'ath-banner';
+  // ATH banner
+  document.getElementById('athBanner').className = isATH ? 'ath-banner show' : 'ath-banner';
+
+  // Stats — rank on demo board
+  const board = [...DEMO_BOARD, { addr:'YOU', score: gs.score }]
+    .sort((a,b) => b.score - a.score);
+  const rank = board.findIndex(r => r.addr === 'YOU') + 1;
+  const top3Score = board[2]?.score || 0;
+  const gapToTop3 = Math.max(0, top3Score - gs.score);
+
+  document.getElementById('goWave').textContent  = gs.wave;
+  document.getElementById('goKills').textContent = gs.killCount;
+  document.getElementById('goRank').textContent  = '#' + rank;
+  document.getElementById('goGap').textContent   = gapToTop3 > 0
+    ? '+$' + gapToTop3.toLocaleString()
+    : '🏆 IN TOP 3!';
+
+  // Prompt
+  document.getElementById('goPrompt').textContent = getPrompt(
+    gs.score, gs.wave, gs.killCount, rank, gapToTop3, isATH, isPB
+  );
+
+  // Note
+  document.getElementById('goNote').innerHTML = gs.score > 0 && rank <= 3
+    ? '🏆 You\'re currently in prize position! Real prizes activate when REKT launches on <b>Hey.LOL</b>.'
+    : 'Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.';
 
   updateHUD();
   showScreen('goScreen');
