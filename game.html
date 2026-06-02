@@ -530,8 +530,8 @@ function spawnWave(wave){
     const count = Math.min(8 + wave * 2, 24);
     for(let i = 0; i < count; i++)
       enemies.push(makeEnemy(ENEMY_TYPES[0], wave)); // FUD only
-    gs.killQuota = 15 + wave * 4;
-    gs.waveTimer = Math.min(30 + wave * 4, 70) * 60;
+    gs.killQuota = 25 + wave * 6;
+    gs.waveTimer = Math.min(45 + wave * 5, 90) * 60;
     spawnFloat(W/2, H/2 - 50, '⚠️ FUD STORM!', '#FF3366');
   } else {
     // Normal wave
@@ -552,8 +552,8 @@ function spawnWave(wave){
         enemies.push(makeEnemy(type, wave));
       }
     }
-    gs.killQuota = 8 + wave * 5;
-    gs.waveTimer = Math.min(25 + wave * 5, 60) * 60;
+    gs.killQuota = 18 + wave * 8;
+    gs.waveTimer = Math.min(45 + wave * 8, 90) * 60;
   }
 
   gs.killCount = 0;
