@@ -431,22 +431,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 })();
 // ═══════════════════════════════════════
 const ENEMY_TYPES = [
-  { name:'FUD',   emoji:'📉', color:'#FF3366', pts:50,  hp:1, size:22, speed:1.2 },
-  { name:'RUG',   emoji:'🪤', color:'#FF6B00', pts:100, hp:2, size:26, speed:0.9 },
-  { name:'BEAR',  emoji:'🐻', color:'#8B4513', pts:75,  hp:1, size:24, speed:1.5 },
-  { name:'SEC',   emoji:'🏛️', color:'#4169E1', pts:150, hp:3, size:30, speed:0.7 },
-  { name:'WHALE', emoji:'🐋', color:'#00BFFF', pts:200, hp:4, size:36, speed:0.5 },
-  { name:'PAPER', emoji:'🤲', color:'#DEB887', pts:40,  hp:1, size:20, speed:2.0 },
+  { name:'FUD',    emoji:'📉', color:'#FF3366', pts:50,  hp:1, size:22, speed:1.2, special:'split'   },
+  { name:'RUG',    emoji:'🪤', color:'#FF6B00', pts:100, hp:2, size:26, speed:0.9, special:'rush'    },
+  { name:'BEAR',   emoji:'🐻', color:'#8B4513', pts:75,  hp:2, size:26, speed:0.6, special:'drain'   },
+  { name:'SEC',    emoji:'🏛️', color:'#4169E1', pts:150, hp:3, size:30, speed:0.7, special:'tank'    },
+  { name:'WHALE',  emoji:'🐋', color:'#00BFFF', pts:200, hp:4, size:36, speed:0.4, special:'dump'    },
+  { name:'PAPER',  emoji:'🤲', color:'#DEB887', pts:40,  hp:1, size:20, speed:2.2, special:'swarm'   },
+  { name:'DEV',    emoji:'💼', color:'#00FF88', pts:300, hp:1, size:24, speed:1.8, special:'flee'    },
+  { name:'HACKER', emoji:'💻', color:'#FF00FF', pts:250, hp:2, size:24, speed:1.4, special:'steal'   },
 ];
 
+// Mini FUD for split mechanic
+const MINI_FUD = { name:'FUD', emoji:'📉', color:'#FF6688', pts:25, hp:1, size:14, speed:1.8, special:'mini' };
+
 const SLANG = {
-  FUD:   ['FUD DESTROYED! 🔥','NGMI BEARS!','BASED SHOT!','BULLISH AF!'],
-  RUG:   ['RUG PULLED ON THE RUGGER! 💀','ANTI-REKT!','LFG!!!','DEV IS COOKED!'],
-  BEAR:  ['BEAR REKT! 📈','BERA SEASON OVER!','GIGACHAD MOVE!','UP ONLY!'],
-  SEC:   ['DEREGULATION! ⚖️','REGULATORY ALPHA!','BASED!','GENSLER GONE!'],
-  WHALE: ['WHALE BAGGED! 🐋','MARKET MAKER REKT!','DIAMOND HANDS WIN!'],
-  PAPER: ['PAPER HANDS PUNISHED! 🤲','WEAK HANDS EXIT!','NGMI SELLER!'],
+  FUD:    ['FUD DESTROYED! 🔥','NGMI BEARS!','BASED SHOT!','BULLISH AF!','FUD CANCELLED!'],
+  RUG:    ['RUG PULLED ON THE RUGGER! 💀','ANTI-REKT!','LFG!!!','DEV IS COOKED!','NO RUG TODAY!'],
+  BEAR:   ['BEAR REKT! 📈','BERA SEASON OVER!','GIGACHAD MOVE!','UP ONLY!','BEAR TRAP SPRUNG!'],
+  SEC:    ['DEREGULATION! ⚖️','REGULATORY ALPHA!','BASED!','GENSLER GONE!','CASE DISMISSED!'],
+  WHALE:  ['WHALE BAGGED! 🐋','MARKET MAKER REKT!','DIAMOND HANDS WIN!','WHALE REKT!'],
+  PAPER:  ['PAPER HANDS PUNISHED! 🤲','WEAK HANDS EXIT!','NGMI SELLER!','SHAKEN OUT!'],
+  DEV:    ['DEV WALLET STOPPED! 💼','INSIDER DUMP PREVENTED!','BASED HOLDER!','NO EXIT SCAM TODAY!'],
+  HACKER: ['WALLET DRAINER REKT! 💻','ANON IS SAFE!','SUSPICIOUS TX BLOCKED!','REKT THE HACKER!'],
 };
+
+// Bear drain — tracks portfolio bleed
+let bearDrainTimer = 0;
 
 const WAVE_DATA = [
   { sub:'THE DEGEN UPRISING',    desc:'Small wallets, big energy. They sold their kidneys to ape in.' },
@@ -479,6 +489,9 @@ let gs = {
   killCount: 0,
   killQuota: 0,
   waveComplete: false,
+  isBossWave: false,
+  screenShake: 0,
+  drainTimer: 0,
 };
 
 let player, bullets, enemies, particles, floats, keys = {}, shootCd = 0, rafId;
@@ -492,7 +505,9 @@ function startGame(){
   gs.score = 0; gs.lives = 3; gs.wave = 1; gs.hodl = 0;
   gs.hodlActive = false; gs.combo = 0; gs.comboTimer = 0;
   gs.waveTimer = 0; gs.killCount = 0; gs.killQuota = 0; gs.waveComplete = false;
+  gs.isBossWave = false; gs.screenShake = 0; gs.drainTimer = 0;
   gs.active = true;
+  bearDrainTimer = 0;
   player = { x: W/2, y: H-50, speed: 5, iframes: 0 };
   bullets = []; enemies = []; particles = []; floats = []; shootCd = 0;
   updateHUD();
@@ -504,34 +519,77 @@ function startGame(){
 
 function spawnWave(wave){
   enemies = [];
-  // Reduced enemy count — easier early waves
-  const count = Math.min(4 + wave * 2, 18);
-  const typePool = ENEMY_TYPES.slice(0, Math.min(2 + Math.floor(wave / 2), ENEMY_TYPES.length));
-  for(let i = 0; i < count; i++)
-    enemies.push(makeEnemy(typePool[Math.floor(Math.random() * typePool.length)], wave));
+  bearDrainTimer = 0;
 
-  // Kill quota — slightly reduced
-  gs.killQuota = 8 + wave * 5;
+  // Check if boss wave (every 4th wave)
+  const waveInfo = WAVE_DATA[Math.min(wave-1, WAVE_DATA.length-1)];
+  gs.isBossWave = waveInfo?.boss || false;
+
+  if(gs.isBossWave && waveInfo.bossType === 'fudstorm'){
+    // FUD STORM — spawn lots of FUD only
+    const count = Math.min(8 + wave * 2, 24);
+    for(let i = 0; i < count; i++)
+      enemies.push(makeEnemy(ENEMY_TYPES[0], wave)); // FUD only
+    gs.killQuota = 15 + wave * 4;
+    gs.waveTimer = Math.min(30 + wave * 4, 70) * 60;
+    spawnFloat(W/2, H/2 - 50, '⚠️ FUD STORM!', '#FF3366');
+  } else {
+    // Normal wave
+    const count = Math.min(4 + wave * 2, 18);
+    const typePool = ENEMY_TYPES.slice(0, Math.min(2 + Math.floor(wave / 2), ENEMY_TYPES.length));
+
+    // Paper hands always spawn in groups of 3
+    for(let i = 0; i < count; i++){
+      const type = typePool[Math.floor(Math.random() * typePool.length)];
+      if(type.name === 'PAPER'){
+        // Spawn cluster of 3
+        for(let j = 0; j < 3; j++){
+          const e = makeEnemy(type, wave);
+          e.x += (j-1) * 30;
+          enemies.push(e);
+        }
+      } else {
+        enemies.push(makeEnemy(type, wave));
+      }
+    }
+    gs.killQuota = 8 + wave * 5;
+    gs.waveTimer = Math.min(25 + wave * 5, 60) * 60;
+  }
+
   gs.killCount = 0;
   gs.waveComplete = false;
-  // Wave timer — wave 1 = 25s, each wave adds 5s, caps at 60s
-  gs.waveTimer = Math.min(25 + wave * 5, 60) * 60;
 }
 
-function makeEnemy(type, wave){
+function makeEnemy(type, wave, isMini){
   const patterns = ['sine','dive','zigzag','swoop'];
+
+  // RUG always dives, DEV always flees upward
+  let pattern = patterns[Math.floor(Math.random() * 4)];
+  if(type.name === 'RUG')    pattern = 'dive';
+  if(type.name === 'DEV')    pattern = 'flee';
+  if(type.name === 'FUD')    pattern = Math.random() < 0.5 ? 'erratic' : 'zigzag';
+  if(type.name === 'BEAR')   pattern = 'steady';
+  if(type.name === 'WHALE')  pattern = 'slow';
+
+  const spd = isMini ? type.speed * 1.4 : type.speed * 0.7 + wave * 0.08;
+
   return {
     x: Math.random() * (W-80) + 40,
-    y: -type.size - Math.random() * 200,
+    y: isMini ? -type.size : -type.size - Math.random() * 200,
     vx: (Math.random() - 0.5) * 2,
-    vy: type.speed * 0.7 + wave * 0.08,
-    type, hp: type.hp + Math.floor(wave/4),
-    maxHp: type.hp + Math.floor(wave/4),
-    pattern: patterns[Math.floor(Math.random() * 4)],
+    vy: spd,
+    type, hp: isMini ? 1 : type.hp + Math.floor(wave/4),
+    maxHp: isMini ? 1 : type.hp + Math.floor(wave/4),
+    pattern,
     phase: Math.random() * Math.PI * 2,
     phaseSpd: 0.02 + Math.random() * 0.02,
     t: 0, shootCd: 100 + Math.random() * 100,
-    alive: true, animT: 0, size: type.size, flashT: 0,
+    alive: true, animT: 0,
+    size: isMini ? type.size : type.size,
+    flashT: 0,
+    isMini: !!isMini,
+    dumpCd: 180 + Math.random() * 120, // Whale dump cooldown
+    escaped: false, // Dev wallet escape flag
   };
 }
 
@@ -578,31 +636,112 @@ function update(dt){
     if(e.flashT > 0) e.flashT -= dt;
 
     switch(e.pattern){
-      case 'sine':   e.x += Math.sin(e.t * e.phaseSpd * 60 + e.phase) * 2.5 * dt; e.y += e.vy * dt; break;
-      case 'dive':   e.y += e.vy * (1 + e.t * 0.008) * dt; e.x += e.vx * dt; break;
-      case 'zigzag': e.x += Math.sin(e.t * 0.07 * 60 + e.phase) * 4 * dt; e.y += e.vy * 0.85 * dt; break;
-      case 'swoop':  e.x += (W/2 - e.x) * 0.004 * dt; e.y += e.vy * dt; break;
+      case 'sine':    e.x += Math.sin(e.t * e.phaseSpd * 60 + e.phase) * 2.5 * dt; e.y += e.vy * dt; break;
+      case 'dive':    e.y += e.vy * (1 + e.t * 0.015) * dt; e.x += e.vx * dt; break; // RUG — accelerating dive
+      case 'zigzag':  e.x += Math.sin(e.t * 0.07 * 60 + e.phase) * 4 * dt; e.y += e.vy * 0.85 * dt; break;
+      case 'swoop':   e.x += (W/2 - e.x) * 0.004 * dt; e.y += e.vy * dt; break;
+      case 'erratic': // FUD — chaotic side-to-side
+        e.x += Math.sin(e.t * 0.15 * 60 + e.phase) * 6 * dt;
+        e.x += (Math.random() - 0.5) * 3 * dt;
+        e.y += e.vy * 0.7 * dt;
+        break;
+      case 'steady':  // BEAR — slow relentless downward march
+        e.y += e.vy * 0.5 * dt;
+        e.x += Math.sin(e.t * 0.02 * 60) * 1.5 * dt;
+        break;
+      case 'slow':    // WHALE — lumbering, changes direction
+        e.x += Math.sin(e.t * 0.01 * 60 + e.phase) * 3 * dt;
+        e.y += e.vy * 0.4 * dt;
+        break;
+      case 'flee':    // DEV WALLET — runs toward top of screen
+        e.y -= e.vy * 1.5 * dt;
+        e.x += Math.sin(e.t * 0.1 * 60) * 3 * dt;
+        break;
     }
 
     if(e.x < -50) e.x = W+50;
     if(e.x > W+50) e.x = -50;
-    if(e.y > H+50){ e.y = -e.size - Math.random()*100; e.x = Math.random()*(W-80)+40; }
 
-    // Enemy shoots back
-    if(['BEAR','SEC','WHALE'].includes(e.type.name)){
+    // DEV WALLET escapes if it reaches top
+    if(e.pattern === 'flee' && e.y < -e.size && !e.escaped){
+      e.escaped = true;
+      e.alive = false;
+      const penalty = Math.min(gs.score, 500);
+      gs.score = Math.max(0, gs.score - penalty);
+      spawnFloat(e.x, 40, '-$' + penalty.toLocaleString() + ' DEV ESCAPED!', '#00FF88');
+      showSlang('DEV WALLET ESCAPED! 💸 -$' + penalty.toLocaleString());
+      gs.screenShake = 10;
+    } else if(e.pattern !== 'flee' && e.y > H+50){
+      e.y = -e.size - Math.random()*100;
+      e.x = Math.random()*(W-80)+40;
+    }
+
+    // Enemy shooting
+    if(['BEAR','SEC','WHALE','HACKER'].includes(e.type.name)){
       e.shootCd -= dt;
       if(e.shootCd <= 0){
-        e.shootCd = 120 + Math.random() * 80;
-        const dx = player.x - e.x, dy = player.y - e.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        bullets.push({ x:e.x, y:e.y, vx:(dx/dist)*3, vy:(dy/dist)*3, enemy:true, color:e.type.color, r:4 });
+        if(e.type.name === 'WHALE'){
+          // Whale dumps red candles across screen
+          e.shootCd = 200 + Math.random() * 100;
+          e.dumpCd = 200;
+          for(let d = 0; d < 3; d++){
+            bullets.push({
+              x: e.x + (d-1) * 40,
+              y: e.y + e.size,
+              vx: (d-1) * 0.5,
+              vy: 3.5,
+              enemy: true, color: '#FF2D55', r: 6,
+              isCandle: true,
+            });
+          }
+          spawnFloat(e.x, e.y - 20, 'WHALE DUMP! 📉', '#FF2D55');
+          gs.screenShake = 8;
+        } else {
+          e.shootCd = 120 + Math.random() * 80;
+          const dx = player.x - e.x, dy = player.y - e.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          bullets.push({ x:e.x, y:e.y, vx:(dx/dist)*3, vy:(dy/dist)*3, enemy:true, color:e.type.color, r:4 });
+        }
       }
     }
 
+    // Bear drain — if 3+ bears alive, drain score slowly
+    const bearCount = enemies.filter(b => b.alive && b.type.name === 'BEAR').length;
+    if(bearCount >= 3){
+      bearDrainTimer += dt;
+      if(bearDrainTimer >= 60){ // every second
+        bearDrainTimer = 0;
+        const drain = bearCount * 10;
+        gs.score = Math.max(0, gs.score - drain);
+        if(Math.random() < 0.3) spawnFloat(player.x, player.y - 30, '-$' + drain + ' BEAR PRESSURE', '#8B4513');
+      }
+    } else {
+      bearDrainTimer = 0;
+    }
+
     // Enemy hits player
-    if(player.iframes <= 0 && !gs.hodlActive){
+    // RUG bypasses HODL shield
+    const shieldActive = gs.hodlActive && e.type.name !== 'RUG';
+    if(player.iframes <= 0 && !shieldActive){
       const dx = e.x - player.x, dy = e.y - player.y;
-      if(Math.sqrt(dx*dx + dy*dy) < e.size * 0.65 + 16){ hitPlayer(); e.y = -200; }
+      if(Math.sqrt(dx*dx + dy*dy) < e.size * 0.65 + 16){
+        if(e.type.name === 'RUG' && gs.hodlActive){
+          // RUG rips through shield — warning
+          gs.hodl = 0;
+          spawnFloat(player.x, player.y - 30, 'RUG RIPPED SHIELD! 🪤', '#FF6B00');
+          e.y = -200;
+        } else if(e.type.name === 'HACKER'){
+          // Hacker steals score
+          const stolen = Math.min(gs.score, Math.floor(Math.random() * 500 + 200));
+          gs.score = Math.max(0, gs.score - stolen);
+          spawnFloat(player.x, player.y - 30, '💻 -$' + stolen + ' HACKED!', '#FF00FF');
+          hitPlayer();
+          e.y = -200;
+        } else {
+          hitPlayer();
+          e.y = -200;
+        }
+      }
     }
   });
 
@@ -667,7 +806,42 @@ function fireBullet(){
 function killEnemy(e){
   e.alive = false;
   gs.combo++; gs.comboTimer = 110;
-  gs.killCount++; // track kills toward wave quota
+  gs.killCount++;
+
+  // FUD splits into 2 mini FUDs (not mini FUDs themselves)
+  if(e.type.name === 'FUD' && !e.isMini){
+    for(let s = 0; s < 2; s++){
+      const mini = makeEnemy(MINI_FUD, gs.wave, true);
+      mini.x = e.x + (s === 0 ? -20 : 20);
+      mini.y = e.y;
+      mini.vy = MINI_FUD.speed;
+      enemies.push(mini);
+    }
+    spawnFloat(e.x, e.y - 10, 'FUD SPLITS! 📉📉', '#FF3366');
+  }
+
+  // FUD Storm — mini FUDs also split once more
+  if(e.type.name === 'FUD' && e.isMini && gs.isBossWave){
+    for(let s = 0; s < 2; s++){
+      const nano = makeEnemy(MINI_FUD, gs.wave, true);
+      nano.x = e.x + (s === 0 ? -12 : 12);
+      nano.y = e.y;
+      nano.size = 10;
+      nano.vy = MINI_FUD.speed * 1.3;
+      enemies.push(nano);
+    }
+  }
+
+  // Whale — screen shake on death
+  if(e.type.name === 'WHALE'){
+    gs.screenShake = 20;
+    spawnFloat(e.x, e.y - 20, 'WHALE REKT! 🐋💀', '#00BFFF');
+  }
+
+  // RUG — bypasses HODL shield, extra damage warning handled in collision
+  // Dev wallet escaped handled in OOB
+
+  // Hacker — steal portfolio on hit handled in collision
   const mult = gs.combo >= 5 ? 3 : gs.combo >= 3 ? 2 : 1;
   const pts = e.type.pts * gs.wave * mult;
   gs.score += pts;
@@ -697,18 +871,27 @@ function hitPlayer(){
 
 function nextWave(){
   gs.active = false;
-  const info = WAVE_DATA[Math.min(gs.wave-1, WAVE_DATA.length-1)];
   gs.wave++;
-  document.getElementById('waveTitleA').textContent = 'WAVE ' + gs.wave;
-  document.getElementById('waveTitleB').textContent = info.sub;
-  document.getElementById('waveSub').textContent = info.desc;
+  const info = WAVE_DATA[Math.min(gs.wave-1, WAVE_DATA.length-1)];
+  const isBoss = info?.boss || false;
+
+  document.getElementById('waveTitleA').textContent = isBoss
+    ? '⚠️ BOSS WAVE ' + gs.wave
+    : 'WAVE ' + gs.wave;
+  document.getElementById('waveTitleB').textContent = info?.sub || 'INCOMING...';
+  document.getElementById('waveSub').textContent = info?.desc || '';
+
+  // Boss wave title glows red
+  const titleEl = document.getElementById('waveTitleA');
+  titleEl.style.color = isBoss ? 'var(--red)' : 'var(--gold)';
+
   showScreen('waveScreen');
   setTimeout(() => {
     showScreen(null);
     enemies = [];
     spawnWave(gs.wave);
     gs.active = true;
-  }, 2000);
+  }, isBoss ? 3000 : 2000);
 }
 
 // Demo leaderboard for rank comparison
@@ -842,7 +1025,15 @@ function gameOver(){
 //  RENDER
 // ═══════════════════════════════════════
 function render(){
-  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  // Screen shake
+  if(gs.screenShake > 0){
+    const sx = (Math.random() - 0.5) * gs.screenShake;
+    const sy = (Math.random() - 0.5) * gs.screenShake;
+    ctx.translate(sx, sy);
+    gs.screenShake = Math.max(0, gs.screenShake - 1);
+  }
+  ctx.clearRect(-20, -20, W+40, H+40);
   drawBg();
 
   // Wave progress bar at top of canvas (purple→gold)
@@ -899,6 +1090,35 @@ function render(){
     ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
     ctx.fillText(f.text, f.x, f.y); ctx.restore();
   });
+
+  // Draw candle bullets differently
+  bullets.forEach(b => {
+    if(!b.isCandle) return;
+    ctx.save();
+    ctx.fillStyle = '#FF2D55';
+    ctx.shadowColor = '#FF2D55';
+    ctx.shadowBlur = 8;
+    ctx.fillRect(b.x - 4, b.y, 8, 16);
+    ctx.fillStyle = '#FF6688';
+    ctx.fillRect(b.x - 2, b.y - 6, 2, 6); // wick
+    ctx.restore();
+  });
+
+  // Bear pressure indicator — red tint overlay when 3+ bears active
+  const bearCount = enemies.filter(e => e.alive && e.type.name === 'BEAR').length;
+  if(bearCount >= 3){
+    ctx.save();
+    ctx.fillStyle = 'rgba(139,69,19,0.08)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.fillStyle = '#8B4513';
+    ctx.globalAlpha = 0.7;
+    ctx.textAlign = 'right';
+    ctx.fillText('🐻 BEAR PRESSURE — DRAINING PORTFOLIO', W - 10, H - 20);
+    ctx.restore();
+  }
+
+  ctx.restore(); // end screen shake
 }
 
 function drawBg(){
