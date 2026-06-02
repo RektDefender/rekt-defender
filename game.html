@@ -490,8 +490,13 @@ let gs = {
   killQuota: 0,
   waveComplete: false,
   isBossWave: false,
+  bossType: null,
   screenShake: 0,
   drainTimer: 0,
+  bearMarketActive: false,
+  bearMarketDrain: 0,
+  whaleDumpActive: false,
+  whaleDumpTimer: 0,
 };
 
 let player, bullets, enemies, particles, floats, keys = {}, shootCd = 0, rafId;
@@ -505,7 +510,9 @@ function startGame(){
   gs.score = 0; gs.lives = 3; gs.wave = 1; gs.hodl = 0;
   gs.hodlActive = false; gs.combo = 0; gs.comboTimer = 0;
   gs.waveTimer = 0; gs.killCount = 0; gs.killQuota = 0; gs.waveComplete = false;
-  gs.isBossWave = false; gs.screenShake = 0; gs.drainTimer = 0;
+  gs.isBossWave = false; gs.bossType = null; gs.screenShake = 0; gs.drainTimer = 0;
+  gs.bearMarketActive = false; gs.bearMarketDrain = 0;
+  gs.whaleDumpActive = false; gs.whaleDumpTimer = 0;
   gs.active = true;
   bearDrainTimer = 0;
   player = { x: W/2, y: H-50, speed: 5, iframes: 0 };
@@ -520,29 +527,70 @@ function startGame(){
 function spawnWave(wave){
   enemies = [];
   bearDrainTimer = 0;
+  gs.bearMarketActive = false;
+  gs.bearMarketDrain = 0;
+  gs.whaleDumpActive = false;
+  gs.whaleDumpTimer = 0;
 
-  // Check if boss wave (every 4th wave)
   const waveInfo = WAVE_DATA[Math.min(wave-1, WAVE_DATA.length-1)];
   gs.isBossWave = waveInfo?.boss || false;
+  gs.bossType   = waveInfo?.bossType || null;
 
-  if(gs.isBossWave && waveInfo.bossType === 'fudstorm'){
-    // FUD STORM — spawn lots of FUD only
-    const count = Math.min(8 + wave * 2, 24);
-    for(let i = 0; i < count; i++)
-      enemies.push(makeEnemy(ENEMY_TYPES[0], wave)); // FUD only
-    gs.killQuota = 25 + wave * 6;
-    gs.waveTimer = Math.min(45 + wave * 5, 90) * 60;
-    spawnFloat(W/2, H/2 - 50, '⚠️ FUD STORM!', '#FF3366');
+  if(gs.isBossWave){
+
+    if(gs.bossType === 'fudstorm'){
+      // ── FUD STORM ──
+      const count = Math.min(10 + wave * 2, 28);
+      for(let i = 0; i < count; i++)
+        enemies.push(makeEnemy(ENEMY_TYPES[0], wave));
+      gs.killQuota = 25 + wave * 6;
+      gs.waveTimer = Math.min(50 + wave * 5, 90) * 60;
+
+    } else if(gs.bossType === 'bearmarket'){
+      // ── BEAR MARKET ──
+      // Spawn all Bears — slow but very tanky
+      const count = Math.min(6 + wave, 16);
+      const BEAR_TYPE = ENEMY_TYPES.find(e => e.name === 'BEAR');
+      for(let i = 0; i < count; i++){
+        const e = makeEnemy(BEAR_TYPE, wave);
+        e.hp   = e.hp + 3; // Extra tanky in bear market
+        e.maxHp = e.hp;
+        enemies.push(e);
+      }
+      gs.killQuota = 20 + wave * 5;
+      gs.waveTimer = Math.min(60 + wave * 5, 100) * 60;
+      gs.bearMarketActive = true;
+      gs.bearMarketDrain = 15; // portfolio drains per second
+
+    } else if(gs.bossType === 'whaledump'){
+      // ── WHALE DUMP ──
+      // One massive whale + supporting enemies
+      const WHALE_TYPE = ENEMY_TYPES.find(e => e.name === 'WHALE');
+      const boss = makeEnemy(WHALE_TYPE, wave);
+      boss.hp    = 20; // Very tanky boss
+      boss.maxHp = 20;
+      boss.size  = 52; // Bigger
+      boss.x     = W / 2;
+      boss.y     = -80;
+      boss.isBoss = true;
+      enemies.push(boss);
+      // Supporting dump enemies
+      const RUG_TYPE = ENEMY_TYPES.find(e => e.name === 'RUG');
+      for(let i = 0; i < 4; i++) enemies.push(makeEnemy(RUG_TYPE, wave));
+      gs.killQuota = 15 + wave * 4;
+      gs.waveTimer = Math.min(60 + wave * 4, 90) * 60;
+      gs.whaleDumpActive = true;
+      gs.whaleDumpTimer  = 0;
+    }
+
   } else {
-    // Normal wave
+    // ── NORMAL WAVE ──
     const count = Math.min(4 + wave * 2, 18);
     const typePool = ENEMY_TYPES.slice(0, Math.min(2 + Math.floor(wave / 2), ENEMY_TYPES.length));
 
-    // Paper hands always spawn in groups of 3
     for(let i = 0; i < count; i++){
       const type = typePool[Math.floor(Math.random() * typePool.length)];
       if(type.name === 'PAPER'){
-        // Spawn cluster of 3
         for(let j = 0; j < 3; j++){
           const e = makeEnemy(type, wave);
           e.x += (j-1) * 30;
@@ -705,18 +753,54 @@ function update(dt){
       }
     }
 
-    // Bear drain — if 3+ bears alive, drain score slowly
+    // Bear drain — if 3+ bears alive in normal waves, drain score slowly
     const bearCount = enemies.filter(b => b.alive && b.type.name === 'BEAR').length;
-    if(bearCount >= 3){
+    if(bearCount >= 3 && !gs.bearMarketActive){
       bearDrainTimer += dt;
-      if(bearDrainTimer >= 60){ // every second
+      if(bearDrainTimer >= 60){
         bearDrainTimer = 0;
         const drain = bearCount * 10;
         gs.score = Math.max(0, gs.score - drain);
         if(Math.random() < 0.3) spawnFloat(player.x, player.y - 30, '-$' + drain + ' BEAR PRESSURE', '#8B4513');
       }
-    } else {
+    } else if(!gs.bearMarketActive){
       bearDrainTimer = 0;
+    }
+
+    // Bear Market boss — constant drain regardless of kills
+    if(gs.bearMarketActive){
+      bearDrainTimer += dt;
+      if(bearDrainTimer >= 60){
+        bearDrainTimer = 0;
+        gs.score = Math.max(0, gs.score - gs.bearMarketDrain);
+        spawnFloat(
+          Math.random() * W * 0.6 + W * 0.2,
+          Math.random() * H * 0.4 + H * 0.1,
+          '-$' + gs.bearMarketDrain,
+          '#8B4513'
+        );
+      }
+    }
+
+    // Whale Dump boss — periodic candle rain across screen
+    if(gs.whaleDumpActive){
+      gs.whaleDumpTimer += dt;
+      if(gs.whaleDumpTimer >= 180){ // every 3 seconds
+        gs.whaleDumpTimer = 0;
+        gs.screenShake = 12;
+        // Fire 5 candles spread across screen
+        for(let d = 0; d < 5; d++){
+          bullets.push({
+            x: (W / 5) * d + W / 10,
+            y: -10,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: 4 + Math.random() * 2,
+            enemy: true, color: '#FF2D55', r: 8,
+            isCandle: true,
+          });
+        }
+        spawnFloat(W/2, 60, '📉 WHALE CANDLE DUMP!', '#FF2D55');
+      }
     }
 
     // Enemy hits player
@@ -883,7 +967,11 @@ function nextWave(){
 
   // Boss wave title glows red
   const titleEl = document.getElementById('waveTitleA');
-  titleEl.style.color = isBoss ? 'var(--red)' : 'var(--gold)';
+  const bossType = info?.bossType || null;
+  if(!isBoss)               titleEl.style.color = 'var(--gold)';
+  else if(bossType === 'fudstorm')   titleEl.style.color = '#FF3366';
+  else if(bossType === 'bearmarket') titleEl.style.color = '#8B4513';
+  else if(bossType === 'whaledump')  titleEl.style.color = '#00BFFF';
 
   showScreen('waveScreen');
   setTimeout(() => {
@@ -1104,17 +1192,51 @@ function render(){
     ctx.restore();
   });
 
-  // Bear pressure indicator — red tint overlay when 3+ bears active
+  // Bear pressure indicator — normal waves
   const bearCount = enemies.filter(e => e.alive && e.type.name === 'BEAR').length;
-  if(bearCount >= 3){
+  if(bearCount >= 3 && !gs.bearMarketActive){
     ctx.save();
-    ctx.fillStyle = 'rgba(139,69,19,0.08)';
+    ctx.fillStyle = 'rgba(139,69,19,0.06)';
     ctx.fillRect(0, 0, W, H);
     ctx.font = 'bold 11px JetBrains Mono';
     ctx.fillStyle = '#8B4513';
     ctx.globalAlpha = 0.7;
     ctx.textAlign = 'right';
     ctx.fillText('🐻 BEAR PRESSURE — DRAINING PORTFOLIO', W - 10, H - 20);
+    ctx.restore();
+  }
+
+  // Bear Market boss — heavy dark overlay + drain warning
+  if(gs.bearMarketActive){
+    ctx.save();
+    ctx.fillStyle = 'rgba(20,5,5,0.35)';
+    ctx.fillRect(0, 0, W, H);
+    // Red vignette edges
+    const vignette = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.8);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(139,0,0,0.3)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, W, H);
+    // Warning text
+    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.fillStyle = '#FF2D55';
+    ctx.globalAlpha = 0.6 + Math.sin(Date.now()*0.005)*0.4;
+    ctx.textAlign = 'center';
+    ctx.fillText('🐻 BEAR MARKET — PORTFOLIO DRAINING', W/2, 20);
+    ctx.restore();
+  }
+
+  // Whale Dump boss — candle rain border effect
+  if(gs.whaleDumpActive){
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,45,85,0.15)';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(0, 0, W, H);
+    ctx.font = 'bold 10px JetBrains Mono';
+    ctx.fillStyle = '#FF2D55';
+    ctx.globalAlpha = 0.5;
+    ctx.textAlign = 'left';
+    ctx.fillText('🐋 WHALE DUMP IN PROGRESS', 10, 20);
     ctx.restore();
   }
 
