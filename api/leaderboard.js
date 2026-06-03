@@ -27,11 +27,14 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
+    // Support explicit week/year params for commander panel
     const { week, year } = getWeekNumber();
+    const queryWeek = req.query.week ? parseInt(req.query.week) : week;
+    const queryYear = req.query.year ? parseInt(req.query.year) : year;
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
 
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/scores?week_number=eq.${week}&year=eq.${year}&order=score.desc&limit=${limit}&select=wallet_address,score,wave,kill_count,created_at`,
+      `${SUPABASE_URL}/rest/v1/scores?week_number=eq.${queryWeek}&year=eq.${queryYear}&order=score.desc&limit=${limit}&select=wallet_address,score,wave,kill_count,created_at`,
       {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
@@ -42,16 +45,11 @@ export default async function handler(req, res) {
 
     const scores = await response.json();
 
-    // Calculate prize pool — in demo mode this will be 0
-    // Once payments are live this can be calculated from game fee records
-    const prizePool = null; // Will be calculated when x402 is connected
-
     return res.status(200).json({
-      week,
-      year,
-      weekStarting: getWeekStartDate(),
+      week: queryWeek,
+      year: queryYear,
+      weekStarting: queryWeek === week ? getWeekStartDate() : null,
       scores,
-      prizePool,
       total: scores.length
     });
 
