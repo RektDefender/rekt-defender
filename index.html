@@ -559,8 +559,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- CURRENT WEEK -->
   <div class="lb-panel active" id="tab-current">
     <div class="lb-section-head">
-      <span>WEEK OF MAY 19 — MAY 25, 2026</span>
-      <span class="lb-live">DEMO SCORES</span>
+      <span id="homeLbWeek">LOADING...</span>
+      <span class="lb-live" id="homeLbLive">LOADING</span>
     </div>
     <div class="lb-header-row">
       <span style="width:32px;">POS</span>
@@ -568,26 +568,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span style="width:100px;text-align:right;">SCORE</span>
       <span style="width:90px;text-align:center;">PRIZE</span>
     </div>
-    <div class="lb-row-item">
-      <div class="lb-pos" style="color:var(--gold);">🥇</div>
-      <div class="lb-addr-text">GmRaXX...9f — <span style="color:rgba(240,235,227,0.3);font-size:0.6rem;">DEMO</span></div>
-      <div class="lb-score-val">$48,200</div>
-      <div class="lb-prize-tag">60% REKT</div>
+    <div id="homeLbRows">
+      <div style="padding:24px;text-align:center;color:var(--dim);font-size:0.7rem;letter-spacing:0.1em;">LOADING LEADERBOARD...</div>
     </div>
-    <div class="lb-row-item">
-      <div class="lb-pos" style="color:#C0C0C0;">🥈</div>
-      <div class="lb-addr-text">HODL.sol — <span style="color:rgba(240,235,227,0.3);font-size:0.6rem;">DEMO</span></div>
-      <div class="lb-score-val">$31,500</div>
-      <div class="lb-prize-tag">30% REKT</div>
-    </div>
-    <div class="lb-row-item">
-      <div class="lb-pos" style="color:#CD7F32;">🥉</div>
-      <div class="lb-addr-text">WagmiKing.sol — <span style="color:rgba(240,235,227,0.3);font-size:0.6rem;">DEMO</span></div>
-      <div class="lb-score-val">$22,000</div>
-      <div class="lb-prize-tag">10% REKT</div>
-    </div>
-    <div class="lb-row-item"><div class="lb-pos" style="color:rgba(240,235,227,0.3);">4</div><div class="lb-addr-text">DiamondHands...99</div><div class="lb-score-val" style="color:rgba(240,235,227,0.4);">$18,750</div><div class="lb-prize-tag" style="opacity:0.3;">—</div></div>
-    <div class="lb-row-item"><div class="lb-pos" style="color:rgba(240,235,227,0.3);">5</div><div class="lb-addr-text">NotYet.sol</div><div class="lb-score-val" style="color:rgba(240,235,227,0.4);">$12,100</div><div class="lb-prize-tag" style="opacity:0.3;">—</div></div>
     <div style="padding:14px 24px;text-align:center;border-top:1px solid rgba(255,215,0,0.05);">
       <a href="/game" style="font-size:0.7rem;color:var(--gold);text-decoration:none;letter-spacing:0.15em;">▶ PLAY NOW TO GET ON THE BOARD</a>
     </div>
@@ -602,40 +585,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span>👑 ALL-TIME WEEKLY WINNERS — PERMANENT RECORD</span>
       <span style="font-size:0.55rem;color:rgba(240,235,227,0.3);">PRIZES VERIFIED ON-CHAIN</span>
     </div>
-    <div class="lb-header-row">
-      <span style="width:32px;">POS</span>
-      <span style="flex:1;">WALLET</span>
-      <span style="width:100px;text-align:right;">SCORE</span>
-      <span style="width:110px;text-align:center;">PRIZE PAID</span>
-      <span style="width:100px;text-align:right;">WEEK</span>
+    <div id="homeHofRows">
+      <div style="padding:24px;text-align:center;color:var(--dim);font-size:0.7rem;letter-spacing:0.1em;">LOADING HALL OF FAME...</div>
     </div>
-
-    <!-- Week entries — this gets populated as winners are paid -->
-    <div class="lb-section-head" style="font-size:0.55rem;color:rgba(240,235,227,0.3);background:transparent;border-top:1px solid rgba(255,215,0,0.04);">
-      WEEK 1 — MAY 12–18, 2026 &nbsp;·&nbsp; TOTAL POOL: DEMO
-    </div>
-    <div class="lb-row-item">
-      <div class="lb-pos" style="color:var(--gold);">🥇</div>
-      <div class="lb-addr-text">GmRaXX...9f</div>
-      <div class="lb-score-val">$48,200</div>
-      <div class="lb-prize-tag" style="width:110px;">DEMO PRIZE</div>
-      <div class="lb-week">May 18</div>
-    </div>
-    <div class="lb-row-item">
-      <div class="lb-pos" style="color:#C0C0C0;">🥈</div>
-      <div class="lb-addr-text">HODL.sol</div>
-      <div class="lb-score-val">$31,500</div>
-      <div class="lb-prize-tag" style="width:110px;">DEMO PRIZE</div>
-      <div class="lb-week">May 18</div>
-    </div>
-    <div class="lb-row-item">
-      <div class="lb-pos" style="color:#CD7F32;">🥉</div>
-      <div class="lb-addr-text">WagmiKing.sol</div>
-      <div class="lb-score-val">$22,000</div>
-      <div class="lb-prize-tag" style="width:110px;">DEMO PRIZE</div>
-      <div class="lb-week">May 18</div>
-    </div>
-
     <div style="padding:20px 24px;text-align:center;font-size:0.65rem;color:rgba(240,235,227,0.3);border-top:1px solid rgba(255,215,0,0.05);">
       Real prizes begin when REKT token launches on Hey.LOL · Every winner recorded here permanently · Prize amounts verified on-chain
     </div>
@@ -718,6 +670,97 @@ function switchTab(id,el){
 
 const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// Load home page leaderboard preview from API
+const HOME_MEDALS = ['🥇','🥈','🥉'];
+const HOME_MEDAL_COLORS = ['var(--gold)','#C0C0C0','#CD7F32'];
+const HOME_PRIZE_TAGS = ['60% REKT','30% REKT','10% REKT'];
+const HOME_PRIZE_CLASSES = ['','silver','bronze'];
+
+async function loadHomeLeaderboard(){
+  try {
+    const res = await fetch('/api/leaderboard?limit=5');
+    const data = await res.json();
+
+    // Update week header
+    if(data.weekStarting){
+      const d = new Date(data.weekStarting + 'T00:00:00Z');
+      const end = new Date(d); end.setUTCDate(end.getUTCDate() + 6);
+      const fmt = dt => dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+      document.getElementById('homeLbWeek').textContent =
+        `WEEK OF ${fmt(d).toUpperCase()} — ${fmt(end).toUpperCase()}`;
+    }
+    document.getElementById('homeLbLive').textContent =
+      data.scores && data.scores.length > 0 ? 'LIVE' : 'NO SCORES YET';
+
+    const container = document.getElementById('homeLbRows');
+    if(!data.scores || data.scores.length === 0){
+      container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--dim);font-size:0.7rem;letter-spacing:0.1em;">🎮 NO SCORES YET — BE THE FIRST!</div>';
+      return;
+    }
+
+    container.innerHTML = data.scores.map((s, i) => {
+      const isPrize = i < 3;
+      const medal = isPrize ? HOME_MEDALS[i] : (i + 1);
+      const color = isPrize ? HOME_MEDAL_COLORS[i] : 'rgba(240,235,227,0.3)';
+      const scoreColor = isPrize ? '' : 'color:rgba(240,235,227,0.4);';
+      const prizeTag = isPrize
+        ? `<div class="lb-prize-tag ${HOME_PRIZE_CLASSES[i]}">${HOME_PRIZE_TAGS[i]}</div>`
+        : `<div class="lb-prize-tag" style="opacity:0.3;">—</div>`;
+      const wallet = s.wallet_address.length > 12
+        ? s.wallet_address.slice(0,6) + '...' + s.wallet_address.slice(-4)
+        : s.wallet_address;
+      return `<div class="lb-row-item">
+        <div class="lb-pos" style="color:${color};">${medal}</div>
+        <div class="lb-addr-text">${wallet}</div>
+        <div class="lb-score-val" style="${scoreColor}">$${s.score.toLocaleString()}</div>
+        ${prizeTag}
+      </div>`;
+    }).join('');
+
+  } catch(err){
+    document.getElementById('homeLbRows').innerHTML =
+      '<div style="padding:24px;text-align:center;color:var(--dim);font-size:0.7rem;">Could not load leaderboard.</div>';
+  }
+}
+
+async function loadHomeHof(){
+  try {
+    const res = await fetch('/api/hall-of-fame');
+    const data = await res.json();
+    const container = document.getElementById('homeHofRows');
+
+    if(!data.weeks || data.weeks.length === 0){
+      container.innerHTML = `<div style="padding:32px;text-align:center;font-size:0.65rem;color:rgba(240,235,227,0.3);">
+        Hall of Fame fills when REKT token launches and real games begin.<br>Will your wallet be the first entry?
+      </div>`;
+      return;
+    }
+
+    // Show most recent week's winners only (preview)
+    const recent = data.weeks[0];
+    container.innerHTML = recent.winners.map((w, i) => {
+      const wallet = w.wallet_address.length > 12
+        ? w.wallet_address.slice(0,6) + '...' + w.wallet_address.slice(-4)
+        : w.wallet_address;
+      return `<div class="lb-row-item">
+        <div class="lb-pos" style="color:${HOME_MEDAL_COLORS[i] || 'var(--dim)'};">${HOME_MEDALS[i] || (i+1)}</div>
+        <div class="lb-addr-text">${wallet}</div>
+        <div class="lb-score-val">$${w.score.toLocaleString()}</div>
+        <div class="lb-prize-tag ${HOME_PRIZE_CLASSES[i] || ''}" style="width:110px;">${w.prize_amount}</div>
+        <div class="lb-week">Week ${w.week_number}</div>
+      </div>`;
+    }).join('');
+
+  } catch(err){
+    document.getElementById('homeHofRows').innerHTML =
+      '<div style="padding:24px;text-align:center;color:var(--dim);font-size:0.7rem;">Could not load Hall of Fame.</div>';
+  }
+}
+
+loadHomeLeaderboard();
+loadHomeHof();
+setInterval(loadHomeLeaderboard, 60000);
 </script>
 </body>
 </html>
