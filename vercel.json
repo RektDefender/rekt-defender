@@ -6,7 +6,8 @@
     { "source": "/leaderboard", "destination": "/leaderboard.html" },
     { "source": "/tokenomics", "destination": "/tokenomics.html" },
     { "source": "/terms", "destination": "/terms.html" },
-    { "source": "/privacy", "destination": "/privacy.html" }
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/commander", "destination": "/commander.html" }
   ],
   "routes": [
     { "handle": "filesystem" },

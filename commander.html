@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REKT DEFENDER — Commander</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#07070f;--panel:#0d0d1a;--gold:#FFD700;--green:#00FF88;--red:#FF2D55;--blue:#00D4FF;--purple:#9945FF;--white:#F0EBE3;--border:rgba(255,215,0,0.12);--dim:rgba(255,215,0,0.35);}
+html,body{background:var(--bg);color:var(--white);font-family:'JetBrains Mono',monospace;min-height:100vh;}
+
+/* LOGIN SCREEN */
+#loginScreen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;gap:20px;padding:24px;
+}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.1em;color:var(--gold);}
+.login-logo span{color:var(--red);}
+.login-sub{font-size:0.65rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-top:-12px;}
+.login-box{background:var(--panel);border:1px solid var(--border);padding:32px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px;}
+.login-box h2{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.15em;color:var(--gold);}
+.login-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:0.85rem;padding:10px 14px;width:100%;outline:none;transition:border-color 0.15s;}
+.login-input:focus{border-color:var(--gold);}
+.login-btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.2em;padding:10px;background:var(--gold);color:var(--bg);border:none;cursor:pointer;width:100%;transition:background 0.15s;}
+.login-btn:hover{background:var(--green);}
+.login-error{font-size:0.65rem;color:var(--red);letter-spacing:0.1em;text-align:center;display:none;}
+.login-error.show{display:block;}
+
+/* MAIN APP */
+#app{display:none;max-width:900px;margin:0 auto;padding:32px 24px 80px;}
+
+/* HEADER */
+.cmd-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:32px;}
+.cmd-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.1em;color:var(--gold);}
+.cmd-logo span{color:var(--red);}
+.cmd-meta{font-size:0.6rem;color:var(--dim);letter-spacing:0.1em;text-align:right;}
+.cmd-meta b{color:var(--green);display:block;font-size:0.75rem;margin-bottom:2px;}
+.logout-btn{font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;padding:5px 12px;border:1px solid var(--red);color:var(--red);background:transparent;cursor:pointer;transition:all 0.15s;text-transform:uppercase;}
+.logout-btn:hover{background:var(--red);color:#fff;}
+
+/* SECTION */
+.cmd-section{margin-bottom:40px;}
+.cmd-section-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:4px;}
+.cmd-section-sub{font-size:0.6rem;color:var(--dim);letter-spacing:0.1em;margin-bottom:20px;}
+
+/* WEEK SELECTOR */
+.week-selector{display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;}
+.week-selector label{font-size:0.6rem;letter-spacing:0.15em;color:var(--dim);text-transform:uppercase;}
+.week-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:0.8rem;padding:7px 12px;outline:none;width:80px;}
+.week-input:focus{border-color:var(--gold);}
+.fetch-btn{font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.15em;padding:8px 20px;background:transparent;border:1px solid var(--gold);color:var(--gold);cursor:pointer;transition:all 0.15s;}
+.fetch-btn:hover{background:var(--gold);color:var(--bg);}
+
+/* WINNERS TABLE */
+.winners-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);margin-bottom:16px;}
+.winners-table th{font-size:0.52rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);font-weight:400;}
+.winners-table td{padding:14px 16px;border-bottom:1px solid rgba(255,215,0,0.04);font-size:0.75rem;vertical-align:middle;}
+.winners-table tr:last-child td{border-bottom:none;}
+.winners-table tr.rank-1{background:rgba(255,215,0,0.03);}
+.winners-table tr.rank-2{background:rgba(192,192,192,0.02);}
+.winners-table tr.rank-3{background:rgba(205,127,50,0.02);}
+
+.medal{font-size:1.2rem;}
+.wallet-full{font-size:0.68rem;color:rgba(240,235,227,0.7);word-break:break-all;}
+.score-big{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green);}
+.prize-pct{font-size:0.65rem;color:var(--gold);}
+
+/* COPY BUTTON */
+.copy-btn{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;padding:5px 12px;border:1px solid rgba(255,215,0,0.3);color:var(--dim);background:transparent;cursor:pointer;transition:all 0.15s;text-transform:uppercase;white-space:nowrap;}
+.copy-btn:hover{border-color:var(--gold);color:var(--gold);}
+.copy-btn.copied{border-color:var(--green);color:var(--green);}
+
+/* STATUS */
+.no-scores{padding:32px;text-align:center;font-size:0.7rem;color:var(--dim);letter-spacing:0.1em;}
+.loading{padding:32px;text-align:center;font-size:0.7rem;color:var(--dim);letter-spacing:0.1em;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.error-msg{padding:16px;font-size:0.7rem;color:var(--red);letter-spacing:0.1em;text-align:center;}
+
+/* HOF FORM */
+.hof-form{background:var(--panel);border:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:0.52rem;letter-spacing:0.15em;color:var(--dim);text-transform:uppercase;}
+.form-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--white);font-family:'JetBrains Mono',monospace;font-size:0.72rem;padding:8px 12px;outline:none;width:100%;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--gold);}
+.form-input.wallet{font-size:0.62rem;}
+.rank-header{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.1em;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+.rank-header.gold{color:var(--gold);}
+.rank-header.silver{color:#C0C0C0;}
+.rank-header.bronze{color:#CD7F32;}
+
+.submit-btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.2em;padding:12px;background:var(--green);color:var(--bg);border:none;cursor:pointer;transition:all 0.15s;margin-top:8px;}
+.submit-btn:hover{background:var(--gold);}
+.submit-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+.form-status{font-size:0.65rem;letter-spacing:0.1em;text-align:center;padding:8px;display:none;}
+.form-status.show{display:block;}
+.form-status.success{color:var(--green);}
+.form-status.error{color:var(--red);}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:32px;background:rgba(255,215,0,0.06);}
+.stat-box{background:var(--panel);padding:16px;text-align:center;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);display:block;}
+.stat-val.green{color:var(--green);}
+.stat-val.blue{color:var(--blue);}
+.stat-val.red{color:var(--red);}
+.stat-label{font-size:0.5rem;letter-spacing:0.15em;color:var(--dim);text-transform:uppercase;margin-top:4px;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:32px 0;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-logo">REKT<span>DEFENDER</span></div>
+  <div class="login-sub">Commander Panel</div>
+
+  <div class="login-box">
+    <h2>🔐 ACCESS REQUIRED</h2>
+    <input type="password" class="login-input" id="passInput" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkPass()">
+    <button class="login-btn" onclick="checkPass()">ENTER COMMANDER</button>
+    <div class="login-error" id="loginError">⚠ Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <div class="cmd-header">
+    <div>
+      <div class="cmd-logo">REKT<span>DEFENDER</span></div>
+      <div style="font-size:0.55rem;color:var(--dim);letter-spacing:0.1em;margin-top:2px;">COMMANDER PANEL</div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;">
+      <div class="cmd-meta">
+        <b id="currentWeekDisplay">Week —</b>
+        <span id="currentDateDisplay">Loading...</span>
+      </div>
+      <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-box"><span class="stat-val green" id="statTotalGames">—</span><div class="stat-label">Total Games This Week</div></div>
+    <div class="stat-box"><span class="stat-val" id="statTopScore">—</span><div class="stat-label">Top Score This Week</div></div>
+    <div class="stat-box"><span class="stat-val blue" id="statUniquePlayers">—</span><div class="stat-label">Unique Players</div></div>
+    <div class="stat-box"><span class="stat-val red" id="statHofTotal">—</span><div class="stat-label">Hall of Fame Entries</div></div>
+  </div>
+
+  <!-- WEEKLY WINNERS -->
+  <div class="cmd-section">
+    <div class="cmd-section-title">🏆 Weekly Winners</div>
+    <div class="cmd-section-sub">Top 3 scores for the selected week — copy wallet addresses to send prizes</div>
+
+    <div class="week-selector">
+      <label>Week</label>
+      <input type="number" class="week-input" id="weekNum" min="1" max="53" placeholder="23">
+      <label>Year</label>
+      <input type="number" class="week-input" id="weekYear" min="2026" max="2030" placeholder="2026" style="width:90px;">
+      <button class="fetch-btn" onclick="fetchWinners()">FETCH WINNERS</button>
+      <button class="fetch-btn" onclick="fetchPreviousWeek()" style="border-color:var(--purple);color:var(--purple);">← PREV WEEK</button>
+    </div>
+
+    <div id="winnersContainer">
+      <div class="no-scores">Select a week and click FETCH WINNERS</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- HOF INSERT FORM -->
+  <div class="cmd-section">
+    <div class="cmd-section-title">👑 Record Winners in Hall of Fame</div>
+    <div class="cmd-section-sub">Fill in after prizes are sent — paste Solana transaction IDs from Phantom</div>
+
+    <div class="hof-form">
+
+      <!-- Week info -->
+      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+        <div class="form-group">
+          <div class="form-label">Week Number</div>
+          <input type="number" class="form-input" id="hofWeek" placeholder="23">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Year</div>
+          <input type="number" class="form-input" id="hofYear" placeholder="2026">
+        </div>
+        <div class="form-group" style="grid-column:span 2;">
+          <div class="form-label">Total Prize Pool (for your records)</div>
+          <input type="text" class="form-input" id="hofPool" placeholder="e.g. 1,450 REKT">
+        </div>
+      </div>
+
+      <!-- 1st place -->
+      <div>
+        <div class="rank-header gold">🥇 1st Place — 60%</div>
+        <div class="form-row">
+          <div class="form-group" style="grid-column:span 2;">
+            <div class="form-label">Wallet Address</div>
+            <input type="text" class="form-input wallet" id="w1addr" placeholder="Full Solana wallet address...">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Score</div>
+            <input type="number" class="form-input" id="w1score" placeholder="48200">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Wave Reached</div>
+            <input type="number" class="form-input" id="w1wave" placeholder="6">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Prize Amount Sent</div>
+            <input type="text" class="form-input" id="w1prize" placeholder="e.g. 870 REKT">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Solana TX ID</div>
+            <input type="text" class="form-input" id="w1tx" placeholder="Transaction signature...">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2nd place -->
+      <div>
+        <div class="rank-header silver">🥈 2nd Place — 30%</div>
+        <div class="form-row">
+          <div class="form-group" style="grid-column:span 2;">
+            <div class="form-label">Wallet Address</div>
+            <input type="text" class="form-input wallet" id="w2addr" placeholder="Full Solana wallet address...">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Score</div>
+            <input type="number" class="form-input" id="w2score" placeholder="31500">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Wave Reached</div>
+            <input type="number" class="form-input" id="w2wave" placeholder="5">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Prize Amount Sent</div>
+            <input type="text" class="form-input" id="w2prize" placeholder="e.g. 435 REKT">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Solana TX ID</div>
+            <input type="text" class="form-input" id="w2tx" placeholder="Transaction signature...">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3rd place -->
+      <div>
+        <div class="rank-header bronze">🥉 3rd Place — 10%</div>
+        <div class="form-row">
+          <div class="form-group" style="grid-column:span 2;">
+            <div class="form-label">Wallet Address</div>
+            <input type="text" class="form-input wallet" id="w3addr" placeholder="Full Solana wallet address...">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Score</div>
+            <input type="number" class="form-input" id="w3score" placeholder="22000">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Wave Reached</div>
+            <input type="number" class="form-input" id="w3wave" placeholder="4">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Prize Amount Sent</div>
+            <input type="text" class="form-input" id="w3prize" placeholder="e.g. 145 REKT">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Solana TX ID</div>
+            <input type="text" class="form-input" id="w3tx" placeholder="Transaction signature...">
+          </div>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="hofSubmitBtn" onclick="submitHof()">✓ RECORD IN HALL OF FAME</button>
+      <div class="form-status" id="hofStatus"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  CONFIG — change this password!
+// ─────────────────────────────────────────
+const PASSWORD = 'RektCommander2026'; // Change this to something strong
+
+const SUPABASE_URL = 'https://fjgbfmluqufuajemynba.supabase.co';
+// Note: uses the service key via the API serverless function for writes
+// and anon key for reads — plugged in via environment on the server side
+// For commander reads we go direct to Supabase with the anon key
+// The anon key is safe here since RLS only allows SELECT on scores
+
+// ─────────────────────────────────────────
+//  AUTH
+// ─────────────────────────────────────────
+function checkPass(){
+  const val = document.getElementById('passInput').value;
+  if(val === PASSWORD){
+    sessionStorage.setItem('rektCmd', '1');
+    showApp();
+  } else {
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('passInput').value = '';
+  }
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  setCurrentWeek();
+  loadStats();
+}
+
+function logout(){
+  sessionStorage.removeItem('rektCmd');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('passInput').value = '';
+}
+
+// Check if already logged in
+if(sessionStorage.getItem('rektCmd') === '1') showApp();
+
+// ─────────────────────────────────────────
+//  WEEK HELPERS
+// ─────────────────────────────────────────
+function getCurrentWeekInfo(){
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setUTCHours(0,0,0,0);
+  const day = monday.getUTCDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  monday.setUTCDate(monday.getUTCDate() + diff);
+  const yearStart = new Date(Date.UTC(monday.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((monday - yearStart) / 86400000 + 1) / 7);
+  return { week, year: monday.getUTCFullYear(), monday };
+}
+
+function getPreviousWeekInfo(){
+  const { week, year } = getCurrentWeekInfo();
+  if(week === 1) return { week: 52, year: year - 1 };
+  return { week: week - 1, year };
+}
+
+function setCurrentWeek(){
+  const { week, year, monday } = getCurrentWeekInfo();
+  document.getElementById('weekNum').value = week;
+  document.getElementById('weekYear').value = year;
+  document.getElementById('hofWeek').value = week - 1 || 52;
+  document.getElementById('hofYear').value = week === 1 ? year - 1 : year;
+  document.getElementById('currentWeekDisplay').textContent = `Week ${week}, ${year}`;
+  document.getElementById('currentDateDisplay').textContent = monday.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+}
+
+function fetchPreviousWeek(){
+  const prev = getPreviousWeekInfo();
+  document.getElementById('weekNum').value = prev.week;
+  document.getElementById('weekYear').value = prev.year;
+  fetchWinners();
+}
+
+// ─────────────────────────────────────────
+//  FETCH WINNERS
+// ─────────────────────────────────────────
+async function fetchWinners(){
+  const week = parseInt(document.getElementById('weekNum').value);
+  const year = parseInt(document.getElementById('weekYear').value);
+
+  if(!week || !year){
+    document.getElementById('winnersContainer').innerHTML =
+      '<div class="error-msg">Please enter week and year</div>';
+    return;
+  }
+
+  document.getElementById('winnersContainer').innerHTML =
+    '<div class="loading">⏳ Fetching winners for week ' + week + ', ' + year + '...</div>';
+
+  try {
+    const res = await fetch('/api/leaderboard?week=' + week + '&year=' + year + '&limit=3');
+    const data = await res.json();
+
+    if(!data.scores || data.scores.length === 0){
+      document.getElementById('winnersContainer').innerHTML =
+        '<div class="no-scores">No scores found for week ' + week + ', ' + year + '</div>';
+      return;
+    }
+
+    const medals = ['🥇','🥈','🥉'];
+    const prizeColors = ['var(--gold)','#C0C0C0','#CD7F32'];
+    const rankClasses = ['rank-1','rank-2','rank-3'];
+    const prizePcts = ['60% of pool','30% of pool','10% of pool'];
+
+    // Auto-fill HOF form
+    document.getElementById('hofWeek').value = week;
+    document.getElementById('hofYear').value = year;
+
+    const rows = data.scores.map((s, i) => {
+      const time = new Date(s.created_at).toLocaleDateString('en-GB',{
+        day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'
+      });
+
+      // Auto fill HOF form fields
+      const n = i + 1;
+      document.getElementById(`w${n}addr`).value = s.wallet_address;
+      document.getElementById(`w${n}score`).value = s.score;
+      document.getElementById(`w${n}wave`).value = s.wave;
+
+      return `<tr class="${rankClasses[i]}">
+        <td><span class="medal">${medals[i]}</span></td>
+        <td>
+          <div class="wallet-full">${s.wallet_address}</div>
+          <div style="font-size:0.58rem;color:var(--dim);margin-top:3px;">${time}</div>
+        </td>
+        <td><div class="score-big">$${s.score.toLocaleString()}</div></td>
+        <td style="color:var(--blue);">${s.wave}</td>
+        <td><div class="prize-pct" style="color:${prizeColors[i]};">${prizePcts[i]}</div></td>
+        <td>
+          <button class="copy-btn" onclick="copyWallet('${s.wallet_address}', this)">COPY WALLET</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('winnersContainer').innerHTML = `
+      <div style="font-size:0.58rem;color:var(--dim);letter-spacing:0.1em;margin-bottom:8px;">
+        Week ${week}, ${year} · ${data.scores.length} winner${data.scores.length !== 1 ? 's' : ''} · HOF form auto-filled below ↓
+      </div>
+      <table class="winners-table">
+        <thead>
+          <tr>
+            <th style="width:40px;">POS</th>
+            <th>WALLET ADDRESS</th>
+            <th>SCORE</th>
+            <th>WAVE</th>
+            <th>PRIZE</th>
+            <th style="width:130px;">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+  } catch(err){
+    document.getElementById('winnersContainer').innerHTML =
+      '<div class="error-msg">Error fetching winners: ' + err.message + '</div>';
+  }
+}
+
+// ─────────────────────────────────────────
+//  COPY WALLET
+// ─────────────────────────────────────────
+function copyWallet(addr, btn){
+  navigator.clipboard.writeText(addr).then(() => {
+    btn.textContent = 'COPIED ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'COPY WALLET';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ─────────────────────────────────────────
+//  SUBMIT HOF
+// ─────────────────────────────────────────
+async function submitHof(){
+  const week = parseInt(document.getElementById('hofWeek').value);
+  const year = parseInt(document.getElementById('hofYear').value);
+
+  const winners = [
+    { addr: document.getElementById('w1addr').value.trim(), score: parseInt(document.getElementById('w1score').value), wave: parseInt(document.getElementById('w1wave').value), prize: document.getElementById('w1prize').value.trim(), tx: document.getElementById('w1tx').value.trim(), rank: 1 },
+    { addr: document.getElementById('w2addr').value.trim(), score: parseInt(document.getElementById('w2score').value), wave: parseInt(document.getElementById('w2wave').value), prize: document.getElementById('w2prize').value.trim(), tx: document.getElementById('w2tx').value.trim(), rank: 2 },
+    { addr: document.getElementById('w3addr').value.trim(), score: parseInt(document.getElementById('w3score').value), wave: parseInt(document.getElementById('w3wave').value), prize: document.getElementById('w3prize').value.trim(), tx: document.getElementById('w3tx').value.trim(), rank: 3 },
+  ];
+
+  // Validate
+  const missing = winners.some(w => !w.addr || !w.score || !w.wave || !w.prize);
+  if(!week || !year || missing){
+    showStatus('error', '⚠ Please fill in all required fields (TX ID is optional but recommended)');
+    return;
+  }
+
+  const btn = document.getElementById('hofSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'SUBMITTING...';
+  showStatus('', '');
+
+  try {
+    const res = await fetch('/api/record-winners', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ week, year, winners })
+    });
+
+    const data = await res.json();
+
+    if(data.error) throw new Error(data.error);
+
+    showStatus('success', '✓ Winners recorded in Hall of Fame! Site will update automatically.');
+    btn.textContent = '✓ RECORDED';
+
+  } catch(err){
+    showStatus('error', '⚠ Error: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '✓ RECORD IN HALL OF FAME';
+  }
+}
+
+function showStatus(type, msg){
+  const el = document.getElementById('hofStatus');
+  el.textContent = msg;
+  el.className = 'form-status' + (msg ? ' show ' + type : '');
+}
+
+// ─────────────────────────────────────────
+//  STATS
+// ─────────────────────────────────────────
+async function loadStats(){
+  try {
+    const [lbRes, hofRes] = await Promise.all([
+      fetch('/api/leaderboard'),
+      fetch('/api/hall-of-fame')
+    ]);
+    const lb = await lbRes.json();
+    const hof = await hofRes.json();
+
+    const uniquePlayers = new Set((lb.scores || []).map(s => s.wallet_address)).size;
+    document.getElementById('statTotalGames').textContent = lb.total || '0';
+    document.getElementById('statTopScore').textContent = lb.scores?.[0] ? '$' + lb.scores[0].score.toLocaleString() : '—';
+    document.getElementById('statUniquePlayers').textContent = uniquePlayers;
+    document.getElementById('statHofTotal').textContent = hof.total_winners || '0';
+  } catch(err){
+    console.error('Stats error:', err);
+  }
+}
+</script>
+
+</body>
+</html>
