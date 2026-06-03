@@ -321,10 +321,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="week-meta">
     <div>
-      <div class="week-title">WEEK OF MAY 19 – MAY 25, 2026</div>
-      <div class="week-dates" style="margin-top:4px;">Resets Monday May 26 at 00:00 UTC · Winners paid within 24hrs</div>
+      <div class="week-title" id="weekTitle">LOADING...</div>
+      <div class="week-dates" id="weekDates" style="margin-top:4px;">Loading week data...</div>
     </div>
-    <div class="live-dot">DEMO SCORES</div>
+    <div class="live-dot" id="lbStatus">LOADING...</div>
   </div>
 
   <table class="lb-table">
@@ -338,72 +338,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <th>PRIZE</th>
       </tr>
     </thead>
-    <tbody>
-      <tr class="rank-1">
-        <td class="pos-cell"><span class="pos-medal">🥇</span></td>
-        <td><div class="wallet-addr">GmRaXX...9f4k</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell">$48,200</div></td>
-        <td><div class="wave-cell">6</div></td>
-        <td class="time-cell">May 22, 14:32</td>
-        <td class="prize-cell"><span class="prize-tag">60% REKT</span></td>
-      </tr>
-      <tr class="rank-2">
-        <td class="pos-cell"><span class="pos-medal">🥈</span></td>
-        <td><div class="wallet-addr">HODL.sol</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell">$31,500</div></td>
-        <td><div class="wave-cell">5</div></td>
-        <td class="time-cell">May 21, 09:14</td>
-        <td class="prize-cell"><span class="prize-tag silver">30% REKT</span></td>
-      </tr>
-      <tr class="rank-3">
-        <td class="pos-cell"><span class="pos-medal">🥉</span></td>
-        <td><div class="wallet-addr">WagmiKing.sol</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell">$22,000</div></td>
-        <td><div class="wave-cell">4</div></td>
-        <td class="time-cell">May 20, 18:55</td>
-        <td class="prize-cell"><span class="prize-tag bronze">10% REKT</span></td>
-      </tr>
-      <tr>
-        <td class="pos-cell"><span class="pos-num">4</span></td>
-        <td><div class="wallet-addr">DiamondH...99xR</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell dim">$18,750</div></td>
-        <td><div class="wave-cell dim">4</div></td>
-        <td class="time-cell">May 22, 11:02</td>
-        <td class="prize-cell"><span class="prize-tag none">—</span></td>
-      </tr>
-      <tr>
-        <td class="pos-cell"><span class="pos-num">5</span></td>
-        <td><div class="wallet-addr">NotYet.sol</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell dim">$12,100</div></td>
-        <td><div class="wave-cell dim">3</div></td>
-        <td class="time-cell">May 19, 20:30</td>
-        <td class="prize-cell"><span class="prize-tag none">—</span></td>
-      </tr>
-      <tr>
-        <td class="pos-cell"><span class="pos-num">6</span></td>
-        <td><div class="wallet-addr">PaperHands...11</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell dim">$8,400</div></td>
-        <td><div class="wave-cell dim">3</div></td>
-        <td class="time-cell">May 21, 16:45</td>
-        <td class="prize-cell"><span class="prize-tag none">—</span></td>
-      </tr>
-      <tr>
-        <td class="pos-cell"><span class="pos-num">7</span></td>
-        <td><div class="wallet-addr">Ser...gm42</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell dim">$6,250</div></td>
-        <td><div class="wave-cell dim">2</div></td>
-        <td class="time-cell">May 20, 08:11</td>
-        <td class="prize-cell"><span class="prize-tag none">—</span></td>
-      </tr>
-      <tr>
-        <td class="pos-cell"><span class="pos-num">8</span></td>
-        <td><div class="wallet-addr">NgmiActually.sol</div><div class="wallet-tag">DEMO SCORE</div></td>
-        <td><div class="score-cell dim">$4,100</div></td>
-        <td><div class="wave-cell dim">2</div></td>
-        <td class="time-cell">May 22, 22:18</td>
-        <td class="prize-cell"><span class="prize-tag none">—</span></td>
-      </tr>
-    </tbody>
+    <tbody id="lbTableBody"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--dim);font-size:0.7rem;letter-spacing:0.1em;">LOADING LEADERBOARD...</td></tr></tbody>
   </table>
 
   <div class="demo-note" style="margin-top:2px;">
@@ -451,52 +386,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <b>The permanent record.</b> Every weekly winner is recorded here forever — wallet address, score, prize paid, and on-chain transaction proof. This page never gets cleared. If you win, you're here forever. If prizes aren't paid, everyone can see it immediately. <b>Full transparency, no exceptions.</b>
   </div>
 
-  <!-- DEMO: Empty state with one demo week to show the format -->
-  <div class="week-block open" id="week-demo">
-    <div class="week-block-head" onclick="toggleWeek('week-demo')">
-      <div class="wbh-left">
-        <div class="wbh-week">WEEK 1 — MAY 12–18, 2026</div>
-        <div class="wbh-dates">Ended Monday May 19 · 3 winners paid</div>
-      </div>
-      <div class="wbh-right">
-        <div class="wbh-pool">DEMO WEEK</div>
-        <div class="wbh-toggle">▼</div>
-      </div>
-    </div>
-    <div class="week-block-body">
-      <div class="hof-row">
-        <div class="hof-pos">🥇</div>
-        <div class="hof-wallet"><div class="hof-addr">GmRaXX...9f4k</div></div>
-        <div class="hof-score">$48,200</div>
-        <div class="hof-prize gold">DEMO PRIZE</div>
-        <div class="hof-tx">DEMO</div>
-      </div>
-      <div class="hof-row">
-        <div class="hof-pos">🥈</div>
-        <div class="hof-wallet"><div class="hof-addr">HODL.sol</div></div>
-        <div class="hof-score">$31,500</div>
-        <div class="hof-prize silver">DEMO PRIZE</div>
-        <div class="hof-tx">DEMO</div>
-      </div>
-      <div class="hof-row">
-        <div class="hof-pos">🥉</div>
-        <div class="hof-wallet"><div class="hof-addr">WagmiKing.sol</div></div>
-        <div class="hof-score">$22,000</div>
-        <div class="hof-prize bronze">DEMO PRIZE</div>
-        <div class="hof-tx">DEMO</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Empty state message -->
-  <div class="hof-empty" style="margin-top:2px;background:var(--panel);border:1px solid var(--border);">
-    <span class="hof-empty-icon">🏆</span>
-    <div class="hof-empty-title">REAL WINNERS COMING SOON</div>
-    <div class="hof-empty-sub">
-      Hall of Fame fills up when REKT token launches and real games begin.<br>
-      Every winner will be recorded here permanently with on-chain proof of payment.<br><br>
-      Will your wallet be the first real entry?
-    </div>
+  <div id="hofContainer">
+    <div style="text-align:center;padding:32px;color:var(--dim);font-size:0.7rem;letter-spacing:0.1em;">LOADING HALL OF FAME...</div>
   </div>
 
   <div style="text-align:center;margin-top:32px;">
@@ -617,33 +508,133 @@ function updateCountdown(){
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-// ── WHEN SUPABASE IS CONNECTED ──
-// Replace the demo data above with a real fetch:
-//
-// async function loadLeaderboard() {
-//   const res = await fetch('YOUR_SUPABASE_URL/rest/v1/scores?week=eq.CURRENT_WEEK&order=score.desc&limit=20', {
-//     headers: {
-//       'apikey': 'YOUR_SUPABASE_ANON_KEY',
-//       'Authorization': 'Bearer YOUR_SUPABASE_ANON_KEY'
-//     }
-//   });
-//   const data = await res.json();
-//   renderLeaderboard(data);
-// }
-//
-// async function loadHallOfFame() {
-//   const res = await fetch('YOUR_SUPABASE_URL/rest/v1/hall_of_fame?order=week.desc', {
-//     headers: {
-//       'apikey': 'YOUR_SUPABASE_ANON_KEY',
-//       'Authorization': 'Bearer YOUR_SUPABASE_ANON_KEY'
-//     }
-//   });
-//   const data = await res.json();
-//   renderHallOfFame(data);
-// }
-//
-// loadLeaderboard();
-// loadHallOfFame();
+// ── LIVE API CALLS ──
+const MEDALS = ['🥇','🥈','🥉'];
+const PRIZE_TAGS = ['gold','silver','bronze'];
+const PRIZE_PCT = ['60% REKT','30% REKT','10% REKT'];
+
+async function loadLeaderboard(){
+  try {
+    const res = await fetch('/api/leaderboard');
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+
+    // Update week title
+    const d = new Date(data.weekStarting + 'T00:00:00Z');
+    const end = new Date(d); end.setUTCDate(end.getUTCDate() + 6);
+    const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+    document.getElementById('weekTitle').textContent = `WEEK OF ${fmt(d).toUpperCase()} – ${fmt(end).toUpperCase()}`;
+    document.getElementById('weekDates').textContent = `Resets Monday · Winners paid within 24hrs`;
+    document.getElementById('lbStatus').textContent = data.scores.length > 0 ? 'LIVE' : 'NO SCORES YET';
+    document.getElementById('statGames').textContent = data.total || '0';
+    document.getElementById('statTopScore').textContent = data.scores.length > 0 ? '$' + data.scores[0].score.toLocaleString() : '—';
+
+    const tbody = document.getElementById('lbTableBody');
+    if(!data.scores || data.scores.length === 0){
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--dim);font-size:0.72rem;letter-spacing:0.1em;">🎮 NO SCORES YET THIS WEEK — BE THE FIRST!</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.scores.map((s, i) => {
+      const pos = i < 3
+        ? `<span class="pos-medal">${MEDALS[i]}</span>`
+        : `<span class="pos-num">${i+1}</span>`;
+      const score = i < 3
+        ? `<div class="score-cell">$${s.score.toLocaleString()}</div>`
+        : `<div class="score-cell dim">$${s.score.toLocaleString()}</div>`;
+      const wave = i < 3
+        ? `<div class="wave-cell">${s.wave}</div>`
+        : `<div class="wave-cell dim">${s.wave}</div>`;
+      const prize = i < 3
+        ? `<span class="prize-tag ${PRIZE_TAGS[i]}">${PRIZE_PCT[i]}</span>`
+        : `<span class="prize-tag none">—</span>`;
+      const rankClass = i < 3 ? `rank-${i+1}` : '';
+      const time = new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'});
+      const wallet = s.wallet_address.length > 12
+        ? s.wallet_address.slice(0,6) + '...' + s.wallet_address.slice(-4)
+        : s.wallet_address;
+
+      return `<tr class="${rankClass}">
+        <td class="pos-cell">${pos}</td>
+        <td><div class="wallet-addr">${wallet}</div></td>
+        ${score}${wave}
+        <td class="time-cell">${time}</td>
+        <td class="prize-cell">${prize}</td>
+      </tr>`;
+    }).join('');
+
+  } catch(err) {
+    console.error('Leaderboard error:', err);
+    document.getElementById('lbTableBody').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--red);font-size:0.7rem;">Failed to load leaderboard. Try again shortly.</td></tr>';
+  }
+}
+
+async function loadHallOfFame(){
+  try {
+    const res = await fetch('/api/hall-of-fame');
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+
+    const container = document.getElementById('hofContainer');
+
+    if(!data.weeks || data.weeks.length === 0){
+      container.innerHTML = `<div class="hof-empty" style="background:var(--panel);border:1px solid var(--border);">
+        <span class="hof-empty-icon">🏆</span>
+        <div class="hof-empty-title">FIRST WINNER COMING SOON</div>
+        <div class="hof-empty-sub">
+          Hall of Fame fills when REKT token launches and real games begin.<br>
+          Every winner recorded permanently with on-chain proof of payment.<br><br>
+          Will your wallet be the first real entry?
+        </div>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = data.weeks.map((week, wi) => {
+      const rows = week.winners.map(w => {
+        const rank = w.prize_rank - 1;
+        const wallet = w.wallet_address.length > 12
+          ? w.wallet_address.slice(0,6) + '...' + w.wallet_address.slice(-4)
+          : w.wallet_address;
+        const tx = w.tx_signature
+          ? `<a href="https://solscan.io/tx/${w.tx_signature}" target="_blank">verify ↗</a>`
+          : 'pending';
+        return `<div class="hof-row">
+          <div class="hof-pos">${MEDALS[rank] || (rank+1)}</div>
+          <div class="hof-wallet"><div class="hof-addr">${wallet}</div></div>
+          <div class="hof-score">$${w.score.toLocaleString()}</div>
+          <div class="hof-prize ${PRIZE_TAGS[rank] || ''}">${w.prize_amount}</div>
+          <div class="hof-tx">${tx}</div>
+        </div>`;
+      }).join('');
+
+      return `<div class="week-block ${wi === 0 ? 'open' : ''}" id="week-${week.year}-${week.week}">
+        <div class="week-block-head" onclick="toggleWeek('week-${week.year}-${week.week}')">
+          <div class="wbh-left">
+            <div class="wbh-week">WEEK ${week.week}, ${week.year}</div>
+            <div class="wbh-dates">${week.winners.length} winner${week.winners.length !== 1 ? 's' : ''} paid</div>
+          </div>
+          <div class="wbh-right">
+            <div class="wbh-toggle">▼</div>
+          </div>
+        </div>
+        <div class="week-block-body">${rows}</div>
+      </div>`;
+    }).join('');
+
+  } catch(err) {
+    console.error('HOF error:', err);
+    document.getElementById('hofContainer').innerHTML =
+      '<div style="padding:32px;text-align:center;color:var(--red);font-size:0.7rem;">Failed to load Hall of Fame.</div>';
+  }
+}
+
+// Load both on page start
+loadLeaderboard();
+loadHallOfFame();
+// Refresh leaderboard every 60 seconds
+setInterval(loadLeaderboard, 60000);
 </script>
 
 </body>
