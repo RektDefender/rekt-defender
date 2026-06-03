@@ -1064,7 +1064,7 @@ function shareToX(){
   window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(tweet), '_blank');
 }
 
-function gameOver(){
+async function gameOver(){
   gs.active = false;
   const isATH = gs.score > gs.ath;
   const isPB  = gs.score > (gs.weeklyBest || 0);
@@ -1077,36 +1077,93 @@ function gameOver(){
   document.getElementById('goTitle').textContent = title;
   document.getElementById('goSub').textContent   = sub;
   document.getElementById('goScore').textContent  = '$' + gs.score.toLocaleString();
-
-  // ATH banner
   document.getElementById('athBanner').className = isATH ? 'ath-banner show' : 'ath-banner';
 
-  // Stats — rank on demo board
-  const board = [...DEMO_BOARD, { addr:'YOU', score: gs.score }]
-    .sort((a,b) => b.score - a.score);
-  const rank = board.findIndex(r => r.addr === 'YOU') + 1;
-  const top3Score = board[2]?.score || 0;
-  const gapToTop3 = Math.max(0, top3Score - gs.score);
-
+  // Show wave and kills immediately
   document.getElementById('goWave').textContent  = gs.wave;
   document.getElementById('goKills').textContent = gs.killCount;
-  document.getElementById('goRank').textContent  = '#' + rank;
-  document.getElementById('goGap').textContent   = gapToTop3 > 0
-    ? '+$' + gapToTop3.toLocaleString()
-    : '🏆 IN TOP 3!';
-
-  // Prompt
-  document.getElementById('goPrompt').textContent = getPrompt(
-    gs.score, gs.wave, gs.killCount, rank, gapToTop3, isATH, isPB
-  );
-
-  // Note
-  document.getElementById('goNote').innerHTML = gs.score > 0 && rank <= 3
-    ? '🏆 You\'re currently in prize position! Real prizes activate when REKT launches on <b>Hey.LOL</b>.'
-    : 'Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.';
+  document.getElementById('goRank').textContent  = '...';
+  document.getElementById('goGap').textContent   = '...';
+  document.getElementById('goPrompt').textContent = 'Checking leaderboard...';
+  document.getElementById('goNote').innerHTML    = '';
 
   updateHUD();
   showScreen('goScreen');
+
+  // ── Submit score to API ──
+  // Demo sessions don't get submitted
+  if(!sessionId || sessionId.startsWith('DEMO_')){
+    // Fall back to demo board for rank display
+    const board = [...DEMO_BOARD, { addr:'YOU', score: gs.score }]
+      .sort((a,b) => b.score - a.score);
+    const rank = board.findIndex(r => r.addr === 'YOU') + 1;
+    const top3Score = board[2]?.score || 0;
+    const gapToTop3 = Math.max(0, top3Score - gs.score);
+    updateGoScreen(rank, gapToTop3, isATH, isPB, true);
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/submit-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId,
+        walletAddress: wallet.address || 'unknown',
+        score: gs.score,
+        wave: gs.wave,
+        killCount: gs.killCount,
+      })
+    });
+
+    const data = await res.json();
+    const rank = data.rank || null;
+    const leaderboard = data.leaderboard || [];
+    const top3Score = leaderboard[2]?.score || 0;
+    const gapToTop3 = Math.max(0, top3Score - gs.score);
+    const saved = data.saved;
+
+    updateGoScreen(rank, gapToTop3, isATH, isPB, false, saved, data.message);
+
+  } catch(err){
+    console.error('Score submission error:', err);
+    // Fall back to demo board
+    const board = [...DEMO_BOARD, { addr:'YOU', score: gs.score }]
+      .sort((a,b) => b.score - a.score);
+    const rank = board.findIndex(r => r.addr === 'YOU') + 1;
+    const top3Score = board[2]?.score || 0;
+    const gapToTop3 = Math.max(0, top3Score - gs.score);
+    updateGoScreen(rank, gapToTop3, isATH, isPB, true);
+  }
+}
+
+function updateGoScreen(rank, gapToTop3, isATH, isPB, isDemo, saved, serverMsg){
+  const displayRank = rank || 99;
+
+  document.getElementById('goRank').textContent = rank ? '#' + rank : '—';
+  document.getElementById('goGap').textContent  = gapToTop3 > 0
+    ? '+$' + gapToTop3.toLocaleString()
+    : '🏆 IN TOP 3!';
+
+  document.getElementById('goPrompt').textContent = getPrompt(
+    gs.score, gs.wave, gs.killCount, displayRank, gapToTop3, isATH, isPB
+  );
+
+  if(isDemo){
+    document.getElementById('goNote').innerHTML =
+      'Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.';
+  } else if(saved === false && serverMsg){
+    document.getElementById('goNote').innerHTML = serverMsg;
+  } else if(rank && rank <= 3){
+    document.getElementById('goNote').innerHTML =
+      `🏆 You're #${rank} on the leaderboard! Score saved. Prizes paid every Monday.`;
+  } else if(saved){
+    document.getElementById('goNote').innerHTML =
+      `Score saved to leaderboard. Keep grinding — top 3 wins REKT tokens every Monday.`;
+  } else {
+    document.getElementById('goNote').innerHTML =
+      'Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.';
+  }
 }
 
 // ═══════════════════════════════════════
