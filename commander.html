@@ -292,27 +292,39 @@ html,body{background:var(--bg);color:var(--white);font-family:'JetBrains Mono',m
 
 <script>
 // ─────────────────────────────────────────
-//  CONFIG — change this password!
+//  AUTH — password checked server-side
 // ─────────────────────────────────────────
-const PASSWORD = 'RektCommander2026'; // Change this to something strong
-
-const SUPABASE_URL = 'https://fjgbfmluqufuajemynba.supabase.co';
-// Note: uses the service key via the API serverless function for writes
-// and anon key for reads — plugged in via environment on the server side
-// For commander reads we go direct to Supabase with the anon key
-// The anon key is safe here since RLS only allows SELECT on scores
-
-// ─────────────────────────────────────────
-//  AUTH
-// ─────────────────────────────────────────
-function checkPass(){
+async function checkPass(){
   const val = document.getElementById('passInput').value;
-  if(val === PASSWORD){
-    sessionStorage.setItem('rektCmd', '1');
-    showApp();
-  } else {
+  if(!val) return;
+
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'CHECKING...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth-commander', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: val })
+    });
+
+    const data = await res.json();
+
+    if(res.ok && data.token){
+      sessionStorage.setItem('rektCmd', data.token);
+      showApp();
+    } else {
+      document.getElementById('loginError').classList.add('show');
+      document.getElementById('passInput').value = '';
+      btn.textContent = 'ENTER COMMANDER';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    document.getElementById('loginError').textContent = '⚠ Connection error. Try again.';
     document.getElementById('loginError').classList.add('show');
-    document.getElementById('passInput').value = '';
+    btn.textContent = 'ENTER COMMANDER';
+    btn.disabled = false;
   }
 }
 
@@ -330,8 +342,8 @@ function logout(){
   document.getElementById('passInput').value = '';
 }
 
-// Check if already logged in
-if(sessionStorage.getItem('rektCmd') === '1') showApp();
+// Check if already logged in this session
+if(sessionStorage.getItem('rektCmd')) showApp();
 
 // ─────────────────────────────────────────
 //  WEEK HELPERS
