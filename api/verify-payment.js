@@ -40,15 +40,19 @@ export default async function handler(req, res) {
     const verifyRes = await fetch('https://pay.openfacilitator.io/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payment, requirements }),
+      body: JSON.stringify({
+        x402Version: 1,
+        paymentPayload: payment,
+        paymentRequirements: requirements,
+      }),
     });
 
     const verifyData = await verifyRes.json();
 
-    if (!verifyData.valid) {
+    if (!verifyData.isValid) {
       return res.status(402).json({
         error: 'Payment verification failed',
-        details: verifyData.invalidReason || 'Unknown reason',
+        details: verifyData.error || 'Unknown reason',
       });
     }
 
@@ -56,7 +60,11 @@ export default async function handler(req, res) {
     const settleRes = await fetch('https://pay.openfacilitator.io/settle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payment, requirements }),
+      body: JSON.stringify({
+        x402Version: 1,
+        paymentPayload: payment,
+        paymentRequirements: requirements,
+      }),
     });
 
     const settleData = await settleRes.json();
@@ -74,7 +82,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       sessionId,
-      transactionHash: settleData.transactionHash,
+      transactionHash: settleData.transaction,
       message: 'Payment verified and settled. Game session active.',
     });
 
