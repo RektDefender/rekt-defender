@@ -339,7 +339,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
 
-    <button class="btn green" onclick="startGame()" style="font-size:1.3rem;padding:13px 52px;">▶ SEND IT</button>
+    <button class="btn green" onclick="handlePlayButton()" style="font-size:1.3rem;padding:13px 52px;">▶ SEND IT</button>
 
     <div class="ov-sub">
       Playing in <b>demo mode</b> — scores are for fun only and not saved to the leaderboard.<br>
@@ -397,6 +397,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="ov-sub" id="goNote">
       Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.
     </div>
+  </div>
+
+  <!-- PAYMENT SCREEN -->
+  <div class="overlay hidden" id="payScreen">
+    <div class="ov-title">
+      <span class="t1">READY TO APE IN?</span>
+      <span class="t2">0.10 USDC PER GAME</span>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);padding:16px 24px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:0.6rem;letter-spacing:0.12em;color:var(--dim);text-transform:uppercase;">Connected Wallet</div>
+      <div style="font-size:0.72rem;color:var(--green);word-break:break-all;" id="payWalletAddr">Not connected</div>
+      <div style="height:1px;background:var(--border);margin:4px 0;"></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.65rem;">
+        <span style="color:var(--dim);">Game fee</span>
+        <span style="color:var(--white);">0.10 USDC</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.65rem;">
+        <span style="color:var(--dim);">Prize pool contribution</span>
+        <span style="color:var(--gold);">50%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.65rem;">
+        <span style="color:var(--dim);">Burned forever 🔥</span>
+        <span style="color:var(--red);">20%</span>
+      </div>
+    </div>
+    <div id="payStatus" style="font-size:0.65rem;color:var(--dim);letter-spacing:0.1em;text-align:center;min-height:20px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn green" id="payBtn" onclick="initiatePayment()" style="padding:10px 32px;">⚡ PAY & PLAY</button>
+      <button class="btn ghost" onclick="showScreen('startScreen')" style="padding:10px 24px;">← BACK</button>
+    </div>
+    <div class="ov-sub">Your score is saved only if the payment is verified on-chain.<br>Best weekly score counts. Prizes paid every Monday.</div>
   </div>
 
   <!-- WAVE SCREEN -->
@@ -505,6 +536,135 @@ let player, bullets, enemies, particles, floats, keys = {}, shootCd = 0, rafId;
 //  GAME FLOW
 // ═══════════════════════════════════════
 function goHome(){ window.location.href = 'index.html'; }
+
+// ═══════════════════════════════════════
+//  PAYMENT FLOW
+// ═══════════════════════════════════════
+
+async function handlePlayButton(){
+  if(!CONFIG.tokenLaunched){
+    // Demo mode — just start free
+    sessionId = 'DEMO_' + Date.now().toString(36);
+    startGame();
+    return;
+  }
+
+  // Live mode — check wallet then show payment screen
+  try {
+    setPayStatus('Connecting wallet...');
+    const phantom = window.solana;
+    if(!phantom || !phantom.isPhantom){
+      alert('Phantom wallet not found. Please install Phantom to play.');
+      return;
+    }
+    const resp = await phantom.connect();
+    walletAddr = resp.publicKey.toString();
+    document.getElementById('payWalletAddr').textContent = walletAddr;
+    showScreen('payScreen');
+    setPayStatus('');
+  } catch(err){
+    console.error('Wallet connect error:', err);
+    setPayStatus('⚠ Could not connect wallet. Try again.');
+  }
+}
+
+function setPayStatus(msg, color){
+  const el = document.getElementById('payStatus');
+  el.textContent = msg;
+  el.style.color = color || 'rgba(240,235,227,0.5)';
+}
+
+async function initiatePayment(){
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ PROCESSING...';
+  setPayStatus('Requesting payment details...');
+
+  try {
+    // Step 1 — Get payment requirements from server
+    const sessionRes = await fetch('/api/create-session', { method: 'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+    const sessionData = await sessionRes.json();
+
+    if(sessionData.error) throw new Error(sessionData.error);
+
+    // Demo session returned (PAYMENTS_ENABLED=false on server)
+    if(!sessionData.requiresPayment){
+      sessionId = sessionData.sessionId;
+      startGame();
+      return;
+    }
+
+    const req = sessionData.requirements;
+    setPayStatus('Preparing Solana transaction...');
+
+    // Step 2 — Build USDC transfer using Phantom
+    // We use the x402 exact payment scheme for Solana
+    const phantom = window.solana;
+    if(!phantom?.isPhantom) throw new Error('Phantom not available');
+
+    // Request Phantom to sign a USDC transfer
+    // x402 on Solana uses a signed transaction as the payment proof
+    const { Transaction, PublicKey, SystemProgram } = await import('https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.iife.min.js').catch(() => null) || {};
+
+    setPayStatus('Please approve in Phantom...');
+
+    // For Solana x402, we send the payment requirements to Phantom
+    // and get back a signed transaction as proof
+    const signedPayment = await phantom.request({
+      method: 'sol_sign',
+      params: {
+        message: JSON.stringify({
+          type: 'x402_payment',
+          amount: req.maxAmountRequired,
+          asset: req.asset,
+          payTo: req.payTo,
+          network: req.network,
+          timestamp: Date.now(),
+        })
+      }
+    });
+
+    setPayStatus('Verifying payment on-chain...');
+
+    // Step 3 — Send signed payload to server for verification + settlement
+    const verifyRes = await fetch('/api/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payment: {
+          x402Version: 1,
+          scheme: 'exact',
+          network: req.network,
+          payload: {
+            signature: signedPayment.signature,
+            authorization: {
+              from: walletAddr,
+              to: req.payTo,
+              amount: req.maxAmountRequired,
+              asset: req.asset,
+            }
+          }
+        },
+        walletAddress: walletAddr,
+      })
+    });
+
+    const verifyData = await verifyRes.json();
+
+    if(!verifyData.success) throw new Error(verifyData.error || 'Payment verification failed');
+
+    sessionId = verifyData.sessionId;
+    setPayStatus('✓ Payment verified! Starting game...', 'var(--green)');
+
+    setTimeout(() => startGame(), 800);
+
+  } catch(err){
+    console.error('Payment error:', err);
+    setPayStatus('⚠ ' + (err.message || 'Payment failed. Try again.'), 'var(--red)');
+    btn.disabled = false;
+    btn.textContent = '⚡ PAY & PLAY';
+  }
+}
 
 function startGame(){
   gs.score = 0; gs.lives = 3; gs.wave = 1; gs.hodl = 0;
@@ -1109,7 +1269,7 @@ async function gameOver(){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sessionId,
-        walletAddress: wallet.address || 'unknown',
+        walletAddress: walletAddr || 'unknown',
         score: gs.score,
         wave: gs.wave,
         killCount: gs.killCount,
@@ -1389,7 +1549,7 @@ function updateHUD(){
 }
 
 function showScreen(id){
-  ['startScreen','goScreen','waveScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+  ['startScreen','goScreen','waveScreen','payScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
   if(id) document.getElementById(id).classList.remove('hidden');
 }
 
