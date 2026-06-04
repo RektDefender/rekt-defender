@@ -1,14 +1,14 @@
 // api/build-payment.js
-// Builds a Solana USDC transfer transaction without @solana/web3.js
-// Uses raw HTTP calls to Solana RPC — no problematic dependencies
+// Gets blockhash and token accounts from Solana RPC.
+// No @solana/web3.js dependency — uses raw Node.js https only.
 
 const https = require('https');
 
-function httpsPost(hostname, path, body) {
+function rpcCall(hostname, body) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(body);
     const options = {
-      hostname, path, method: 'POST',
+      hostname, path: '/', method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };
     const req = https.request(options, (res) => {
@@ -16,25 +16,12 @@ function httpsPost(hostname, path, body) {
       res.on('data', chunk => result += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(result)); }
-        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 200))); }
+        catch(e) { reject(new Error('Invalid JSON from RPC: ' + result.slice(0, 100))); }
       });
     });
     req.on('error', reject);
     req.write(data);
     req.end();
-  });
-}
-
-function httpsGet(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('Invalid JSON from ' + url)); }
-      });
-    }).on('error', reject);
   });
 }
 
@@ -65,44 +52,25 @@ module.exports = async function handler(req, res) {
       ? 'api.devnet.solana.com'
       : 'api.mainnet-beta.solana.com';
 
-    // Get fee payer from OpenFacilitator
-    const supported = await httpsGet('https://pay.openfacilitator.io/supported');
-    console.log('OpenFacilitator supported:', JSON.stringify(supported).slice(0, 300));
-
-    const networkInfo = (supported.kinds || []).find(k => k.network === network);
-    const feePayer = networkInfo?.extra?.feePayer;
-    console.log('feePayer:', feePayer);
-
-    if (!feePayer) {
-      return res.status(500).json({
-        error: 'Could not get fee payer from OpenFacilitator',
-        supported: JSON.stringify(supported).slice(0, 200)
-      });
-    }
-
-    // Get latest blockhash from Solana RPC
-    const blockhashRes = await httpsPost(RPC_HOST, '/', {
+    // Get latest blockhash
+    const blockhashRes = await rpcCall(RPC_HOST, {
       jsonrpc: '2.0', id: 1,
       method: 'getLatestBlockhash',
       params: [{ commitment: 'confirmed' }]
     });
-
     const blockhash = blockhashRes?.result?.value?.blockhash;
     const lastValidBlockHeight = blockhashRes?.result?.value?.lastValidBlockHeight;
     console.log('blockhash:', blockhash);
 
-    if (!blockhash) {
-      return res.status(500).json({ error: 'Could not get blockhash from Solana RPC' });
-    }
+    if (!blockhash) return res.status(500).json({ error: 'Could not get blockhash' });
 
-    // Get associated token accounts
-    const fromATARes = await httpsPost(RPC_HOST, '/', {
+    // Get sender token account
+    const fromATARes = await rpcCall(RPC_HOST, {
       jsonrpc: '2.0', id: 2,
       method: 'getTokenAccountsByOwner',
       params: [from, { mint: asset }, { encoding: 'jsonParsed' }]
     });
-
-    const toATARes = await httpsPost(RPC_HOST, '/', {
+    const toATARes = await rpcCall(RPC_HOST, {
       jsonrpc: '2.0', id: 3,
       method: 'getTokenAccountsByOwner',
       params: [to, { mint: asset }, { encoding: 'jsonParsed' }]
@@ -110,29 +78,14 @@ module.exports = async function handler(req, res) {
 
     const fromATA = fromATARes?.result?.value?.[0]?.pubkey;
     const toATA   = toATARes?.result?.value?.[0]?.pubkey;
-
     console.log('fromATA:', fromATA, 'toATA:', toATA);
 
-    if (!fromATA) {
-      return res.status(400).json({ error: 'Sender has no USDC token account' });
-    }
-    if (!toATA) {
-      return res.status(400).json({ error: 'Recipient has no USDC token account' });
-    }
+    if (!fromATA) return res.status(400).json({ error: 'Sender has no USDC token account' });
+    if (!toATA)   return res.status(400).json({ error: 'Recipient has no USDC token account' });
 
-    // Return the transaction details for the client to build and sign via Phantom
-    // Phantom's signAndSendTransaction handles the actual transaction construction
     return res.status(200).json({
-      blockhash,
-      lastValidBlockHeight,
-      feePayer,
-      fromATA,
-      toATA,
-      from,
-      to,
-      amount,
-      asset,
-      network,
+      blockhash, lastValidBlockHeight,
+      fromATA, toATA, from, to, amount, asset, network,
     });
 
   } catch (err) {
