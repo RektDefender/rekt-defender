@@ -703,7 +703,7 @@ async function initiatePayment(){
 
     setPayStatus('Verifying payment...');
 
-    // Step 4 — Send to verify-payment
+    // Step 4 — Send signed transaction to our server for OpenFacilitator verify + settle
     const verifyRes = await fetch('/api/verify-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -713,14 +713,7 @@ async function initiatePayment(){
           scheme: 'exact',
           network: req.network,
           payload: {
-            signature,
-            transaction: serialisedTransaction, // base64 serialised signed transaction
-            authorization: {
-              from: walletAddr,
-              to: req.payTo,
-              amount: req.maxAmountRequired,
-              asset: req.asset,
-            }
+            transaction: serialisedTransaction,
           }
         },
         walletAddress: walletAddr,
