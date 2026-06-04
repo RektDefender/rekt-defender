@@ -1,11 +1,17 @@
 // api/verify-payment.js
-// Receives signed payment payload from client,
-// verifies + settles via OpenFacilitator, returns session ID on success.
+// Verifies and settles payment via OpenFacilitator.
+// Supports mainnet and devnet via SOLANA_NETWORK env var.
 
 const PAYMENT_RECIPIENT = process.env.PAYMENT_RECIPIENT || '4wsT3tYA1YnHjzs6arFYkTEtxk2g8EHer9U9u7SbHPsB';
 const PAYMENTS_ENABLED  = process.env.PAYMENTS_ENABLED === 'true';
+const SOLANA_NETWORK    = process.env.SOLANA_NETWORK || 'solana'; // 'solana' or 'solana-devnet'
 
-const USDC_MINT  = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const USDC_MINTS = {
+  'solana':        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // Mainnet
+  'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU', // Devnet
+};
+
+const USDC_MINT  = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
 const GAME_PRICE = '100000'; // 0.10 USDC (6 decimals)
 
 export default async function handler(req, res) {
@@ -16,7 +22,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // If payments are off, shouldn't be calling this endpoint
   if (!PAYMENTS_ENABLED) {
     return res.status(400).json({ error: 'Payments not enabled' });
   }
@@ -30,13 +35,13 @@ export default async function handler(req, res) {
 
     const requirements = {
       scheme: 'exact',
-      network: 'solana',
+      network: SOLANA_NETWORK,
       maxAmountRequired: GAME_PRICE,
       asset: USDC_MINT,
       payTo: PAYMENT_RECIPIENT,
     };
 
-    // ── Step 1: Verify payment with OpenFacilitator ──
+    // ── Step 1: Verify ──
     const verifyRes = await fetch('https://pay.openfacilitator.io/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,6 +53,7 @@ export default async function handler(req, res) {
     });
 
     const verifyData = await verifyRes.json();
+    console.log(`[${SOLANA_NETWORK}] Verify response:`, JSON.stringify(verifyData));
 
     if (!verifyData.isValid) {
       return res.status(402).json({
@@ -56,7 +62,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // ── Step 2: Settle payment (broadcast to Solana) ──
+    // ── Step 2: Settle ──
     const settleRes = await fetch('https://pay.openfacilitator.io/settle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -68,6 +74,7 @@ export default async function handler(req, res) {
     });
 
     const settleData = await settleRes.json();
+    console.log(`[${SOLANA_NETWORK}] Settle response:`, JSON.stringify(settleData));
 
     if (!settleData.success) {
       return res.status(500).json({
@@ -76,7 +83,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // ── Step 3: Generate verified session ID ──
+    // ── Step 3: Issue session ID ──
     const sessionId = 'SES_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
 
     return res.status(200).json({
@@ -87,7 +94,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('verify-payment error:', err);
+    console.error(`[${SOLANA_NETWORK}] verify-payment error:`, err);
     return res.status(500).json({ error: 'Server error during payment verification' });
   }
 }

@@ -1,14 +1,19 @@
 // api/create-session.js
 // Returns payment requirements for a game session.
-// Client uses these to construct the payment in Phantom.
+// Supports mainnet and devnet via SOLANA_NETWORK env var.
 
 const PAYMENT_RECIPIENT = process.env.PAYMENT_RECIPIENT || '4wsT3tYA1YnHjzs6arFYkTEtxk2g8EHer9U9u7SbHPsB';
 const PAYMENTS_ENABLED  = process.env.PAYMENTS_ENABLED === 'true';
+const SOLANA_NETWORK    = process.env.SOLANA_NETWORK || 'solana'; // 'solana' or 'solana-devnet'
 
-// Solana USDC mint address (mainnet)
-const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-// 0.10 USDC — Solana USDC has 6 decimals
-const GAME_PRICE = '100000';
+// USDC mint addresses
+const USDC_MINTS = {
+  'solana':        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // Mainnet
+  'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU', // Devnet
+};
+
+const USDC_MINT  = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
+const GAME_PRICE = '100000'; // 0.10 USDC (6 decimals)
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
@@ -18,7 +23,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // If payments disabled, return a free demo session immediately
   if (!PAYMENTS_ENABLED) {
     const demoSession = 'DEMO_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
     return res.status(200).json({
@@ -28,12 +32,12 @@ export default async function handler(req, res) {
     });
   }
 
-  // Return payment requirements for the client to build the Phantom transaction
   return res.status(200).json({
     requiresPayment: true,
+    network: SOLANA_NETWORK,
     requirements: {
       scheme: 'exact',
-      network: 'solana',
+      network: SOLANA_NETWORK,
       maxAmountRequired: GAME_PRICE,
       asset: USDC_MINT,
       payTo: PAYMENT_RECIPIENT,
