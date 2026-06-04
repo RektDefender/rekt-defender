@@ -688,21 +688,14 @@ async function initiatePayment(){
     let signature;
     let serialisedTransaction;
     try {
-      // Sign the transaction without sending — so we can capture the serialised form
+      // Sign the transaction (don't send yet — we need the serialised form)
       const signed = await window.solana.signTransaction(transaction);
       const serialisedBytes = signed.serialize();
       serialisedTransaction = btoa(String.fromCharCode(...serialisedBytes));
       console.log('Signed transaction (base64):', serialisedTransaction.slice(0, 50) + '...');
-
-      // Now send it to Solana
-      const conn = new Connection(
-        buildData.network === 'solana-devnet'
-          ? 'https://api.devnet.solana.com'
-          : 'https://api.mainnet-beta.solana.com',
-        'confirmed'
-      );
-      signature = await conn.sendRawTransaction(signed.serialize());
-      console.log('Transaction signature:', signature);
+      // Signature is the first 64 bytes of the transaction
+      signature = signed.signatures[0]?.publicKey?.toString() || 'pending';
+      console.log('Signer:', signature);
     } catch(phantomErr){
       console.error('Phantom error:', phantomErr);
       throw new Error('Phantom rejected transaction: ' + (phantomErr.message || JSON.stringify(phantomErr)));
