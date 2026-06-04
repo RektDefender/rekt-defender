@@ -668,9 +668,10 @@ async function initiatePayment(){
       data: instructionData,
     };
 
+    // Use player wallet as fee payer — simpler, no co-signing needed
     const transaction = new Transaction({
       recentBlockhash: buildData.blockhash,
-      feePayer: new PublicKey(buildData.feePayer),
+      feePayer: new PublicKey(buildData.from),
     });
     transaction.add(transferInstruction);
 
