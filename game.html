@@ -668,10 +668,17 @@ async function initiatePayment(){
       data: instructionData,
     };
 
+    // Use OpenFacilitator as fee payer if available, otherwise player wallet
+    const feePayerKey = buildData.feePayer
+      ? new PublicKey(buildData.feePayer)
+      : new PublicKey(buildData.from);
+
+    console.log('Using feePayer:', buildData.feePayer || buildData.from);
+
     // Use player wallet as fee payer — simpler, no co-signing needed
     const transaction = new Transaction({
       recentBlockhash: buildData.blockhash,
-      feePayer: new PublicKey(buildData.from),
+      feePayer: feePayerKey,
     });
     transaction.add(transferInstruction);
 
