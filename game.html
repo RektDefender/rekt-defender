@@ -629,10 +629,30 @@ async function initiatePayment(){
     const buildData = await buildRes.json();
     if(buildData.error) throw new Error(buildData.error);
 
-    // Sign the transaction in Phantom
-    const { signature } = await phantom.signAndSendTransaction(
-      buildData.transaction
-    );
+    setPayStatus('Please approve in Phantom...');
+
+    // Use Phantom's request method to sign and send the USDC transfer
+    // Pass the transfer details returned from our server
+    const signResult = await window.solana.request({
+      method: 'signAndSendTransaction',
+      params: {
+        message: {
+          recentBlockhash: buildData.blockhash,
+          feePayer: buildData.feePayer,
+          instructions: [{
+            keys: [
+              { pubkey: buildData.fromATA, isSigner: false, isWritable: true },
+              { pubkey: buildData.toATA,   isSigner: false, isWritable: true },
+              { pubkey: buildData.from,    isSigner: true,  isWritable: false },
+            ],
+            programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+            data: buildData.transferData,
+          }]
+        }
+      }
+    });
+
+    const signature = signResult?.signature || signResult;
 
     setPayStatus('Verifying payment...');
 
