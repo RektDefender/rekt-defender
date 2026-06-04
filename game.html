@@ -596,55 +596,21 @@ async function initiatePayment(){
   const btn = document.getElementById('payBtn');
   btn.disabled = true;
   btn.textContent = '⏳ PROCESSING...';
-  setPayStatus('Requesting payment details...');
+  setPayStatus('Preparing payment...');
 
   try {
-    // Step 1 — Get payment requirements from server
-    const sessionRes = await fetch('/api/create-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{}'
-    });
-    const sessionData = await sessionRes.json();
-    console.log('create-session response:', JSON.stringify(sessionData));
-    if(sessionData.error) throw new Error(sessionData.error);
-
-    // Demo session (PAYMENTS_ENABLED=false on server)
-    if(!sessionData.requiresPayment){
-      sessionId = sessionData.sessionId;
-      startGame();
-      return;
-    }
-
-    const req = sessionData.requirements;
-    console.log('requirements:', JSON.stringify(req));
-    console.log('walletAddr:', walletAddr);
-    setPayStatus('Building transaction...');
-
-    const wallet = window._activeWallet || window.solana;
-    if(!wallet) throw new Error('No wallet available');
-
-    setPayStatus('Please approve in Phantom...');
-
-    // Build transaction server-side (avoids CORS issues with OpenFacilitator)
+    // Step 1 — Get payment details from server
     const buildRes = await fetch('/api/build-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: walletAddr,
-        to: req.payTo,
-        amount: req.maxAmountRequired,
-        asset: req.asset,
-        network: req.network,
-      })
+      body: JSON.stringify({ from: walletAddr })
     });
-
     const buildData = await buildRes.json();
     if(buildData.error) throw new Error(buildData.error);
 
-    setPayStatus('Please approve in Phantom...');
+    setPayStatus('Please approve in wallet...');
 
-    // Load Solana web3.js from CDN (client-side only — works fine in browser)
+    // Step 2 — Load Solana web3.js from CDN
     if(!window.solanaWeb3){
       await new Promise((resolve, reject) => {
         const s = document.createElement('script');
@@ -657,12 +623,12 @@ async function initiatePayment(){
 
     const { PublicKey, Transaction, TransactionInstruction } = window.solanaWeb3;
 
-    // Build SPL token transfer instruction manually
-    // Transfer instruction layout: [3 (transfer), amount as 8 bytes LE]
+    // Step 3 — Build simple SPL token transfer — player is fee payer
+    // Works with Phantom, Backpack, any Solana wallet. No co-signing needed.
     const instructionData = new Uint8Array(9);
     const view = new DataView(instructionData.buffer);
-    view.setUint8(0, 3); // transfer instruction
-    view.setBigUint64(1, BigInt(buildData.amount), true); // little-endian amount
+    view.setUint8(0, 3);
+    view.setBigUint64(1, BigInt(buildData.amount), true);
 
     const transferInstruction = new TransactionInstruction({
       keys: [
@@ -674,60 +640,25 @@ async function initiatePayment(){
       data: instructionData,
     });
 
-    const feePayerKey = buildData.feePayer
-      ? new PublicKey(buildData.feePayer)
-      : new PublicKey(buildData.from);
-
-    console.log('Using feePayer:', buildData.feePayer || buildData.from);
-
     const transaction = new Transaction({
       recentBlockhash: buildData.blockhash,
-      feePayer: feePayerKey,
+      feePayer: new PublicKey(buildData.from),
     });
     transaction.add(transferInstruction);
 
-    // Sign and send via Phantom
-    console.log('Transaction details:', {
-      blockhash: buildData.blockhash,
-      feePayer: buildData.feePayer,
-      fromATA: buildData.fromATA,
-      toATA: buildData.toATA,
-      from: buildData.from,
-      amount: buildData.amount,
-    });
+    // Step 4 — Sign and send with any connected wallet
+    const wallet = window._activeWallet || window.solana;
+    if(!wallet) throw new Error('No wallet available');
 
-    let serialisedTransaction;
-    try {
-      // Sign the transaction — Phantom signs as the transfer authority
-      // OpenFacilitator will add their fee payer signature when we send to them
-      const signed = await wallet.signTransaction(transaction);
-      
-      // Serialise WITHOUT requiring all signatures (OpenFacilitator still needs to sign as fee payer)
-      const serialisedBytes = signed.serialize({ requireAllSignatures: false, verifySignatures: false });
-      serialisedTransaction = btoa(String.fromCharCode(...serialisedBytes));
-      console.log('Partially signed transaction (base64):', serialisedTransaction.slice(0, 50) + '...');
-    } catch(phantomErr){
-      console.error('Phantom error:', phantomErr);
-      throw new Error('Phantom rejected transaction: ' + (phantomErr.message || JSON.stringify(phantomErr)));
-    }
+    const { signature } = await wallet.signAndSendTransaction(transaction);
+    console.log('Transaction signature:', signature);
+    setPayStatus('Verifying payment on-chain...');
 
-    setPayStatus('Verifying payment...');
-
-    // Step 4 — Send signed transaction to our server for OpenFacilitator verify + settle
+    // Step 5 — Server verifies transaction on Solana directly
     const verifyRes = await fetch('/api/verify-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        payment: {
-          x402Version: 1,
-          scheme: 'exact',
-          network: req.network,
-          payload: {
-            transaction: serialisedTransaction,
-          }
-        },
-        walletAddress: walletAddr,
-      })
+      body: JSON.stringify({ signature, walletAddress: walletAddr })
     });
 
     const verifyData = await verifyRes.json();
@@ -744,6 +675,7 @@ async function initiatePayment(){
     btn.textContent = '⚡ PAY & PLAY';
   }
 }
+
 
 function startGame(){
   gs.score = 0; gs.lives = 3; gs.wave = 1; gs.hodl = 0;
