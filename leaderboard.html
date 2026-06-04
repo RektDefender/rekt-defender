@@ -345,9 +345,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <span class="demo-note-icon">⚠️</span>
     <div><b>Note on scores:</b> The $ amount shown is your in-game portfolio score — a game mechanic only. It has <b>no relation to prize amounts</b>. Prizes are paid in REKT tokens based on the weekly pool split (60/30/10%). The REKT token value is not fixed or guaranteed.</div>
   </div>
-    <span class="demo-note-icon">🎮</span>
-    <div><b>Demo mode active.</b> These are placeholder scores to show how the leaderboard will look. Real scores will populate here once REKT token launches on Hey.LOL and the payment gate is activated. Every real score is verified against a paid session ID before being written to the leaderboard — no cheating, no bots.</div>
-  </div>
 
   <!-- Prize breakdown -->
   <div style="margin-top:40px;">
@@ -557,7 +554,8 @@ async function loadLeaderboard(){
       return `<tr class="${rankClass}">
         <td class="pos-cell">${pos}</td>
         <td><div class="wallet-addr">${wallet}</div></td>
-        ${score}${wave}
+        <td>${score}</td>
+        <td>${wave}</td>
         <td class="time-cell">${time}</td>
         <td class="prize-cell">${prize}</td>
       </tr>`;
