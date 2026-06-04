@@ -587,12 +587,15 @@ async function initiatePayment(){
 
   try {
     // Step 1 — Get payment requirements from server
-    const sessionRes = await fetch('/api/create-session', { method: 'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
+    const sessionRes = await fetch('/api/create-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
     const sessionData = await sessionRes.json();
-
     if(sessionData.error) throw new Error(sessionData.error);
 
-    // Demo session returned (PAYMENTS_ENABLED=false on server)
+    // Demo session (PAYMENTS_ENABLED=false on server)
     if(!sessionData.requiresPayment){
       sessionId = sessionData.sessionId;
       startGame();
@@ -600,38 +603,46 @@ async function initiatePayment(){
     }
 
     const req = sessionData.requirements;
-    setPayStatus('Preparing Solana transaction...');
+    setPayStatus('Building transaction...');
 
-    // Step 2 — Build USDC transfer using Phantom
-    // We use the x402 exact payment scheme for Solana
     const phantom = window.solana;
     if(!phantom?.isPhantom) throw new Error('Phantom not available');
 
-    // Request Phantom to sign a USDC transfer
-    // x402 on Solana uses a signed transaction as the payment proof
-    const { Transaction, PublicKey, SystemProgram } = await import('https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.iife.min.js').catch(() => null) || {};
+    // Step 2 — Get fee payer from OpenFacilitator (needed for Solana x402)
+    const supportedRes = await fetch('https://pay.openfacilitator.io/supported');
+    const supported = await supportedRes.json();
+    const solanaKind = supported.kinds?.find(k => k.network === req.network);
+    const feePayer = solanaKind?.extra?.feePayer;
+    if(!feePayer) throw new Error('Could not get fee payer from OpenFacilitator');
 
     setPayStatus('Please approve in Phantom...');
 
-    // For Solana x402, we send the payment requirements to Phantom
-    // and get back a signed transaction as proof
-    const signedPayment = await phantom.request({
-      method: 'sol_sign',
-      params: {
-        message: JSON.stringify({
-          type: 'x402_payment',
-          amount: req.maxAmountRequired,
-          asset: req.asset,
-          payTo: req.payTo,
-          network: req.network,
-          timestamp: Date.now(),
-        })
-      }
+    // Step 3 — Use Phantom's signAndSendTransaction with the x402 payment
+    // Send the payment details to our server which builds the transaction
+    const buildRes = await fetch('/api/build-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: walletAddr,
+        to: req.payTo,
+        amount: req.maxAmountRequired,
+        asset: req.asset,
+        network: req.network,
+        feePayer,
+      })
     });
 
-    setPayStatus('Verifying payment on-chain...');
+    const buildData = await buildRes.json();
+    if(buildData.error) throw new Error(buildData.error);
 
-    // Step 3 — Send signed payload to server for verification + settlement
+    // Sign the transaction in Phantom
+    const { signature } = await phantom.signAndSendTransaction(
+      buildData.transaction
+    );
+
+    setPayStatus('Verifying payment...');
+
+    // Step 4 — Send to verify-payment
     const verifyRes = await fetch('/api/verify-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -641,7 +652,7 @@ async function initiatePayment(){
           scheme: 'exact',
           network: req.network,
           payload: {
-            signature: signedPayment.signature,
+            signature,
             authorization: {
               from: walletAddr,
               to: req.payTo,
@@ -655,12 +666,10 @@ async function initiatePayment(){
     });
 
     const verifyData = await verifyRes.json();
-
     if(!verifyData.success) throw new Error(verifyData.error || 'Payment verification failed');
 
     sessionId = verifyData.sessionId;
     setPayStatus('✓ Payment verified! Starting game...', 'var(--green)');
-
     setTimeout(() => startGame(), 800);
 
   } catch(err){

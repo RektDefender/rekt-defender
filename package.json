@@ -1,0 +1,9 @@
+{
+  "name": "rekt-defender",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@solana/web3.js": "^1.87.6",
+    "@solana/spl-token": "^0.4.0"
+  }
+}
