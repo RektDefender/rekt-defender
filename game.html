@@ -548,25 +548,38 @@ let walletAddr = null;
 
 async function handlePlayButton(){
   if(!CONFIG.tokenLaunched){
-    // Demo mode — just start free
     sessionId = 'DEMO_' + Date.now().toString(36);
     startGame();
     return;
   }
 
-  // Live mode — check wallet then show payment screen
+  // Live mode — detect available wallet
   try {
     setPayStatus('Connecting wallet...');
-    const phantom = window.solana;
-    if(!phantom || !phantom.isPhantom){
-      alert('Phantom wallet not found. Please install Phantom to play.');
+
+    // Detect wallet — Phantom or Backpack
+    const phantom  = window.solana?.isPhantom ? window.solana : null;
+    const backpack = window.backpack?.isBackpack ? window.backpack : null;
+    const wallet   = backpack || phantom;
+
+    if(!wallet){
+      alert('No Solana wallet found. Please install Phantom or Backpack to play.');
       return;
     }
-    const resp = await phantom.connect();
+
+    const walletName = backpack ? 'Backpack' : 'Phantom';
+    console.log('Using wallet:', walletName);
+
+    const resp = await wallet.connect();
     walletAddr = resp.publicKey.toString();
     document.getElementById('payWalletAddr').textContent = walletAddr;
+    document.getElementById('payWalletAddr').title = walletName + ' wallet';
     showScreen('payScreen');
     setPayStatus('');
+
+    // Store wallet reference for signing
+    window._activeWallet = wallet;
+
   } catch(err){
     console.error('Wallet connect error:', err);
     setPayStatus('⚠ Could not connect wallet. Try again.');
@@ -608,8 +621,8 @@ async function initiatePayment(){
     console.log('walletAddr:', walletAddr);
     setPayStatus('Building transaction...');
 
-    const phantom = window.solana;
-    if(!phantom?.isPhantom) throw new Error('Phantom not available');
+    const wallet = window._activeWallet || window.solana;
+    if(!wallet) throw new Error('No wallet available');
 
     setPayStatus('Please approve in Phantom...');
 
@@ -687,7 +700,7 @@ async function initiatePayment(){
     try {
       // Sign the transaction — Phantom signs as the transfer authority
       // OpenFacilitator will add their fee payer signature when we send to them
-      const signed = await window.solana.signTransaction(transaction);
+      const signed = await wallet.signTransaction(transaction);
       
       // Serialise WITHOUT requiring all signatures (OpenFacilitator still needs to sign as fee payer)
       const serialisedBytes = signed.serialize({ requireAllSignatures: false, verifySignatures: false });
