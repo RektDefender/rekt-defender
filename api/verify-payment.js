@@ -72,6 +72,8 @@ module.exports = async function handler(req, res) {
     });
 
     const tx = txRes?.result;
+    console.log('RPC response:', JSON.stringify(txRes).slice(0, 500));
+    
     if (!tx) {
       return res.status(402).json({ error: 'Transaction not found on chain' });
     }
@@ -91,6 +93,12 @@ module.exports = async function handler(req, res) {
     const instructions = tx.transaction?.message?.instructions || [];
     const innerInstructions = tx.meta?.innerInstructions?.flatMap(i => i.instructions) || [];
     const allInstructions = [...instructions, ...innerInstructions];
+    
+    console.log('Total instructions:', allInstructions.length);
+    console.log('Instructions:', JSON.stringify(allInstructions.map(ix => ({
+      program: ix.program,
+      type: ix.parsed?.type,
+    }))));
 
     let validPayment = false;
     let transferAmount = 0;
