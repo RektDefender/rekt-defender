@@ -14,15 +14,29 @@ const USDC_MINTS = {
 const USDC_MINT = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
 const RPC_HOST  = SOLANA_NETWORK === 'solana-devnet'
   ? 'api.devnet.solana.com'
-  : 'api.mainnet-beta.solana.com';
+  : 'solana-mainnet.g.alchemy.com';
+const RPC_PATH  = SOLANA_NETWORK === 'solana-devnet' ? '/' : '/v2/demo';
 
 function rpcCall(body) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(body);
     const options = {
-      hostname: RPC_HOST, path: '/', method: 'POST',
+      hostname: RPC_HOST, path: RPC_PATH, method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };
+    const req = https.request(options, (res) => {
+      let result = '';
+      res.on('data', chunk => result += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(result)); }
+        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 100))); }
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
     const req = https.request(options, (res) => {
       let result = '';
       res.on('data', chunk => result += chunk);

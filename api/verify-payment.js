@@ -16,13 +16,17 @@ const USDC_MINT   = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
 const GAME_PRICE  = 100000; // 0.10 USDC (6 decimals)
 const RPC_HOST    = SOLANA_NETWORK === 'solana-devnet'
   ? 'api.devnet.solana.com'
-  : 'api.mainnet-beta.solana.com';
+  : 'solana-mainnet.g.alchemy.com';
+
+const RPC_PATH    = SOLANA_NETWORK === 'solana-devnet'
+  ? '/'
+  : '/v2/demo';
 
 function rpcCall(body) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(body);
     const options = {
-      hostname: RPC_HOST, path: '/', method: 'POST',
+      hostname: RPC_HOST, path: RPC_PATH, method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };
     const req = https.request(options, (res) => {
