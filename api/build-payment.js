@@ -3,6 +3,21 @@
 
 const { Connection, PublicKey, Transaction } = require('@solana/web3.js');
 const { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
+const https = require('https');
+
+// Helper: HTTPS GET that works without fetch
+function httpsGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch(e) { reject(new Error('Invalid JSON from ' + url + ': ' + data.slice(0,100))); }
+      });
+    }).on('error', reject);
+  });
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
@@ -34,8 +49,8 @@ module.exports = async function handler(req, res) {
       : 'https://api.mainnet-beta.solana.com';
 
     // Get fee payer from OpenFacilitator server-side
-    const supportedRes = await fetch('https://pay.openfacilitator.io/supported');
-    const supported = await supportedRes.json();
+    const supported = await httpsGet('https://pay.openfacilitator.io/supported');
+    console.log('supported response:', JSON.stringify(supported).slice(0, 200));
     const solanaKind = supported.kinds?.find(k => k.network === network);
     const feePayer = solanaKind?.extra?.feePayer;
     if (!feePayer) throw new Error('Could not get fee payer from OpenFacilitator');

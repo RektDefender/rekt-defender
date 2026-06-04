@@ -2,17 +2,47 @@
 // Verifies and settles payment via OpenFacilitator.
 // Supports mainnet and devnet via SOLANA_NETWORK env var.
 
+const https = require('https');
+
 const PAYMENT_RECIPIENT = process.env.PAYMENT_RECIPIENT || '4wsT3tYA1YnHjzs6arFYkTEtxk2g8EHer9U9u7SbHPsB';
 const PAYMENTS_ENABLED  = process.env.PAYMENTS_ENABLED === 'true';
-const SOLANA_NETWORK    = process.env.SOLANA_NETWORK || 'solana'; // 'solana' or 'solana-devnet'
+const SOLANA_NETWORK    = process.env.SOLANA_NETWORK || 'solana';
 
 const USDC_MINTS = {
-  'solana':        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // Mainnet
-  'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU', // Devnet
+  'solana':        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+  'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
 };
 
 const USDC_MINT  = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
-const GAME_PRICE = '100000'; // 0.10 USDC (6 decimals)
+const GAME_PRICE = '100000';
+
+// Helper: HTTPS POST
+function httpsPost(url, body) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(body);
+    const urlObj = new URL(url);
+    const options = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data),
+      }
+    };
+    const req = https.request(options, (res) => {
+      let result = '';
+      res.on('data', chunk => result += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(result)); }
+        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0,100))); }
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
@@ -42,17 +72,11 @@ module.exports = async function handler(req, res) {
     };
 
     // ── Step 1: Verify ──
-    const verifyRes = await fetch('https://pay.openfacilitator.io/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        x402Version: 1,
-        paymentPayload: payment,
-        paymentRequirements: requirements,
-      }),
+    const verifyData = await httpsPost('https://pay.openfacilitator.io/verify', {
+      x402Version: 1,
+      paymentPayload: payment,
+      paymentRequirements: requirements,
     });
-
-    const verifyData = await verifyRes.json();
     console.log(`[${SOLANA_NETWORK}] Verify response:`, JSON.stringify(verifyData));
 
     if (!verifyData.isValid) {
@@ -63,17 +87,11 @@ module.exports = async function handler(req, res) {
     }
 
     // ── Step 2: Settle ──
-    const settleRes = await fetch('https://pay.openfacilitator.io/settle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        x402Version: 1,
-        paymentPayload: payment,
-        paymentRequirements: requirements,
-      }),
+    const settleData = await httpsPost('https://pay.openfacilitator.io/settle', {
+      x402Version: 1,
+      paymentPayload: payment,
+      paymentRequirements: requirements,
     });
-
-    const settleData = await settleRes.json();
     console.log(`[${SOLANA_NETWORK}] Settle response:`, JSON.stringify(settleData));
 
     if (!settleData.success) {
