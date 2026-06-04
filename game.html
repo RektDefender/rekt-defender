@@ -549,8 +549,11 @@ let walletAddr = null;
 // ═══════════════════════════════════════
 
 function disconnectWallet(){
-  if(window._activeWallet?.disconnect) window._activeWallet.disconnect();
-  if(window.solana?.disconnect) window.solana.disconnect();
+  try {
+    if(window._activeWallet?.disconnect) window._activeWallet.disconnect();
+    if(window.backpack?.disconnect) window.backpack.disconnect();
+    if(window.solana?.disconnect) window.solana.disconnect();
+  } catch(e) {}
   window._activeWallet = null;
   walletAddr = null;
   showScreen('startScreen');
@@ -563,33 +566,40 @@ async function handlePlayButton(){
     return;
   }
 
-  // Live mode — detect available wallet
-  try {
-    setPayStatus('Connecting wallet...');
-
-    // Detect wallet — Phantom or Backpack
-    const phantom  = window.solana?.isPhantom ? window.solana : null;
-    const backpack = window.backpack?.isBackpack ? window.backpack : null;
-    const wallet   = backpack || phantom;
-
-    if(!wallet){
-      alert('No Solana wallet found. Please install Phantom or Backpack to play.');
-      return;
-    }
-
-    const walletName = backpack ? 'Backpack' : 'Phantom';
-    console.log('Using wallet:', walletName);
-
-    const resp = await wallet.connect();
-    walletAddr = resp.publicKey.toString();
-    document.getElementById('payWalletAddr').textContent = walletAddr;
-    document.getElementById('payWalletAddr').title = walletName + ' wallet';
+  // If wallet already connected use it
+  if(walletAddr && window._activeWallet){
     showScreen('payScreen');
     setPayStatus('');
+    return;
+  }
 
-    // Store wallet reference for signing
-    window._activeWallet = wallet;
+  // Detect available wallets
+  const hasPhantom  = window.solana?.isPhantom;
+  const hasBackpack = window.backpack?.isBackpack;
 
+  if(!hasPhantom && !hasBackpack){
+    alert('No Solana wallet found. Please install Phantom or Backpack to play.');
+    return;
+  }
+
+  // If both available — ask which to use
+  if(hasPhantom && hasBackpack){
+    const choice = confirm('Which wallet would you like to use?\n\nOK = Phantom\nCancel = Backpack');
+    await connectWallet(choice ? window.solana : window.backpack);
+  } else {
+    await connectWallet(hasPhantom ? window.solana : window.backpack);
+  }
+}
+
+async function connectWallet(walletProvider){
+  try {
+    setPayStatus('Connecting wallet...');
+    const resp = await walletProvider.connect();
+    walletAddr = resp.publicKey.toString();
+    window._activeWallet = walletProvider;
+    document.getElementById('payWalletAddr').textContent = walletAddr;
+    showScreen('payScreen');
+    setPayStatus('');
   } catch(err){
     console.error('Wallet connect error:', err);
     setPayStatus('⚠ Could not connect wallet. Try again.');
@@ -662,17 +672,27 @@ async function initiatePayment(){
 
     const { signature } = await wallet.signAndSendTransaction(transaction);
     console.log('Transaction signature:', signature);
-    setPayStatus('Verifying payment on-chain...');
+    setPayStatus('Confirming on Solana...');
 
-    // Step 5 — Server verifies transaction on Solana directly
-    const verifyRes = await fetch('/api/verify-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ signature, walletAddress: walletAddr })
-    });
+    // Wait for Solana to confirm before verifying — retry up to 5 times
+    let verifyData = null;
+    for(let attempt = 1; attempt <= 5; attempt++){
+      await new Promise(r => setTimeout(r, 3000));
+      setPayStatus(`Verifying payment... (attempt ${attempt}/5)`);
 
-    const verifyData = await verifyRes.json();
-    if(!verifyData.success) throw new Error(verifyData.error || 'Payment verification failed');
+      const verifyRes = await fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signature, walletAddress: walletAddr })
+      });
+      verifyData = await verifyRes.json();
+
+      if(verifyData.success) break;
+      if(verifyData.error && !verifyData.error.includes('not found')) break; // real error, stop retrying
+      console.log(`Attempt ${attempt} failed:`, verifyData.error);
+    }
+
+    if(!verifyData?.success) throw new Error(verifyData?.error || 'Payment verification failed');
 
     sessionId = verifyData.sessionId;
     setPayStatus('✓ Payment verified! Starting game...', 'var(--green)');
