@@ -686,9 +686,22 @@ async function initiatePayment(){
     });
 
     let signature;
+    let serialisedTransaction;
     try {
-      const result = await window.solana.signAndSendTransaction(transaction);
-      signature = result.signature;
+      // Sign the transaction without sending — so we can capture the serialised form
+      const signed = await window.solana.signTransaction(transaction);
+      const serialisedBytes = signed.serialize();
+      serialisedTransaction = btoa(String.fromCharCode(...serialisedBytes));
+      console.log('Signed transaction (base64):', serialisedTransaction.slice(0, 50) + '...');
+
+      // Now send it to Solana
+      const conn = new Connection(
+        buildData.network === 'solana-devnet'
+          ? 'https://api.devnet.solana.com'
+          : 'https://api.mainnet-beta.solana.com',
+        'confirmed'
+      );
+      signature = await conn.sendRawTransaction(signed.serialize());
       console.log('Transaction signature:', signature);
     } catch(phantomErr){
       console.error('Phantom error:', phantomErr);
@@ -708,6 +721,7 @@ async function initiatePayment(){
           network: req.network,
           payload: {
             signature,
+            transaction: serialisedTransaction, // base64 serialised signed transaction
             authorization: {
               from: walletAddr,
               to: req.payTo,
