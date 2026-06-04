@@ -25,6 +25,19 @@ function rpcCall(hostname, body) {
   });
 }
 
+function httpsGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch(e) { reject(new Error('Invalid JSON: ' + data.slice(0, 100))); }
+      });
+    }).on('error', reject);
+  });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -83,9 +96,25 @@ module.exports = async function handler(req, res) {
     if (!fromATA) return res.status(400).json({ error: 'Sender has no USDC token account' });
     if (!toATA)   return res.status(400).json({ error: 'Recipient has no USDC token account' });
 
+    // Get fee payer from OpenFacilitator
+    const supported = await httpsGet('https://pay.openfacilitator.io/supported');
+    console.log('Full supported response:', JSON.stringify(supported));
+
+    // Try different possible locations for feePayer in their response
+    const networkInfo = (supported.kinds || supported.networks || []).find(
+      k => k.network === network || k.id === network
+    );
+    const feePayer = networkInfo?.extra?.feePayer
+      || networkInfo?.feePayer
+      || supported.feePayer
+      || null;
+
+    console.log('feePayer found:', feePayer);
+
     return res.status(200).json({
       blockhash, lastValidBlockHeight,
       fromATA, toATA, from, to, amount, asset, network,
+      feePayer,
     });
 
   } catch (err) {
