@@ -631,28 +631,50 @@ async function initiatePayment(){
 
     setPayStatus('Please approve in Phantom...');
 
-    // Use Phantom's request method to sign and send the USDC transfer
-    // Pass the transfer details returned from our server
-    const signResult = await window.solana.request({
-      method: 'signAndSendTransaction',
-      params: {
-        message: {
-          recentBlockhash: buildData.blockhash,
-          feePayer: buildData.feePayer,
-          instructions: [{
-            keys: [
-              { pubkey: buildData.fromATA, isSigner: false, isWritable: true },
-              { pubkey: buildData.toATA,   isSigner: false, isWritable: true },
-              { pubkey: buildData.from,    isSigner: true,  isWritable: false },
-            ],
-            programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-            data: buildData.transferData,
-          }]
-        }
-      }
-    });
+    // Load Solana web3.js from CDN (client-side only — works fine in browser)
+    if(!window.solanaWeb3){
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.87.6/lib/index.iife.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
 
-    const signature = signResult?.signature || signResult;
+    const { Connection, PublicKey, Transaction } = window.solanaWeb3;
+
+    const connection = new Connection(
+      buildData.network === 'solana-devnet'
+        ? 'https://api.devnet.solana.com'
+        : 'https://api.mainnet-beta.solana.com',
+      'confirmed'
+    );
+
+    // Build SPL token transfer instruction manually
+    // Transfer instruction layout: [3 (transfer), amount as 8 bytes LE]
+    const instructionData = Buffer.alloc(9);
+    instructionData.writeUInt8(3, 0); // transfer instruction
+    instructionData.writeBigUInt64LE(BigInt(buildData.amount), 1);
+
+    const transferInstruction = {
+      keys: [
+        { pubkey: new PublicKey(buildData.fromATA), isSigner: false, isWritable: true },
+        { pubkey: new PublicKey(buildData.toATA),   isSigner: false, isWritable: true },
+        { pubkey: new PublicKey(buildData.from),    isSigner: true,  isWritable: false },
+      ],
+      programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+      data: instructionData,
+    };
+
+    const transaction = new Transaction({
+      recentBlockhash: buildData.blockhash,
+      feePayer: new PublicKey(buildData.feePayer),
+    });
+    transaction.add(transferInstruction);
+
+    // Sign and send via Phantom
+    const { signature } = await window.solana.signAndSendTransaction(transaction);
 
     setPayStatus('Verifying payment...');
 
