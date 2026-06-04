@@ -63,6 +63,27 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Missing payment payload or wallet address' });
     }
 
+    const RPC_HOST = SOLANA_NETWORK === 'solana-devnet'
+      ? 'api.devnet.solana.com'
+      : 'api.mainnet-beta.solana.com';
+
+    // ── Step 0: Send the signed transaction to Solana ──
+    // Browser can't send directly (rate limited), so server does it
+    if (payment?.payload?.transaction) {
+      console.log(`[${SOLANA_NETWORK}] Sending transaction to Solana RPC...`);
+      const sendRes = await httpsPost(RPC_HOST, {
+        jsonrpc: '2.0', id: 1,
+        method: 'sendRawTransaction',
+        params: [payment.payload.transaction, { encoding: 'base64', skipPreflight: false }]
+      });
+      console.log(`[${SOLANA_NETWORK}] sendRawTransaction response:`, JSON.stringify(sendRes));
+      if (sendRes?.result) {
+        payment.payload.signature = sendRes.result;
+      } else if (sendRes?.error) {
+        return res.status(402).json({ error: 'Transaction rejected by Solana: ' + sendRes.error.message });
+      }
+    }
+
     const requirements = {
       scheme: 'exact',
       network: SOLANA_NETWORK,
