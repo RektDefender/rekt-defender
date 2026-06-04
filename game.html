@@ -692,17 +692,16 @@ async function initiatePayment(){
       amount: buildData.amount,
     });
 
-    let signature;
     let serialisedTransaction;
     try {
-      // Sign the transaction (don't send yet — we need the serialised form)
+      // Sign the transaction — Phantom signs as the transfer authority
+      // OpenFacilitator will add their fee payer signature when we send to them
       const signed = await window.solana.signTransaction(transaction);
-      const serialisedBytes = signed.serialize();
+      
+      // Serialise WITHOUT requiring all signatures (OpenFacilitator still needs to sign as fee payer)
+      const serialisedBytes = signed.serialize({ requireAllSignatures: false, verifySignatures: false });
       serialisedTransaction = btoa(String.fromCharCode(...serialisedBytes));
-      console.log('Signed transaction (base64):', serialisedTransaction.slice(0, 50) + '...');
-      // Signature is the first 64 bytes of the transaction
-      signature = signed.signatures[0]?.publicKey?.toString() || 'pending';
-      console.log('Signer:', signature);
+      console.log('Partially signed transaction (base64):', serialisedTransaction.slice(0, 50) + '...');
     } catch(phantomErr){
       console.error('Phantom error:', phantomErr);
       throw new Error('Phantom rejected transaction: ' + (phantomErr.message || JSON.stringify(phantomErr)));
