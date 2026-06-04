@@ -1,11 +1,30 @@
 // api/build-payment.js
-// Builds a Solana SPL token transfer transaction for the client to sign.
+// Builds a Solana USDC transfer transaction without @solana/web3.js
+// Uses raw HTTP calls to Solana RPC — no problematic dependencies
 
-const { Connection, PublicKey, Transaction } = require('@solana/web3.js');
-const { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
 const https = require('https');
 
-// Helper: HTTPS GET that works without fetch
+function httpsPost(hostname, path, body) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(body);
+    const options = {
+      hostname, path, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+    };
+    const req = https.request(options, (res) => {
+      let result = '';
+      res.on('data', chunk => result += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(result)); }
+        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 200))); }
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
+
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
@@ -13,7 +32,7 @@ function httpsGet(url) {
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('Invalid JSON from ' + url + ': ' + data.slice(0,100))); }
+        catch(e) { reject(new Error('Invalid JSON from ' + url)); }
       });
     }).on('error', reject);
   });
@@ -29,9 +48,7 @@ module.exports = async function handler(req, res) {
 
   try {
     let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch(e) { body = {}; }
-    }
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch(e) { body = {}; } }
     body = body || {};
 
     const { from, to, amount, asset, network } = body;
@@ -44,59 +61,82 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const SOLANA_RPC = network === 'solana-devnet'
-      ? 'https://api.devnet.solana.com'
-      : 'https://api.mainnet-beta.solana.com';
+    const RPC_HOST = network === 'solana-devnet'
+      ? 'api.devnet.solana.com'
+      : 'api.mainnet-beta.solana.com';
 
-    // Get fee payer from OpenFacilitator server-side
+    // Get fee payer from OpenFacilitator
     const supported = await httpsGet('https://pay.openfacilitator.io/supported');
-    console.log('supported response:', JSON.stringify(supported).slice(0, 200));
-    const solanaKind = supported.kinds?.find(k => k.network === network);
-    const feePayer = solanaKind?.extra?.feePayer;
-    if (!feePayer) throw new Error('Could not get fee payer from OpenFacilitator');
+    console.log('OpenFacilitator supported:', JSON.stringify(supported).slice(0, 300));
 
+    const networkInfo = (supported.kinds || []).find(k => k.network === network);
+    const feePayer = networkInfo?.extra?.feePayer;
     console.log('feePayer:', feePayer);
 
-    const connection      = new Connection(SOLANA_RPC, 'confirmed');
-    const fromPubkey      = new PublicKey(from);
-    const toPubkey        = new PublicKey(to);
-    const assetPubkey     = new PublicKey(asset);
-    const feePayerPubkey  = new PublicKey(feePayer);
+    if (!feePayer) {
+      return res.status(500).json({
+        error: 'Could not get fee payer from OpenFacilitator',
+        supported: JSON.stringify(supported).slice(0, 200)
+      });
+    }
 
-    const fromTokenAccount = await getAssociatedTokenAddress(assetPubkey, fromPubkey);
-    const toTokenAccount   = await getAssociatedTokenAddress(assetPubkey, toPubkey);
-
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-    const transaction = new Transaction({
-      recentBlockhash: blockhash,
-      feePayer: feePayerPubkey,
+    // Get latest blockhash from Solana RPC
+    const blockhashRes = await httpsPost(RPC_HOST, '/', {
+      jsonrpc: '2.0', id: 1,
+      method: 'getLatestBlockhash',
+      params: [{ commitment: 'confirmed' }]
     });
 
-    transaction.add(
-      createTransferInstruction(
-        fromTokenAccount,
-        toTokenAccount,
-        fromPubkey,
-        BigInt(amount),
-        [],
-        TOKEN_PROGRAM_ID
-      )
-    );
+    const blockhash = blockhashRes?.result?.value?.blockhash;
+    const lastValidBlockHeight = blockhashRes?.result?.value?.lastValidBlockHeight;
+    console.log('blockhash:', blockhash);
 
-    const serialised = transaction.serialize({
-      requireAllSignatures: false,
-      verifySignatures: false,
+    if (!blockhash) {
+      return res.status(500).json({ error: 'Could not get blockhash from Solana RPC' });
+    }
+
+    // Get associated token accounts
+    const fromATARes = await httpsPost(RPC_HOST, '/', {
+      jsonrpc: '2.0', id: 2,
+      method: 'getTokenAccountsByOwner',
+      params: [from, { mint: asset }, { encoding: 'jsonParsed' }]
     });
 
+    const toATARes = await httpsPost(RPC_HOST, '/', {
+      jsonrpc: '2.0', id: 3,
+      method: 'getTokenAccountsByOwner',
+      params: [to, { mint: asset }, { encoding: 'jsonParsed' }]
+    });
+
+    const fromATA = fromATARes?.result?.value?.[0]?.pubkey;
+    const toATA   = toATARes?.result?.value?.[0]?.pubkey;
+
+    console.log('fromATA:', fromATA, 'toATA:', toATA);
+
+    if (!fromATA) {
+      return res.status(400).json({ error: 'Sender has no USDC token account' });
+    }
+    if (!toATA) {
+      return res.status(400).json({ error: 'Recipient has no USDC token account' });
+    }
+
+    // Return the transaction details for the client to build and sign via Phantom
+    // Phantom's signAndSendTransaction handles the actual transaction construction
     return res.status(200).json({
-      transaction: Buffer.from(serialised).toString('base64'),
       blockhash,
       lastValidBlockHeight,
+      feePayer,
+      fromATA,
+      toATA,
+      from,
+      to,
+      amount,
+      asset,
+      network,
     });
 
   } catch (err) {
-    console.error('build-payment error:', err);
+    console.error('build-payment error:', err.message);
     return res.status(500).json({ error: err.message || 'Failed to build transaction' });
   }
 };
