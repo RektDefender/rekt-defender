@@ -17,25 +17,34 @@ const USDC_MINT  = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
 const GAME_PRICE = '100000';
 
 // Helper: HTTPS POST
-function httpsPost(url, body) {
+function httpsPost(urlOrHost, pathOrBody, bodyArg) {
+  // Support both httpsPost('hostname', '/', body) and httpsPost('https://...', body)
+  let hostname, path, body;
+  if(pathOrBody && typeof pathOrBody === 'object'){
+    // Called as httpsPost('https://host/path', body)
+    const url = new URL(urlOrHost);
+    hostname = url.hostname;
+    path = url.pathname;
+    body = pathOrBody;
+  } else {
+    // Called as httpsPost('hostname', '/path', body)
+    hostname = urlOrHost;
+    path = pathOrBody || '/';
+    body = bodyArg;
+  }
+
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(body);
-    const urlObj = new URL(url);
     const options = {
-      hostname: urlObj.hostname,
-      path: urlObj.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data),
-      }
+      hostname, path, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };
     const req = https.request(options, (res) => {
       let result = '';
       res.on('data', chunk => result += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(result)); }
-        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0,100))); }
+        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 100))); }
       });
     });
     req.on('error', reject);
@@ -71,7 +80,7 @@ module.exports = async function handler(req, res) {
     // Browser can't send directly (rate limited), so server does it
     if (payment?.payload?.transaction) {
       console.log(`[${SOLANA_NETWORK}] Sending transaction to Solana RPC...`);
-      const sendRes = await httpsPost(RPC_HOST, {
+      const sendRes = await httpsPost(RPC_HOST, '/', {
         jsonrpc: '2.0', id: 1,
         method: 'sendRawTransaction',
         params: [payment.payload.transaction, { encoding: 'base64', skipPreflight: false }]
