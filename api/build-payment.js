@@ -1,10 +1,10 @@
 // api/build-payment.js
 // Builds a Solana SPL token transfer transaction for the client to sign.
-// Returns a serialised transaction that Phantom can sign and send.
 
-export const config = { api: { bodyParser: true } };
+const { Connection, PublicKey, Transaction } = require('@solana/web3.js');
+const { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } = require('@solana/spl-token');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -13,7 +13,6 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    // Parse body manually if needed
     let body = req.body;
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch(e) { body = {}; }
@@ -21,7 +20,6 @@ export default async function handler(req, res) {
     body = body || {};
 
     const { from, to, amount, asset, network } = body;
-
     console.log('build-payment received:', { from, to, amount, asset, network });
 
     if (!from || !to || !amount || !asset || !network) {
@@ -35,34 +33,29 @@ export default async function handler(req, res) {
       ? 'https://api.devnet.solana.com'
       : 'https://api.mainnet-beta.solana.com';
 
-    // Get fee payer from OpenFacilitator server-side (avoids browser CORS)
+    // Get fee payer from OpenFacilitator server-side
     const supportedRes = await fetch('https://pay.openfacilitator.io/supported');
     const supported = await supportedRes.json();
     const solanaKind = supported.kinds?.find(k => k.network === network);
     const feePayer = solanaKind?.extra?.feePayer;
-    if(!feePayer) throw new Error('Could not get fee payer from OpenFacilitator');
+    if (!feePayer) throw new Error('Could not get fee payer from OpenFacilitator');
 
-    // Dynamically import Solana web3 and SPL token
-    const { Connection, PublicKey, Transaction } = await import('@solana/web3.js');
-    const { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
+    console.log('feePayer:', feePayer);
 
-    const connection   = new Connection(SOLANA_RPC, 'confirmed');
-    const fromPubkey   = new PublicKey(from);
-    const toPubkey     = new PublicKey(to);
-    const assetPubkey  = new PublicKey(asset);
-    const feePayerKey  = new PublicKey(feePayer);
+    const connection      = new Connection(SOLANA_RPC, 'confirmed');
+    const fromPubkey      = new PublicKey(from);
+    const toPubkey        = new PublicKey(to);
+    const assetPubkey     = new PublicKey(asset);
+    const feePayerPubkey  = new PublicKey(feePayer);
 
-    // Get associated token accounts for sender and recipient
     const fromTokenAccount = await getAssociatedTokenAddress(assetPubkey, fromPubkey);
     const toTokenAccount   = await getAssociatedTokenAddress(assetPubkey, toPubkey);
 
-    // Get recent blockhash
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
-    // Build the transfer transaction
     const transaction = new Transaction({
       recentBlockhash: blockhash,
-      feePayer: feePayerKey, // OpenFacilitator pays the fee
+      feePayer: feePayerPubkey,
     });
 
     transaction.add(
@@ -76,7 +69,6 @@ export default async function handler(req, res) {
       )
     );
 
-    // Serialise for Phantom to sign
     const serialised = transaction.serialize({
       requireAllSignatures: false,
       verifySignatures: false,
@@ -92,4 +84,4 @@ export default async function handler(req, res) {
     console.error('build-payment error:', err);
     return res.status(500).json({ error: err.message || 'Failed to build transaction' });
   }
-}
+};
