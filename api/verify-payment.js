@@ -1,6 +1,5 @@
 // api/verify-payment.js
 // Verifies and settles payment via OpenFacilitator.
-// Supports mainnet and devnet via SOLANA_NETWORK env var.
 
 const https = require('https');
 
@@ -16,35 +15,24 @@ const USDC_MINTS = {
 const USDC_MINT  = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
 const GAME_PRICE = '100000';
 
-// Helper: HTTPS POST
-function httpsPost(urlOrHost, pathOrBody, bodyArg) {
-  // Support both httpsPost('hostname', '/', body) and httpsPost('https://...', body)
-  let hostname, path, body;
-  if(pathOrBody && typeof pathOrBody === 'object'){
-    // Called as httpsPost('https://host/path', body)
-    const url = new URL(urlOrHost);
-    hostname = url.hostname;
-    path = url.pathname;
-    body = pathOrBody;
-  } else {
-    // Called as httpsPost('hostname', '/path', body)
-    hostname = urlOrHost;
-    path = pathOrBody || '/';
-    body = bodyArg;
-  }
-
+function httpsPost(hostname, path, body) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(body);
     const options = {
-      hostname, path, method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+      hostname,
+      path,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data)
+      }
     };
     const req = https.request(options, (res) => {
       let result = '';
       res.on('data', chunk => result += chunk);
       res.on('end', () => {
-        try { resolve(JSON.parse(result)); }
-        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 100))); }
+        try { resolve({ status: res.statusCode, data: JSON.parse(result) }); }
+        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 200))); }
       });
     });
     req.on('error', reject);
@@ -72,27 +60,6 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Missing payment payload or wallet address' });
     }
 
-    const RPC_HOST = SOLANA_NETWORK === 'solana-devnet'
-      ? 'api.devnet.solana.com'
-      : 'api.mainnet-beta.solana.com';
-
-    // ── Step 0: Send the signed transaction to Solana ──
-    // Browser can't send directly (rate limited), so server does it
-    if (payment?.payload?.transaction) {
-      console.log(`[${SOLANA_NETWORK}] Sending transaction to Solana RPC...`);
-      const sendRes = await httpsPost(RPC_HOST, '/', {
-        jsonrpc: '2.0', id: 1,
-        method: 'sendRawTransaction',
-        params: [payment.payload.transaction, { encoding: 'base64', skipPreflight: false }]
-      });
-      console.log(`[${SOLANA_NETWORK}] sendRawTransaction response:`, JSON.stringify(sendRes));
-      if (sendRes?.result) {
-        payment.payload.signature = sendRes.result;
-      } else if (sendRes?.error) {
-        return res.status(402).json({ error: 'Transaction rejected by Solana: ' + sendRes.error.message });
-      }
-    }
-
     const requirements = {
       scheme: 'exact',
       network: SOLANA_NETWORK,
@@ -101,33 +68,39 @@ module.exports = async function handler(req, res) {
       payTo: PAYMENT_RECIPIENT,
     };
 
-    // ── Step 1: Verify ──
-    const verifyData = await httpsPost('https://pay.openfacilitator.io/verify', {
+    // The payment payload contains the base64 signed transaction
+    // OpenFacilitator verify checks it's valid, settle broadcasts it
+    const payload = {
       x402Version: 1,
       paymentPayload: payment,
       paymentRequirements: requirements,
-    });
-    console.log(`[${SOLANA_NETWORK}] Verify response:`, JSON.stringify(verifyData));
+    };
 
-    if (!verifyData.isValid) {
+    console.log(`[${SOLANA_NETWORK}] Sending to OpenFacilitator verify...`);
+    console.log('Payment payload keys:', Object.keys(payment?.payload || {}));
+
+    // ── Step 1: Verify ──
+    const verifyResult = await httpsPost('pay.openfacilitator.io', '/verify', payload);
+    console.log(`[${SOLANA_NETWORK}] Verify response (${verifyResult.status}):`, JSON.stringify(verifyResult.data));
+
+    if (!verifyResult.data.isValid) {
       return res.status(402).json({
         error: 'Payment verification failed',
-        details: verifyData.error || 'Unknown reason',
+        details: verifyResult.data.error || verifyResult.data.invalidReason || 'Unknown reason',
+        debug: verifyResult.data,
       });
     }
 
-    // ── Step 2: Settle ──
-    const settleData = await httpsPost('https://pay.openfacilitator.io/settle', {
-      x402Version: 1,
-      paymentPayload: payment,
-      paymentRequirements: requirements,
-    });
-    console.log(`[${SOLANA_NETWORK}] Settle response:`, JSON.stringify(settleData));
+    // ── Step 2: Settle (OpenFacilitator broadcasts the transaction) ──
+    console.log(`[${SOLANA_NETWORK}] Sending to OpenFacilitator settle...`);
+    const settleResult = await httpsPost('pay.openfacilitator.io', '/settle', payload);
+    console.log(`[${SOLANA_NETWORK}] Settle response (${settleResult.status}):`, JSON.stringify(settleResult.data));
 
-    if (!settleData.success) {
+    if (!settleResult.data.success) {
       return res.status(500).json({
         error: 'Payment settlement failed',
-        details: settleData.error || 'Unknown error',
+        details: settleResult.data.error || 'Unknown error',
+        debug: settleResult.data,
       });
     }
 
@@ -137,12 +110,12 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       success: true,
       sessionId,
-      transactionHash: settleData.transaction,
+      transactionHash: settleResult.data.transaction,
       message: 'Payment verified and settled. Game session active.',
     });
 
   } catch (err) {
-    console.error(`[${SOLANA_NETWORK}] verify-payment error:`, err);
-    return res.status(500).json({ error: 'Server error during payment verification' });
+    console.error(`[${SOLANA_NETWORK}] verify-payment error:`, err.message);
+    return res.status(500).json({ error: err.message || 'Server error' });
   }
-}
+};
