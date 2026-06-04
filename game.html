@@ -608,17 +608,9 @@ async function initiatePayment(){
     const phantom = window.solana;
     if(!phantom?.isPhantom) throw new Error('Phantom not available');
 
-    // Step 2 — Get fee payer from OpenFacilitator (needed for Solana x402)
-    const supportedRes = await fetch('https://pay.openfacilitator.io/supported');
-    const supported = await supportedRes.json();
-    const solanaKind = supported.kinds?.find(k => k.network === req.network);
-    const feePayer = solanaKind?.extra?.feePayer;
-    if(!feePayer) throw new Error('Could not get fee payer from OpenFacilitator');
-
     setPayStatus('Please approve in Phantom...');
 
-    // Step 3 — Use Phantom's signAndSendTransaction with the x402 payment
-    // Send the payment details to our server which builds the transaction
+    // Build transaction server-side (avoids CORS issues with OpenFacilitator)
     const buildRes = await fetch('/api/build-payment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -628,7 +620,6 @@ async function initiatePayment(){
         amount: req.maxAmountRequired,
         asset: req.asset,
         network: req.network,
-        feePayer,
       })
     });
 
