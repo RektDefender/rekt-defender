@@ -653,9 +653,10 @@ async function initiatePayment(){
 
     // Build SPL token transfer instruction manually
     // Transfer instruction layout: [3 (transfer), amount as 8 bytes LE]
-    const instructionData = Buffer.alloc(9);
-    instructionData.writeUInt8(3, 0); // transfer instruction
-    instructionData.writeBigUInt64LE(BigInt(buildData.amount), 1);
+    const instructionData = new Uint8Array(9);
+    const view = new DataView(instructionData.buffer);
+    view.setUint8(0, 3); // transfer instruction
+    view.setBigUint64(1, BigInt(buildData.amount), true); // little-endian amount
 
     const transferInstruction = {
       keys: [
