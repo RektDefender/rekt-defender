@@ -537,6 +537,11 @@ let player, bullets, enemies, particles, floats, keys = {}, shootCd = 0, rafId;
 // ═══════════════════════════════════════
 function goHome(){ window.location.href = 'index.html'; }
 
+// ─── CONFIG ───
+const CONFIG = { tokenLaunched: false }; // ← flip to true on launch day
+let sessionId  = null;
+let walletAddr = null;
+
 // ═══════════════════════════════════════
 //  PAYMENT FLOW
 // ═══════════════════════════════════════
