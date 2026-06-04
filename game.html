@@ -593,6 +593,7 @@ async function initiatePayment(){
       body: '{}'
     });
     const sessionData = await sessionRes.json();
+    console.log('create-session response:', JSON.stringify(sessionData));
     if(sessionData.error) throw new Error(sessionData.error);
 
     // Demo session (PAYMENTS_ENABLED=false on server)
@@ -603,6 +604,8 @@ async function initiatePayment(){
     }
 
     const req = sessionData.requirements;
+    console.log('requirements:', JSON.stringify(req));
+    console.log('walletAddr:', walletAddr);
     setPayStatus('Building transaction...');
 
     const phantom = window.solana;
