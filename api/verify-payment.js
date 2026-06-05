@@ -20,7 +20,7 @@ function rpcCall(body) {
     const url     = new URL(RPC_URL);
     const options = {
       hostname: url.hostname,
-      path:     '/',
+      path:     url.pathname + url.search, // preserve ?api-key= query string
       method:   'POST',
       headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };

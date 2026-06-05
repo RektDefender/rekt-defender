@@ -18,7 +18,7 @@ function rpcCall(body) {
     const url     = new URL(RPC_URL);
     const options = {
       hostname: url.hostname,
-      path:     '/',
+      path:     url.pathname + url.search, // preserve ?api-key= query string
       method:   'POST',
       headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };
@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
     const { from } = body;
     if (!from) return res.status(400).json({ error: 'Missing wallet address' });
 
-    console.log('build-payment for:', from, 'network:', SOLANA_NETWORK);
+    console.log('RPC_URL being used:', RPC_URL?.replace(/api-key=([^&]+)/, 'api-key=HIDDEN'));
 
     // Get latest blockhash
     const blockhashRes = await rpcCall({
