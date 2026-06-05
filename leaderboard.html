@@ -306,15 +306,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="stat-label">Games This Week</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" style="color:var(--gold);" id="statPool">DEMO</div>
-      <div class="stat-label">Prize Pool (REKT)</div>
+      <div class="stat-val" style="color:var(--gold);" id="statPool">—</div>
+      <div class="stat-label">Prize Pool (USDC)</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" style="color:var(--red);" id="statBurned">DEMO</div>
-      <div class="stat-label">REKT Burned</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val" style="color:var(--blue);" id="statTopScore">$48,200</div>
+      <div class="stat-val" style="color:var(--blue);" id="statTopScore">—</div>
       <div class="stat-label">Top Score This Week</div>
     </div>
   </div>
@@ -525,6 +521,9 @@ async function loadLeaderboard(){
     document.getElementById('lbStatus').textContent = data.scores.length > 0 ? 'LIVE' : 'NO SCORES YET';
     document.getElementById('statGames').textContent = data.total || '0';
     document.getElementById('statTopScore').textContent = data.scores.length > 0 ? '$' + data.scores[0].score.toLocaleString() : '—';
+    // Prize pool = 70% of fees (0.10 USDC × games)
+    const prizePool = ((data.total || 0) * 0.10 * 0.70).toFixed(2);
+    document.getElementById('statPool').textContent = prizePool > 0 ? prizePool + ' USDC' : '—';
 
     const tbody = document.getElementById('lbTableBody');
     if(!data.scores || data.scores.length === 0){
