@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
     const txRes = await rpcCall({
       jsonrpc: '2.0', id: 1,
       method:  'getTransaction',
-      params:  [signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]
+      params:  [signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0, commitment: 'finalized' }]
     });
 
     const tx = txRes?.result;
