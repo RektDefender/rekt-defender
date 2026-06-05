@@ -674,11 +674,11 @@ async function initiatePayment(){
     console.log('Transaction signature:', signature);
     setPayStatus('Confirming on Solana...');
 
-    // Wait for Solana to confirm before verifying — retry up to 5 times
+    // Wait for Solana to confirm before verifying — retry up to 8 times
     let verifyData = null;
-    for(let attempt = 1; attempt <= 5; attempt++){
-      await new Promise(r => setTimeout(r, 3000));
-      setPayStatus(`Verifying payment... (attempt ${attempt}/5)`);
+    for(let attempt = 1; attempt <= 8; attempt++){
+      await new Promise(r => setTimeout(r, 4000));
+      setPayStatus(`Verifying payment... (${attempt * 4}s)`);
 
       const verifyRes = await fetch('/api/verify-payment', {
         method: 'POST',
@@ -688,7 +688,7 @@ async function initiatePayment(){
       verifyData = await verifyRes.json();
 
       if(verifyData.success) break;
-      if(verifyData.error && !verifyData.error.includes('not found')) break; // real error, stop retrying
+      if(verifyData.error && !verifyData.error.includes('not found')) break;
       console.log(`Attempt ${attempt} failed:`, verifyData.error);
     }
 
