@@ -1606,7 +1606,8 @@ document.addEventListener('keyup',   e => { keys[e.key] = false; });
 // ═══════════════════════════════════════
 updateHUD();
 (function idleLoop(){
-  if(!gs.active){
+  const waveScreenVisible = !document.getElementById('waveScreen').classList.contains('hidden');
+  if(!gs.active && !waveScreenVisible){
     ctx.clearRect(0, 0, W, H);
     drawBg();
     const t = Date.now() * 0.001;
