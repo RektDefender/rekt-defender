@@ -37,19 +37,6 @@ function rpcCall(body) {
     req.end();
   });
 }
-    const req = https.request(options, (res) => {
-      let result = '';
-      res.on('data', chunk => result += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(result)); }
-        catch(e) { reject(new Error('Invalid JSON: ' + result.slice(0, 100))); }
-      });
-    });
-    req.on('error', reject);
-    req.write(data);
-    req.end();
-  });
-}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
