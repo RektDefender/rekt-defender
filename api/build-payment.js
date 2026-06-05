@@ -61,6 +61,7 @@ module.exports = async function handler(req, res) {
     });
     const blockhash = blockhashRes?.result?.value?.blockhash;
     console.log('blockhash:', blockhash);
+    console.log('full blockhash response:', JSON.stringify(blockhashRes).slice(0, 300));
     if (!blockhash) return res.status(500).json({ error: 'Could not get blockhash', rpc: JSON.stringify(blockhashRes).slice(0,200) });
 
     // Get sender USDC token account
