@@ -240,7 +240,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- DEMO BANNER -->
 <div class="demo-banner">
-  🎮 <b>DEMO MODE</b> — Scores shown are placeholder data. Real leaderboard activates when REKT token launches on Hey.LOL.
+  🎮 <b>LIVE</b> — Scores shown are placeholder data. Real leaderboard activates when REKT token prize phase begins on Hey.LOL.
 </div>
 
 <!-- NAV -->
@@ -282,7 +282,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div class="cd-prize">
       <div class="cd-prize-label">This week's prize pool</div>
-      <div class="cd-prize-val" id="prizePoolVal">DEMO MODE</div>
+      <div class="cd-prize-val" id="prizePoolVal">LIVE</div>
       <div style="font-size:0.55rem;color:var(--dim);margin-top:3px;">50% of all game fees this week</div>
     </div>
   </div>
@@ -343,7 +343,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="demo-note" style="margin-top:2px;">
     <span class="demo-note-icon">⚠️</span>
-    <div><b>Note on scores:</b> The $ amount shown is your in-game portfolio score — a game mechanic only. It has <b>no relation to prize amounts</b>. Prizes are paid in REKT tokens based on the weekly pool split (60/30/10%). The REKT token value is not fixed or guaranteed.</div>
+    <div><b>Note on scores:</b> The $ amount shown is your in-game portfolio score — a game mechanic only. It has <b>no relation to prize amounts</b>. Prizes are paid in USDC based on the weekly pool split (60/30/10%). Phase 1: USDC prizes. Phase 2: REKT token prizes when token launches on Hey.LOL.</div>
   </div>
 
   <!-- Prize breakdown -->
@@ -508,7 +508,7 @@ setInterval(updateCountdown, 1000);
 // ── LIVE API CALLS ──
 const MEDALS = ['🥇','🥈','🥉'];
 const PRIZE_TAGS = ['gold','silver','bronze'];
-const PRIZE_PCT = ['60% REKT','30% REKT','10% REKT'];
+const PRIZE_PCT = ['60% USDC','30% USDC','10% USDC'];
 
 async function loadLeaderboard(){
   try {
@@ -581,7 +581,7 @@ async function loadHallOfFame(){
         <span class="hof-empty-icon">🏆</span>
         <div class="hof-empty-title">FIRST WINNER COMING SOON</div>
         <div class="hof-empty-sub">
-          Hall of Fame fills when REKT token launches and real games begin.<br>
+          Hall of Fame fills when REKT token prize phase begins and real games begin.<br>
           Every winner recorded permanently with on-chain proof of payment.<br><br>
           Will your wallet be the first real entry?
         </div>
