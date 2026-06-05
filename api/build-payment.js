@@ -8,9 +8,9 @@ const USDC_MINTS = {
   'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
 };
 const USDC_MINT = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
-const RPC_URL   = SOLANA_NETWORK === 'solana-devnet'
+const RPC_URL   = process.env.SOLANA_RPC_URL || (SOLANA_NETWORK === 'solana-devnet'
   ? 'https://api.devnet.solana.com'
-  : 'https://api.mainnet-beta.solana.com';
+  : 'https://api.mainnet-beta.solana.com');
 
 function rpcCall(body) {
   return new Promise((resolve, reject) => {

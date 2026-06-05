@@ -10,9 +10,9 @@ const USDC_MINTS = {
 };
 const USDC_MINT  = USDC_MINTS[SOLANA_NETWORK] || USDC_MINTS['solana'];
 const GAME_PRICE = 100000;
-const RPC_URL    = SOLANA_NETWORK === 'solana-devnet'
+const RPC_URL    = process.env.SOLANA_RPC_URL || (SOLANA_NETWORK === 'solana-devnet'
   ? 'https://api.devnet.solana.com'
-  : 'https://api.mainnet-beta.solana.com';
+  : 'https://api.mainnet-beta.solana.com');
 
 function rpcCall(body) {
   return new Promise((resolve, reject) => {
