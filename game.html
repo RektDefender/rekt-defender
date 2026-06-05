@@ -11,7 +11,7 @@
   "@type": ["WebApplication", "VideoGame"],
   "name": "Rekt Defender",
   "url": "https://www.rektdefender.lol/game",
-  "description": "Play Rekt Defender — defend your crypto portfolio against FUD, Rug Pulls, Bears, SEC Agents and Whales. Free demo mode available. 0.10 USDC per competitive game on Solana.",
+  "description": "Defend your crypto portfolio against FUD, Rug Pulls, Bears, SEC Agents and Whales. 0.10 USDC per game on Solana. Top 3 win USDC prizes every Monday.",
   "applicationCategory": "GameApplication",
   "genre": ["Arcade", "Action", "Skill Game"],
   "gamePlatform": "Web Browser",
@@ -343,7 +343,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="ov-sub">
       Pay 0.10 USDC per game. 70% goes to the weekly prize pool. Top 3 wallets win every Monday.<br>
-      Real prizes activate when <b>REKT token launches on Hey.LOL</b>.<br>
+      Top 3 players win USDC prizes every Monday. REKT token prizes coming soon on Hey.LOL.<br>
       <a href="/">Learn more about REKT Defender →</a>
     </div>
 
@@ -395,7 +395,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="ov-sub" id="goNote">
-      Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.
+      Score not saved — no verified session. Pay 0.10 USDC to play for real prizes.
     </div>
   </div>
 
@@ -1353,7 +1353,7 @@ function updateGoScreen(rank, gapToTop3, isATH, isPB, isDemo, saved, serverMsg){
 
   if(isDemo){
     document.getElementById('goNote').innerHTML =
-      'Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.';
+      'Score not saved — no verified session. Pay 0.10 USDC to play for real prizes.';
   } else if(saved === false && serverMsg){
     document.getElementById('goNote').innerHTML = serverMsg;
   } else if(rank && rank <= 3){
@@ -1364,7 +1364,7 @@ function updateGoScreen(rank, gapToTop3, isATH, isPB, isDemo, saved, serverMsg){
       `Score saved to leaderboard. Keep grinding — top 3 wins REKT tokens every Monday.`;
   } else {
     document.getElementById('goNote').innerHTML =
-      'Demo mode — scores not saved. Real prizes when REKT launches on <b>Hey.LOL</b>.';
+      'Score not saved — no verified session. Pay 0.10 USDC to play for real prizes.';
   }
 }
 
