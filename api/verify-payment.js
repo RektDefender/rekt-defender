@@ -1,63 +1,16 @@
 // api/verify-payment.js
+// Verifies a direct Solana USDC transfer.
+// Checks signature hasn't been used before, verifies on-chain, records and issues session.
+
 const https = require('https');
 
-const SUPABASE_URL      = process.env.SUPABASE_URL;
+const PAYMENT_RECIPIENT    = process.env.PAYMENT_RECIPIENT || '4wsT3tYA1YnHjzs6arFYkTEtxk2g8EHer9U9u7SbHPsB';
+const PAYMENTS_ENABLED     = process.env.PAYMENTS_ENABLED === 'true';
+const SOLANA_NETWORK       = process.env.SOLANA_NETWORK || 'solana';
+const SUPABASE_URL         = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-function supabasePost(path, body) {
-  return new Promise((resolve, reject) => {
-    const data    = JSON.stringify(body);
-    const url     = new URL(`${SUPABASE_URL}/rest/v1/${path}`);
-    const options = {
-      hostname: url.hostname,
-      path:     url.pathname + url.search,
-      method:   'POST',
-      headers:  {
-        'Content-Type':  'application/json',
-        'Content-Length': Buffer.byteLength(data),
-        'apikey':         SUPABASE_SERVICE_KEY,
-        'Authorization':  `Bearer ${SUPABASE_SERVICE_KEY}`,
-        'Prefer':         'return=minimal',
-      }
-    };
-    const req = https.request(options, (res) => {
-      let result = '';
-      res.on('data', chunk => result += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: result }));
-    });
-    req.on('error', reject);
-    req.write(data);
-    req.end();
-  });
-}
-
-function supabaseGet(path) {
-  return new Promise((resolve, reject) => {
-    const url     = new URL(`${SUPABASE_URL}/rest/v1/${path}`);
-    const options = {
-      hostname: url.hostname,
-      path:     url.pathname + url.search,
-      method:   'GET',
-      headers:  {
-        'apikey':        SUPABASE_SERVICE_KEY,
-        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-      }
-    };
-    const req = https.request(options, (res) => {
-      let result = '';
-      res.on('data', chunk => result += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(result)); }
-        catch(e) { resolve([]); }
-      });
-    });
-    req.on('error', reject);
-    req.end();
-  });
-}
-const PAYMENT_RECIPIENT = process.env.PAYMENT_RECIPIENT || '4wsT3tYA1YnHjzs6arFYkTEtxk2g8EHer9U9u7SbHPsB';
-const PAYMENTS_ENABLED  = process.env.PAYMENTS_ENABLED === 'true';
-const SOLANA_NETWORK    = process.env.SOLANA_NETWORK || 'solana';
+const USDC_MINTS = {
   'solana':        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
   'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
 };
@@ -67,13 +20,15 @@ const RPC_URL    = process.env.SOLANA_RPC_URL || (SOLANA_NETWORK === 'solana-dev
   ? 'https://api.devnet.solana.com'
   : 'https://api.mainnet-beta.solana.com');
 
+// ── HTTP helpers ──
+
 function rpcCall(body) {
   return new Promise((resolve, reject) => {
     const data    = JSON.stringify(body);
     const url     = new URL(RPC_URL);
     const options = {
       hostname: url.hostname,
-      path:     url.pathname + url.search, // preserve ?api-key= query string
+      path:     url.pathname + url.search,
       method:   'POST',
       headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
     };
@@ -90,6 +45,37 @@ function rpcCall(body) {
     req.end();
   });
 }
+
+function supabaseRequest(method, path, body) {
+  return new Promise((resolve, reject) => {
+    const url     = new URL(`${SUPABASE_URL}/rest/v1/${path}`);
+    const data    = body ? JSON.stringify(body) : null;
+    const options = {
+      hostname: url.hostname,
+      path:     url.pathname + url.search,
+      method,
+      headers: {
+        'apikey':        SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Type':  'application/json',
+        ...(data ? { 'Content-Length': Buffer.byteLength(data), 'Prefer': 'return=minimal' } : {})
+      }
+    };
+    const req = https.request(options, (res) => {
+      let result = '';
+      res.on('data', chunk => result += chunk);
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, data: result ? JSON.parse(result) : null }); }
+        catch(e) { resolve({ status: res.statusCode, data: null }); }
+      });
+    });
+    req.on('error', reject);
+    if (data) req.write(data);
+    req.end();
+  });
+}
+
+// ── Handler ──
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://www.rektdefender.lol');
@@ -109,15 +95,16 @@ module.exports = async function handler(req, res) {
     console.log(`[${SOLANA_NETWORK}] Verifying:`, signature);
 
     // ── Check signature hasn't been used before ──
-    const existing = await supabaseGet(
+    const existingCheck = await supabaseRequest(
+      'GET',
       `used_signatures?signature=eq.${encodeURIComponent(signature)}&select=id`
     );
-    if (existing.length > 0) {
+    if (Array.isArray(existingCheck.data) && existingCheck.data.length > 0) {
       console.log('Signature already used:', signature);
       return res.status(402).json({ error: 'Transaction already used for a game session' });
     }
 
-    // Fetch transaction from Solana
+    // ── Fetch transaction from Solana ──
     const txRes = await rpcCall({
       jsonrpc: '2.0', id: 1,
       method:  'getTransaction',
@@ -127,22 +114,15 @@ module.exports = async function handler(req, res) {
     const tx = txRes?.result;
     console.log('tx found:', !!tx, 'error:', txRes?.error?.message);
 
-    if (!tx) {
-      return res.status(402).json({ error: 'Transaction not found on chain' });
-    }
+    if (!tx) return res.status(402).json({ error: 'Transaction not found on chain' });
+    if (tx.meta?.err) return res.status(402).json({ error: 'Transaction failed on chain' });
 
-    if (tx.meta?.err) {
-      return res.status(402).json({ error: 'Transaction failed on chain' });
-    }
-
-    // Check transaction age (max 10 minutes)
+    // Check age (max 10 minutes)
     const txAge = Math.floor(Date.now() / 1000) - tx.blockTime;
     console.log('tx age (seconds):', txAge);
-    if (txAge > 600) {
-      return res.status(402).json({ error: 'Transaction too old' });
-    }
+    if (txAge > 600) return res.status(402).json({ error: 'Transaction too old' });
 
-    // Find USDC transfer — check all instructions and inner instructions
+    // ── Find USDC transfer ──
     const instructions      = tx.transaction?.message?.instructions || [];
     const innerInstructions = (tx.meta?.innerInstructions || []).flatMap(i => i.instructions);
     const allInstructions   = [...instructions, ...innerInstructions];
@@ -156,17 +136,13 @@ module.exports = async function handler(req, res) {
       if (ix.program !== 'spl-token') continue;
       const type   = ix.parsed?.type;
       const info   = ix.parsed?.info || {};
-
-      // Handle both transfer and transferChecked
       const amount = parseInt(
         type === 'transferChecked' ? info.tokenAmount?.amount : info.amount
       ) || 0;
 
       console.log(`Found ${type}: amount=${amount}, destination=${info.destination}`);
-
       if (amount < GAME_PRICE) continue;
 
-      // Verify destination account belongs to PAYMENT_RECIPIENT
       const accountRes = await rpcCall({
         jsonrpc: '2.0', id: 2,
         method:  'getAccountInfo',
@@ -186,11 +162,12 @@ module.exports = async function handler(req, res) {
     }
 
     // ── Record signature as used ──
-    await supabasePost('used_signatures', {
+    await supabaseRequest('POST', 'used_signatures', {
       signature,
       wallet_address: walletAddress,
     });
 
+    // ── Issue session ID ──
     const sessionId = 'SES_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
     console.log(`[${SOLANA_NETWORK}] Payment verified! Session:`, sessionId);
 
