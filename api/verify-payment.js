@@ -1,10 +1,63 @@
 // api/verify-payment.js
 const https = require('https');
 
+const SUPABASE_URL      = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+function supabasePost(path, body) {
+  return new Promise((resolve, reject) => {
+    const data    = JSON.stringify(body);
+    const url     = new URL(`${SUPABASE_URL}/rest/v1/${path}`);
+    const options = {
+      hostname: url.hostname,
+      path:     url.pathname + url.search,
+      method:   'POST',
+      headers:  {
+        'Content-Type':  'application/json',
+        'Content-Length': Buffer.byteLength(data),
+        'apikey':         SUPABASE_SERVICE_KEY,
+        'Authorization':  `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Prefer':         'return=minimal',
+      }
+    };
+    const req = https.request(options, (res) => {
+      let result = '';
+      res.on('data', chunk => result += chunk);
+      res.on('end', () => resolve({ status: res.statusCode, body: result }));
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
+
+function supabaseGet(path) {
+  return new Promise((resolve, reject) => {
+    const url     = new URL(`${SUPABASE_URL}/rest/v1/${path}`);
+    const options = {
+      hostname: url.hostname,
+      path:     url.pathname + url.search,
+      method:   'GET',
+      headers:  {
+        'apikey':        SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      }
+    };
+    const req = https.request(options, (res) => {
+      let result = '';
+      res.on('data', chunk => result += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(result)); }
+        catch(e) { resolve([]); }
+      });
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
 const PAYMENT_RECIPIENT = process.env.PAYMENT_RECIPIENT || '4wsT3tYA1YnHjzs6arFYkTEtxk2g8EHer9U9u7SbHPsB';
 const PAYMENTS_ENABLED  = process.env.PAYMENTS_ENABLED === 'true';
 const SOLANA_NETWORK    = process.env.SOLANA_NETWORK || 'solana';
-const USDC_MINTS = {
   'solana':        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
   'solana-devnet': '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
 };
@@ -54,6 +107,15 @@ module.exports = async function handler(req, res) {
     }
 
     console.log(`[${SOLANA_NETWORK}] Verifying:`, signature);
+
+    // ── Check signature hasn't been used before ──
+    const existing = await supabaseGet(
+      `used_signatures?signature=eq.${encodeURIComponent(signature)}&select=id`
+    );
+    if (existing.length > 0) {
+      console.log('Signature already used:', signature);
+      return res.status(402).json({ error: 'Transaction already used for a game session' });
+    }
 
     // Fetch transaction from Solana
     const txRes = await rpcCall({
@@ -122,6 +184,12 @@ module.exports = async function handler(req, res) {
     if (!validPayment) {
       return res.status(402).json({ error: 'Could not verify 0.10 USDC transfer to game wallet' });
     }
+
+    // ── Record signature as used ──
+    await supabasePost('used_signatures', {
+      signature,
+      wallet_address: walletAddress,
+    });
 
     const sessionId = 'SES_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
     console.log(`[${SOLANA_NETWORK}] Payment verified! Session:`, sessionId);
