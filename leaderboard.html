@@ -209,11 +209,21 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;justify
 
 @media(max-width:768px){
   nav{padding:12px 20px;}.nav-links{display:none;}
-  .page-header,.countdown-strip,.tabs-wrap,.panel{padding-left:20px;padding-right:20px;}
+  .page-header,.countdown-strip,.tabs-wrap,.panel{padding-left:16px;padding-right:16px;}
   .prize-breakdown{grid-template-columns:1fr;}
-  .stats-bar{grid-template-columns:1fr 1fr;}
+  .stats-bar{grid-template-columns:1fr 1fr;gap:2px;}
+  .stat-card{padding:12px;}
+  .stat-val{font-size:1.3rem;}
+  .stat-label{font-size:0.45rem;}
   footer{flex-direction:column;text-align:center;}
   .hof-tx{display:none;}
+  /* Leaderboard table mobile */
+  .lb-header-row{display:none;}
+  table{font-size:0.65rem;}
+  table td{padding:10px 8px;}
+  .wallet-addr{font-size:0.58rem;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .time-cell{display:none;}
+  .prize-cell .prize-tag{font-size:0.52rem;padding:3px 6px;}
 }
 </style>
 
@@ -234,13 +244,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- TICKER -->
 <div class="ticker">
   <div class="ticker-inner">
-    🏆 WEEKLY LEADERBOARD RESETS EVERY MONDAY 00:00 UTC &nbsp;|&nbsp; 💸 TOP 3 WIN REKT TOKENS &nbsp;|&nbsp; 🔥 20% OF EVERY FEE BURNED FOREVER &nbsp;|&nbsp; 🎮 PLAY AT REKTDEFENDER.LOL &nbsp;|&nbsp; 💎 DIAMOND HANDS ONLY &nbsp;|&nbsp; 📊 SCORES VERIFIED ON-CHAIN &nbsp;|&nbsp; 🏆 WEEKLY LEADERBOARD RESETS EVERY MONDAY 00:00 UTC &nbsp;|&nbsp; 💸 TOP 3 WIN REKT TOKENS &nbsp;|&nbsp; 🔥 20% OF EVERY FEE BURNED FOREVER &nbsp;|&nbsp; 🎮 PLAY AT REKTDEFENDER.LOL &nbsp;|&nbsp; 💎 DIAMOND HANDS ONLY &nbsp;|&nbsp;
+    🏆 WEEKLY LEADERBOARD RESETS EVERY MONDAY 00:00 UTC &nbsp;|&nbsp; 💸 TOP 3 WIN USDC PRIZES &nbsp;|&nbsp; ⚡ 0.10 USDC PER GAME &nbsp;|&nbsp; 🎮 PLAY AT REKTDEFENDER.LOL &nbsp;|&nbsp; 💎 DIAMOND HANDS ONLY &nbsp;|&nbsp; 📊 SCORES VERIFIED ON-CHAIN &nbsp;|&nbsp; 🏆 WEEKLY LEADERBOARD RESETS EVERY MONDAY 00:00 UTC &nbsp;|&nbsp; 💸 TOP 3 WIN USDC PRIZES &nbsp;|&nbsp; ⚡ 0.10 USDC PER GAME &nbsp;|&nbsp; 🎮 PLAY AT REKTDEFENDER.LOL &nbsp;|&nbsp; 💎 DIAMOND HANDS ONLY &nbsp;|&nbsp;
   </div>
 </div>
 
-<!-- DEMO BANNER -->
-<div class="demo-banner">
-  🎮 <b>LIVE</b> — Scores shown are placeholder data. Real leaderboard activates when REKT token prize phase begins on Hey.LOL.
+<!-- LIVE BANNER -->
+<div class="demo-banner" style="background:rgba(0,255,136,0.08);border-color:rgba(0,255,136,0.2);color:rgba(0,255,136,0.8);">
+  ⚡ <b>LIVE</b> — 0.10 USDC per game. Top 3 win USDC prizes every Monday. REKT token prizes coming on Hey.LOL.
 </div>
 
 <!-- NAV -->
